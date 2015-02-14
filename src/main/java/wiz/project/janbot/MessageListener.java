@@ -105,7 +105,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.startsWith("jan kan ")) {
                 GameMaster.getInstance().onCallKan(playerName, message.substring(8));
             }
-            else if (message.equals("jan tsumo")) {
+            else if (message.equals("jan tsumo") || message.equals("jan hu")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
             else if (message.equals("jan replay")) {
@@ -138,7 +138,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌",
-                                  "tsumo：ツモ和了   kan X：指定牌でカン");
+                                  "tsumo, hu：ツモ和了   kan X：指定牌でカン");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.equals("chm help")) {
@@ -272,14 +272,14 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 _confirmMode = false;
                 GameMaster.getInstance().onCallKan(playerName, message.substring(8));
             }
-            else if (message.equals("jan ron")) {
+            else if (message.equals("jan ron") || message.equals("jan hu")) {
                 _confirmMode = false;
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
                     Arrays.asList("chi X：指定牌(ex.3p)を先頭牌としてチー",
-                                  "pon：ポン   kan X：指定牌でカン   ron：ロン",
+                                  "pon：ポン   kan X：指定牌でカン   ron, hu：ロン",
                                   "ra：他家を含む全ての捨て牌",
                                   "d：キャンセル");
                 IRCBOT.getInstance().println(messageList);
