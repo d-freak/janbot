@@ -57,6 +57,17 @@ public class GameAnnouncer implements Observer {
     
     
     /**
+     * 中国麻雀フラグを設定
+     * 
+     * @param isChm
+     */
+    public void setIsChm(final boolean isChm) {
+    	_isChm = isChm;
+    }
+    
+    
+    
+    /**
      * 雀牌を文字列に変換
      * 
      * @param pai 雀牌。
@@ -172,19 +183,21 @@ public class GameAnnouncer implements Observer {
         buf.append("場風：").append(info.getFieldWind()).append("   ");
         buf.append("自風：").append(wind).append("   ");
         
-        final WanPai wanPai = info.getWanPai();
-        buf.append("ドラ：");
-        for (final JanPai pai : wanPai.getDoraList()) {
-            buf.append(convertJanPaiToString(pai));
-        }
-        buf.append("   ");
-        
-        if (includeUraDora) {
-            buf.append("裏ドラ：");
-            for (final JanPai pai : wanPai.getUraDoraList()) {
+        if (!_isChm) {
+            final WanPai wanPai = info.getWanPai();
+            buf.append("ドラ：");
+            for (final JanPai pai : wanPai.getDoraList()) {
                 buf.append(convertJanPaiToString(pai));
             }
             buf.append("   ");
+            
+            if (includeUraDora) {
+                buf.append("裏ドラ：");
+                for (final JanPai pai : wanPai.getUraDoraList()) {
+                    buf.append(convertJanPaiToString(pai));
+                }
+                buf.append("   ");
+            }
         }
         
         buf.append("残り枚数：").append(info.getRemainCount());
@@ -368,6 +381,13 @@ public class GameAnnouncer implements Observer {
      * 色付けフラグ
      */
     private static final char COLOR_FLAG = 3;
+    
+    
+    
+    /**
+     * 中国麻雀フラグ
+     */
+    private boolean _isChm = false;
     
 }
 

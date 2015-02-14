@@ -71,6 +71,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan s") || message.equals("jan start")) {
                 GameMaster.getInstance().onStartSolo(playerName);
             }
+            else if (message.equals("jan s chm") || message.equals("jan start chm") || message.equals("chm s") || message.equals("chm start")) {
+                GameMaster.getInstance().onStartChmSolo(playerName);
+            }
             else if (message.equals("jan e") || message.equals("jan end")) {
                 GameMaster.getInstance().onEnd();
             }
@@ -128,10 +131,12 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 //            }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
-                    Arrays.asList("s：開始   e：終了   replay：リプレイ",
+                    Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了   replay：リプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌",
-                                  "tsumo：ツモ和了   kan X：指定牌でカン");
+                                  "tsumo：ツモ和了   kan X：指定牌でカン",
+                                  "",
+                                  "※ chm sでも中国麻雀を開始");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.startsWith("ri-chi!") || message.startsWith("りち！") || message.startsWith("りぃち！") || message.startsWith("りーち！") || message.startsWith("リーチ！")) {

@@ -44,6 +44,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable = deepCopyMap(source._playerTable);
             _deck = deepCopyList(source._deck);
             _deckIndex = source._deckIndex;
+            _deckWallIndex = source._deckWallIndex;
             _wanPai = source._wanPai.clone();
             _fieldWind = source._fieldWind;
             _activeWind = source._activeWind;
@@ -82,6 +83,7 @@ public final class JanInfo extends Observable implements Cloneable {
     public void clear() {
         _deck.clear();
         _deckIndex = 0;
+        _deckWallIndex = 0;
         _wanPai = new WanPai();
         _fieldWind = Wind.TON;
         _activeWind = Wind.TON;
@@ -221,6 +223,15 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 牌山から嶺上牌を取得(中国麻雀用)
+     * 
+     * @return インデックスの指す牌。
+     */
+    public JanPai getJanPaiFromDeckWall() {
+        return _deck.get(_deckWallIndex);
+    }
+    
+    /**
      * プレイヤーを取得
      * 
      * @param wind 風。
@@ -282,6 +293,10 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public void increaseDeckIndex() {
         setDeckIndex(_deckIndex + 1);
+        
+        if (isLastShitatsumo()) {
+            setDeckIndex(_deckIndex + 1);
+        }
     }
     
     /**
@@ -313,6 +328,18 @@ public final class JanInfo extends Observable implements Cloneable {
             }
         }
         return false;
+    }
+    
+    /**
+     * 牌山の嶺上インデックスを移動(中国麻雀用)
+     */
+    public void moveDeckWallIndex() {
+        if (isUwatsumo()) {
+        	setDeckWallIndex(_deckWallIndex + 1);
+        }
+        else {
+            setDeckWallIndex(_deckWallIndex - 3);
+        }
     }
     
     /**
@@ -421,6 +448,20 @@ public final class JanInfo extends Observable implements Cloneable {
         }
         else {
             _deckIndex = 0;
+        }
+    }
+    
+    /**
+     * 牌山の嶺上インデックスを設定(中国麻雀用)
+     * 
+     * @param index 嶺上牌山インデックス。
+     */
+    public void setDeckWallIndex(final int index) {
+        if (index > 0) {
+            _deckWallIndex = index;
+        }
+        else {
+            _deckWallIndex = 0;
         }
     }
     
@@ -536,6 +577,33 @@ public final class JanInfo extends Observable implements Cloneable {
         return new TreeMap<>(source);
     }
     
+    /**
+     * 最後の下ヅモか(中国麻雀用)
+     * @return 判定結果。
+     */
+    private boolean isLastShitatsumo() {
+        if (_deckIndex != _deckWallIndex - 1) {
+            return false;
+        }
+        if (isUwatsumo()) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * 嶺上牌が上ヅモか(中国麻雀用)
+     * @return 判定結果。
+     */
+    private boolean isUwatsumo() {
+        if (_deckWallIndex % 2 == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
     
     
     /**
@@ -552,6 +620,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 牌山インデックス
      */
     private int _deckIndex = 0;
+    
+    /**
+     * 牌山の嶺上インデックス(中国麻雀用)
+     */
+    private int _deckWallIndex = 0;
     
     /**
      * 王牌

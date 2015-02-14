@@ -466,6 +466,45 @@ public final class GameMaster {
     }
     
     /**
+     * 開始処理 (中国麻雀・ソロ)
+     * 
+     * @param playerName プレイヤー名。
+     * @throws JanException ゲーム処理エラー。
+     * @throws IOException ファイル入出力に失敗。
+     */
+    public void onStartChmSolo(final String playerName) throws JanException, IOException {
+        if (playerName == null) {
+            throw new NullPointerException("Player name is null.");
+        }
+        if (playerName.isEmpty()) {
+            throw new IllegalArgumentException("Player name is empty.");
+        }
+        
+        // 開始済み判定
+        synchronized (_STATUS_LOCK) {
+            if (!_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Already started ---");
+                return;
+            }
+            _status = GameStatus.PLAYING_SOLO;
+        }
+        
+        // 牌山生成と席決め
+        final List<JanPai> deck = createDeck();
+        final Map<Wind, Player> playerTable = createPlayerTable(Arrays.asList(playerName));
+        
+        // 保存 (リプレイ用)
+        Serializer.writeOverwrite(deck, DECK_SAVE_PATH);
+        Serializer.writeOverwrite(playerTable, PLAYER_TABLE_SAVE_PATH);
+        
+        // ゲーム開始
+        synchronized (_CONTROLLER_LOCK) {
+            _controller = createChmJanController(true);
+            _controller.start(deck, playerTable);
+        }
+    }
+    
+    /**
      * 開始処理 (対戦)
      * 
      * @param playerNameList プレイヤー名のリスト。
@@ -618,8 +657,27 @@ public final class GameMaster {
      * @return 麻雀コントローラ。
      */
     private JanController createJanController(final boolean solo) {
+        _announcer.setIsChm(false);
+        
         if (solo) {
             return new SoloJanController(_announcer);
+        }
+        else {
+            return new VSJanController();
+        }
+    }
+    
+    /**
+     * 中国麻雀コントローラを生成
+     * 
+     * @param solo ソロプレイか。
+     * @return 中国麻雀コントローラ。
+     */
+    private JanController createChmJanController(final boolean solo) {
+        _announcer.setIsChm(true);
+        
+        if (solo) {
+            return new ChmJanController(_announcer);
         }
         else {
             return new VSJanController();
