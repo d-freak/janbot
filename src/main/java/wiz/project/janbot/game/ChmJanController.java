@@ -144,7 +144,7 @@ class ChmJanController implements JanController {
                 // ロン対象牌を取得
                 final JanPai discard = _info.getActiveDiscard();
                 final Map<JanPai, Integer> handWithDiscard = getHandMap(_info, _info.getActiveWind(), discard);
-                if (!HandCheckUtil.isComplete(handWithDiscard)) {
+                if (!HandCheckUtil.isChmComplete(handWithDiscard)) {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
@@ -171,7 +171,7 @@ class ChmJanController implements JanController {
         
         synchronized (_GAME_INFO_LOCK) {
             final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), _info.getActiveTsumo());
-            if (!HandCheckUtil.isComplete(handWithTsumo)) {
+            if (!HandCheckUtil.isChmComplete(handWithTsumo)) {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
