@@ -840,7 +840,7 @@ class ChmJanController implements JanController {
      */
     private void updateWaitList(final JanInfo info, final Wind targetWind) {
         final Map<JanPai, Integer> hand = getHandMap(info, targetWind);
-        _completeWait.put(targetWind, HandCheckUtil.getCompletableJanPaiList(hand));
+        _completeWait.put(targetWind, HandCheckUtil.getChmCompletableJanPaiList(hand));
         _chiWait.put(targetWind, getChiWaitList(hand));
         _ponWait.put(targetWind, getPonWaitList(hand));
     }
