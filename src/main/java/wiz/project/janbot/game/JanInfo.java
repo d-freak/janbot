@@ -292,6 +292,10 @@ public final class JanInfo extends Observable implements Cloneable {
      * 牌山インデックスを増加
      */
     public void increaseDeckIndex() {
+        if (isSameIndex()) {
+            moveDeckWallIndex();
+        }
+        
         setDeckIndex(_deckIndex + 1);
         
         if (isLastShitatsumo()) {
@@ -589,6 +593,14 @@ public final class JanInfo extends Observable implements Cloneable {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * 牌山インデックスが嶺上インデックスと同じか(中国麻雀用)
+     * @return 判定結果。
+     */
+    private boolean isSameIndex() {
+        return _deckIndex == _deckWallIndex;
     }
     
     /**
