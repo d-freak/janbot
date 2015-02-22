@@ -37,9 +37,13 @@ public final class WanPai implements Cloneable {
             throw new IllegalArgumentException("Invalid source list size - " + sourceList.size());
         }
         
-        _wallList = new ArrayList<>(sourceList.subList(0, 4));
-        _doraPrevList = new ArrayList<>(sourceList.subList(4, 9));
-        _uraDoraPrevList = new ArrayList<>(sourceList.subList(9, 14));
+        _wallList = new ArrayList<>(sourceList.subList(0, MAX_WALL_INDEX));
+        _doraPrevList = new ArrayList<>();
+        _uraDoraPrevList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            _doraPrevList.add(sourceList.get(MAX_WALL_INDEX + 2 * i));
+            _uraDoraPrevList.add(sourceList.get(MAX_WALL_INDEX + 2 * i + 1));
+        }
         _doraCount = 1;
     }
     
@@ -129,7 +133,7 @@ public final class WanPai implements Cloneable {
      * @return 判定結果。
      */
     public boolean isLimit() {
-        return _wallIndex == 4;
+        return _wallIndex == MAX_WALL_INDEX;
     }
     
     /**
@@ -174,6 +178,13 @@ public final class WanPai implements Cloneable {
     private <E> List<E> deepCopyList(final List<E> sourceList) {
         return new ArrayList<>(sourceList);
     }
+    
+    
+    
+    /**
+     * カン可能数の限界
+     */
+    private static final char MAX_WALL_INDEX = 4;
     
     
     
