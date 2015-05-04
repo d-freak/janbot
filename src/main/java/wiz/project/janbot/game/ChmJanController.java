@@ -20,7 +20,7 @@ import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
 import wiz.project.jan.MenTsuType;
 import wiz.project.jan.Wind;
-import wiz.project.jan.util.HandCheckUtil;
+import wiz.project.jan.util.ChmHandCheckUtil;
 import wiz.project.jan.util.JanPaiUtil;
 import wiz.project.janbot.game.exception.BoneheadException;
 import wiz.project.janbot.game.exception.CallableException;
@@ -144,7 +144,7 @@ class ChmJanController implements JanController {
                 // ロン対象牌を取得
                 final JanPai discard = _info.getActiveDiscard();
                 final Map<JanPai, Integer> handWithDiscard = getHandMap(_info, _info.getActiveWind(), discard);
-                if (!HandCheckUtil.isChmComplete(handWithDiscard)) {
+                if (!ChmHandCheckUtil.isComplete(handWithDiscard)) {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
@@ -171,7 +171,7 @@ class ChmJanController implements JanController {
         
         synchronized (_GAME_INFO_LOCK) {
             final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), _info.getActiveTsumo());
-            if (!HandCheckUtil.isChmComplete(handWithTsumo)) {
+            if (!ChmHandCheckUtil.isComplete(handWithTsumo)) {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
@@ -840,7 +840,7 @@ class ChmJanController implements JanController {
      */
     private void updateWaitList(final JanInfo info, final Wind targetWind) {
         final Map<JanPai, Integer> hand = getHandMap(info, targetWind);
-        _completeWait.put(targetWind, HandCheckUtil.getChmCompletableJanPaiList(hand));
+        _completeWait.put(targetWind, ChmHandCheckUtil.getCompletableJanPaiList(hand));
         _chiWait.put(targetWind, getChiWaitList(hand));
         _ponWait.put(targetWind, getPonWaitList(hand));
     }
