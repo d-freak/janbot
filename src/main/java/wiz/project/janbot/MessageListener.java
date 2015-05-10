@@ -108,6 +108,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan tsumo") || message.equals("jan hu")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
+            else if (message.startsWith("jan o ")) {
+                GameMaster.getInstance().onOuts(message.substring(6));
+            }
             else if (message.equals("jan replay")) {
                 GameMaster.getInstance().onReplay(playerName);
             }
@@ -138,6 +141,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌",
+                                  "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "tsumo, hu：ツモ和了   kan X：指定牌でカン");
                 IRCBOT.getInstance().println(messageList);
             }
@@ -276,11 +280,15 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 _confirmMode = false;
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
+            else if (message.startsWith("jan o ")) {
+                GameMaster.getInstance().onConfirmOuts(message.substring(6));
+            }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
                     Arrays.asList("chi X：指定牌(ex.3p)を先頭牌としてチー",
                                   "pon：ポン   kan X：指定牌でカン   ron, hu：ロン",
                                   "ra：他家を含む全ての捨て牌",
+                                  "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "d：キャンセル");
                 IRCBOT.getInstance().println(messageList);
             }

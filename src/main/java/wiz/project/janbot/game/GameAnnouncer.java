@@ -123,6 +123,12 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
         }
+        if (flagSet.contains(AnnounceFlag.OUTS)) {
+            messageList.add(convertOutsToString(info.getOuts(playerWind)));
+        }
+        if (flagSet.contains(AnnounceFlag.CONFIRM_OUTS)) {
+            messageList.add(convertOutsToString(info.getOutsOnConfirm(playerWind)));
+        }
         
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
@@ -271,6 +277,25 @@ public class GameAnnouncer implements Observer {
         for (final JanPai pai : hand.getMenZenList()) {
             buf.append(convertJanPaiToString(pai));
         }
+        return buf.toString();
+    }
+    
+    /**
+     * 捨て牌リストを文字列に変換
+     * 
+     * @param outs 捨て牌リスト。
+     * @return 変換結果。
+     */
+    private String convertOutsToString(final Map<JanPai, Integer> outs) {
+        final StringBuilder buf = new StringBuilder();
+        Integer total = 0;
+        for (final JanPai pai : outs.keySet()) {
+            final Integer outsCount = outs.get(pai);
+            buf.append(convertJanPaiToString(pai));
+            buf.append("：残り" + outsCount.toString() + "枚, ");
+            total += outsCount;
+        }
+        buf.append("計：残り" + total.toString() + "枚");
         return buf.toString();
     }
     

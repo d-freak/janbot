@@ -91,7 +91,17 @@ public enum AnnounceFlag {
     /**
      * 裏ドラ
      */
-    URA_DORA;
+    URA_DORA,
+    
+    /**
+     * 指定牌の残り枚数
+     */
+    OUTS,
+    
+    /**
+     * 指定牌の残り枚数(確認メッセージ用)
+     */
+    CONFIRM_OUTS;
     
     
     

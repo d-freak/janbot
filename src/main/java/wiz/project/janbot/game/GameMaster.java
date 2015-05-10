@@ -230,6 +230,46 @@ public final class GameMaster {
     }
     
     /**
+     * 指定牌の残り枚数表示(確認メッセージ用)
+     * 
+     * @param target 指定牌。
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onConfirmOuts(final String target) throws JanException {
+        if (target == null) {
+            throw new NullPointerException("Outs target is null.");
+        }
+        
+        // 開始判定
+        synchronized (_STATUS_LOCK) {
+            if (_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Not started ---");
+                return;
+            }
+        }
+        
+        if (target.isEmpty()) {
+            throw new InvalidInputException("Outs target is empty.");
+        }
+        final List<JanPai> targetPai = new ArrayList<>();
+        for (final String string : target.split(" ")) {
+            try {
+                targetPai.add(convertStringToJanPai(string));
+            }
+            catch (final InvalidInputException e) {
+            	// 指定ミスに対しては何もせず継続
+            }
+        }
+        
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            info.setRiverOuts(targetPai);
+            info.addObserver(_announcer);
+            info.notifyObservers(AnnounceFlag.CONFIRM_OUTS);
+        }
+    }
+    
+    /**
      * 副露せずに続行
      * 
      * @throws JanException ゲーム処理エラー。
@@ -329,6 +369,46 @@ public final class GameMaster {
             final JanInfo info = _controller.getGameInfo();
             info.addObserver(_announcer);
             info.notifyObservers(flagSet);
+        }
+    }
+    
+    /**
+     * 指定牌の残り枚数表示
+     * 
+     * @param target 指定牌。
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onOuts(final String target) throws JanException {
+        if (target == null) {
+            throw new NullPointerException("Outs target is null.");
+        }
+        
+        // 開始判定
+        synchronized (_STATUS_LOCK) {
+            if (_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Not started ---");
+                return;
+            }
+        }
+        
+        if (target.isEmpty()) {
+            throw new InvalidInputException("Outs target is empty.");
+        }
+        final List<JanPai> targetPai = new ArrayList<>();
+        for (final String string : target.split(" ")) {
+            try {
+                targetPai.add(convertStringToJanPai(string));
+            }
+            catch (final InvalidInputException e) {
+                // 指定ミスに対しては何もせず継続
+            }
+        }
+        
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            info.setRiverOuts(targetPai);
+            info.addObserver(_announcer);
+            info.notifyObservers(AnnounceFlag.OUTS);
         }
     }
     
