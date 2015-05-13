@@ -124,10 +124,10 @@ public class GameAnnouncer implements Observer {
             messageList.add(convertHandToString(playerWind, info, flagSet));
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
-            messageList.add(convertOutsToString(info.getOuts(playerWind)));
+            addOutsString(messageList, info.getOuts(playerWind));
         }
         if (flagSet.contains(AnnounceFlag.CONFIRM_OUTS)) {
-            messageList.add(convertOutsToString(info.getOutsOnConfirm(playerWind)));
+            addOutsString(messageList, info.getOutsOnConfirm(playerWind));
         }
         
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
@@ -144,6 +144,32 @@ public class GameAnnouncer implements Observer {
     }
     
     
+    
+    /**
+     * 残り枚数テーブルを文字列に変換し出力内容に追加
+     * 
+     * @param messageList 出力内容。
+     * @param outs 残り枚数テーブル。
+     */
+    private void addOutsString(final List<String> messageList, final Map<JanPai, Integer> outs) {
+        final StringBuilder buf = new StringBuilder();
+        Integer total = 0;
+        int count = 1;
+        for (final JanPai pai : outs.keySet()) {
+            final Integer outsCount = outs.get(pai);
+            buf.append(convertJanPaiToString(pai));
+            buf.append("：残り" + outsCount.toString() + "枚, ");
+            total += outsCount;
+            
+            if (count % 9 == 0) {
+                messageList.add(buf.toString());
+                buf.delete(0, buf.length());
+            }
+            count++;
+        }
+        buf.append("計：残り" + total.toString() + "枚");
+        messageList.add(buf.toString());
+    }
     
     /**
      * 副露情報を文字列に変換
@@ -277,25 +303,6 @@ public class GameAnnouncer implements Observer {
         for (final JanPai pai : hand.getMenZenList()) {
             buf.append(convertJanPaiToString(pai));
         }
-        return buf.toString();
-    }
-    
-    /**
-     * 捨て牌リストを文字列に変換
-     * 
-     * @param outs 捨て牌リスト。
-     * @return 変換結果。
-     */
-    private String convertOutsToString(final Map<JanPai, Integer> outs) {
-        final StringBuilder buf = new StringBuilder();
-        Integer total = 0;
-        for (final JanPai pai : outs.keySet()) {
-            final Integer outsCount = outs.get(pai);
-            buf.append(convertJanPaiToString(pai));
-            buf.append("：残り" + outsCount.toString() + "枚, ");
-            total += outsCount;
-        }
-        buf.append("計：残り" + total.toString() + "枚");
         return buf.toString();
     }
     
