@@ -237,7 +237,7 @@ public final class GameMaster {
      */
     public void onConfirmOuts(final String target) throws JanException {
         if (target == null) {
-            throw new NullPointerException("Outs target is null.");
+            throw new NullPointerException("Confirm outs target is null.");
         }
         
         // 開始判定
@@ -249,7 +249,7 @@ public final class GameMaster {
         }
         
         if (target.isEmpty()) {
-            throw new InvalidInputException("Outs target is empty.");
+            throw new InvalidInputException("Confirm outs target is empty.");
         }
         final List<JanPai> targetPai = new ArrayList<>();
         for (final String string : target.split(" ")) {
@@ -261,6 +261,9 @@ public final class GameMaster {
             }
         }
         
+        if (targetPai.isEmpty()) {
+            throw new InvalidInputException("Confirm outs target JanPai is empty.");
+        }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             info.setRiverOuts(targetPai);
@@ -404,6 +407,9 @@ public final class GameMaster {
             }
         }
         
+        if (targetPai.isEmpty()) {
+            throw new InvalidInputException("Outs target JanPai is empty.");
+        }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             info.setRiverOuts(targetPai);
