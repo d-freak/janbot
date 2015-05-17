@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.TreeMap;
 
@@ -31,7 +32,7 @@ public final class JanInfo extends Observable implements Cloneable {
         for (final Wind wind : Wind.values()) {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
-            _riverTable.put(wind, new ArrayList<JanPai>());
+            _riverTable.put(wind, new River());
         }
     }
     
@@ -56,8 +57,8 @@ public final class JanInfo extends Observable implements Cloneable {
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
                 _handTable.put(entry.getKey(), entry.getValue().clone());
             }
-            for (final Map.Entry<Wind, List<JanPai>> entry : source._riverTable.entrySet()) {
-                _riverTable.put(entry.getKey(), deepCopyList(entry.getValue()));
+            for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
+                _riverTable.put(entry.getKey(), entry.getValue().clone());
             }
         }
     }
@@ -95,7 +96,7 @@ public final class JanInfo extends Observable implements Cloneable {
         for (final Wind wind : Wind.values()) {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
-            _riverTable.put(wind, new ArrayList<JanPai>());
+            _riverTable.put(wind, new River());
         }
     }
     
@@ -151,7 +152,7 @@ public final class JanInfo extends Observable implements Cloneable {
      * @return アクティブプレイヤーの捨て牌リスト。
      */
     public List<JanPai> getActiveRiver() {
-        return getRiver(_activeWind);
+        return getRiver(_activeWind).get();
     }
     
     /**
@@ -240,7 +241,7 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Map<JanPai, Integer> getOuts(final Wind wind) {
         Map<JanPai, Integer> outs = getOutsOnConfirm(wind);
-        if (outs.get(getActiveTsumo()) != null) {
+        if (getActiveTsumo() != null && outs.get(getActiveTsumo()) != null) {
             outs.put(getActiveTsumo(), outs.get(getActiveTsumo()) - 1);
         }
         return outs;
@@ -302,12 +303,12 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param wind 風。
      * @return 捨て牌リスト。
      */
-    public List<JanPai> getRiver(final Wind wind) {
+    public River getRiver(final Wind wind) {
         if (wind != null) {
-            return deepCopyList(_riverTable.get(wind));
+            return _riverTable.get(wind).clone();
         }
         else {
-            return new ArrayList<>();
+            return new River();
         }
     }
     
@@ -424,12 +425,7 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param pai 直前のツモ牌。
      */
     public void setActiveTsumo(final JanPai pai) {
-        if (pai != null) {
-            _activeTsumo = pai;
-        }
-        else {
-            _activeTsumo = JanPai.HAKU;
-        }
+        _activeTsumo = pai;
     }
     
     /**
@@ -451,6 +447,20 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public void setActiveWindToNext() {
         _activeWind = _activeWind.getNext();
+    }
+    
+    /**
+     * 被副露牌インデックスを設定
+     * 
+     * @param wind 副露された風。
+     */
+    public void setCalledIndex(final Wind wind) {
+        if (wind != null) {
+            _riverTable.get(wind).setCalledIndex();
+            // 副露後の捨て牌選択時の残り枚数確認で、
+            // _activeTsumoをカウントしないようnullを設定
+            setActiveTsumo(null);
+        }
     }
     
     /**
@@ -569,10 +579,10 @@ public final class JanInfo extends Observable implements Cloneable {
     public void setRiver(final Wind wind, final List<JanPai> river) {
         if (wind != null) {
             if (river != null) {
-                _riverTable.put(wind, deepCopyList(river));
+                _riverTable.put(wind, new River(river));
             }
             else {
-                _riverTable.put(wind, new ArrayList<JanPai>());
+                _riverTable.put(wind, new River());
             }
         }
     }
@@ -588,9 +598,14 @@ public final class JanInfo extends Observable implements Cloneable {
             int visibleCount = 0;
             
             for (final Wind wind : Wind.values()) {
-                final List<JanPai> river = getRiver(wind);
+                final List<JanPai> river = getRiver(wind).get();
                 river.retainAll(paiList);
                 visibleCount += river.size();
+                for (final Integer index : getRiver(wind).getCalledIndexList()) {
+                    if (pai.equals(getRiver(wind).get().get(index - 1))) {
+                        visibleCount--;
+                    }
+                }
             }
             _riverOuts.put(pai, 4 - visibleCount);
         }
@@ -722,7 +737,7 @@ public final class JanInfo extends Observable implements Cloneable {
     /**
      * 捨て牌テーブル
      */
-    private Map<Wind, List<JanPai>> _riverTable = new TreeMap<>();
+    private Map<Wind, River> _riverTable = new TreeMap<>();
     
     /**
      * 直前のツモ牌

@@ -68,6 +68,20 @@ public class GameAnnouncer implements Observer {
     
     
     /**
+     * 副露された雀牌を文字列に変換
+     * 
+     * @param pai 副露された雀牌。
+     * @return 変換結果。
+     */
+    protected String convertCalledJanPaiToString(final JanPai pai) {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(COLOR_FLAG).append("14");  // 灰色
+        buf.append(pai);
+        buf.append(COLOR_FLAG);
+        return buf.toString();
+    }
+    
+    /**
      * 雀牌を文字列に変換
      * 
      * @param pai 雀牌。
@@ -312,13 +326,19 @@ public class GameAnnouncer implements Observer {
      * @param river 捨て牌リスト。
      * @return 変換結果。
      */
-    private String convertRiverToString(final List<JanPai> river) {
+    private String convertRiverToString(final River river) {
         final StringBuilder buf = new StringBuilder();
         int count = 1;
+        int calledIndex = 0;
         buf.append("捨牌：");
-        for (final JanPai pai : river) {
-            buf.append(convertJanPaiToString(pai));
-            
+        for (final JanPai pai : river.get()) {
+            if (calledIndex < river.getCalledIndexList().size() && count == river.getCalledIndexList().get(calledIndex)) {
+                buf.append(convertCalledJanPaiToString(pai));
+                calledIndex++;
+            }
+            else {
+            	buf.append(convertJanPaiToString(pai));
+            }
             if (count % 6 == 0) {
                 buf.append("  ");
             }

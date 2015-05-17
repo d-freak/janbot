@@ -91,13 +91,13 @@ class ChmJanController implements JanController {
                     if (activeWind.getNext() != _info.getActiveWind()) {
                         throw new InvalidInputException("Can't chi.");
                     }
-                    callChi(target);
+                    callChi(target, activeWind);
                     break;
                 case PON:
-                    callPon();
+                    callPon(activeWind);
                     break;
                 case KAN_LIGHT:
-                    callKanLight(target);
+                    callKanLight(target, activeWind);
                     break;
                 case KAN_ADD:
                     callKanAdd(target);
@@ -148,6 +148,7 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
+                _info.setCalledIndex(activeWind);
                 
                 // ゲームセット
                 _onGame = false;
@@ -351,9 +352,10 @@ class ChmJanController implements JanController {
      * チー
      * 
      * @param target 先頭牌指定。
+     * @param calledWind 副露された風。
      * @throws JanException 例外イベント。
      */
-    private void callChi(final JanPai target) throws JanException {
+    private void callChi(final JanPai target, final Wind calledWind) throws JanException {
         if (target == null) {
             throw new NullPointerException("Call target is null.");
         }
@@ -395,6 +397,7 @@ class ChmJanController implements JanController {
                 throw new InvalidInputException("Can't chi.");
             }
         }
+        _info.setCalledIndex(calledWind);
         
         // チー対象牌を削除
         for (final JanPai targetPai : targetList) {
@@ -510,9 +513,10 @@ class ChmJanController implements JanController {
      * 大明カン
      * 
      * @param target 牌指定。
+     * @param calledWind 副露された風。
      * @throws JanException 例外イベント。
      */
-    private void callKanLight(final JanPai target) throws JanException {
+    private void callKanLight(final JanPai target, final Wind calledWind) throws JanException {
         if (target == null) {
             throw new NullPointerException("Call target is null.");
         }
@@ -522,6 +526,7 @@ class ChmJanController implements JanController {
             // 指定牌を3枚持っていない
             throw new InvalidInputException("Can't kan.");
         }
+        _info.setCalledIndex(calledWind);
         
         // カン対象牌を削除
         for (int i = 0; i < 3; i++) {
@@ -546,15 +551,17 @@ class ChmJanController implements JanController {
     /**
      * ポン
      * 
+     * @param calledWind 副露された風。
      * @throws JanException 例外イベント。
      */
-    private void callPon() throws JanException {
+    private void callPon(final Wind calledWind) throws JanException {
         final JanPai discard = _info.getActiveDiscard();
         final Hand hand = _info.getActiveHand();
         if (hand.getMenZenJanPaiCount(discard) < 2) {
             // 指定牌を2枚持っていない
             throw new InvalidInputException("Can't pon.");
         }
+        _info.setCalledIndex(calledWind);
         
         // ポン対象牌を削除
         for (int i = 0; i < 2; i++) {
