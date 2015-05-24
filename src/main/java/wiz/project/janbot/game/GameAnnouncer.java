@@ -15,6 +15,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import wiz.project.ircbot.IRCBOT;
+import wiz.project.jan.ChmCompleteInfo;
+import wiz.project.jan.ChmYaku;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
@@ -154,10 +156,41 @@ public class GameAnnouncer implements Observer {
             messageList.add("---- 流局 ----");
         }
         
+        if (flagSet.contains(AnnounceFlag.SCORE)) {
+            addCompleteInfoString(messageList, info, flagSet);
+        }
+        
         IRCBOT.getInstance().println(messageList);
     }
     
     
+    
+    /**
+     * 和了情報を文字列に変換し出力内容に追加
+     * 
+     * @param messageList 出力内容。
+     * @param info ゲーム情報。
+     * @param flagSet 実況フラグ。
+     */
+    private void addCompleteInfoString(final List<String> messageList, final JanInfo info, final EnumSet<AnnounceFlag> flagSet) {
+        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
+        if (completeInfo.getYakuList().isEmpty()) {
+            return;
+        }
+        final StringBuilder buf = new StringBuilder();
+        Integer total = 0;
+        for (final ChmYaku yaku : completeInfo.getYakuList()) {
+            buf.append(yaku.toString() + "(" + String.valueOf(yaku.getPoint()) + "点), ");
+            total += yaku.getPoint();
+        }
+        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+        	buf.append("計：(" + total.toString() + " + 8) * 3 = " + String.valueOf((total + 8) * 3)  + "点");
+        }
+        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
+        	buf.append("計：" + total.toString() + " + 3 * 8 = " + String.valueOf(total + 24) + "点");
+        }
+        messageList.add(buf.toString());
+    }
     
     /**
      * 残り枚数テーブルを文字列に変換し出力内容に追加

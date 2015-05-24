@@ -101,7 +101,12 @@ public enum AnnounceFlag {
     /**
      * 指定牌の残り枚数(確認メッセージ用)
      */
-    CONFIRM_OUTS;
+    CONFIRM_OUTS,
+    
+    /**
+     * 点数
+     */
+    SCORE;
     
     
     

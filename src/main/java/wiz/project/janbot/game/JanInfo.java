@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.TreeMap;
 
+import wiz.project.jan.ChmCompleteInfo;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.Wind;
@@ -53,7 +54,11 @@ public final class JanInfo extends Observable implements Cloneable {
             _remainCount = source._remainCount;
             _activeTsumo = source._activeTsumo;
             _activeDiscard = source._activeDiscard;
+            _completeInfo = source._completeInfo;
             
+            for (final Map.Entry<JanPai, Integer> entry : source._riverOuts.entrySet()) {
+                _riverOuts.put(entry.getKey(), new Integer(entry.getValue()));
+            }
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
                 _handTable.put(entry.getKey(), entry.getValue().clone());
             }
@@ -90,8 +95,10 @@ public final class JanInfo extends Observable implements Cloneable {
         _fieldWind = Wind.TON;
         _activeWind = Wind.TON;
         _remainCount = 0;
+        _riverOuts.clear();
         _activeTsumo = JanPai.HAKU;
         _activeDiscard = JanPai.HAKU;
+        _completeInfo = null;
         
         for (final Wind wind : Wind.values()) {
             _playerTable.put(wind, new Player());
@@ -171,6 +178,15 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Wind getActiveWind() {
         return _activeWind;
+    }
+    
+    /**
+     * 和了情報を取得
+     * 
+     * @return 和了情報。
+     */
+    public ChmCompleteInfo getCompleteInfo() {
+        return _completeInfo;
     }
     
     /**
@@ -464,6 +480,15 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 和了情報を設定
+     * 
+     * @param wind 和了情報。
+     */
+    public void setCompleteInfo(final ChmCompleteInfo completeInfo) {
+        _completeInfo = completeInfo;
+    }
+    
+    /**
      * 牌山を設定
      * 
      * @param deck 牌山。
@@ -748,6 +773,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 直前の捨て牌
      */
     private JanPai _activeDiscard = JanPai.HAKU;
+    
+    /**
+     * 和了情報
+     */
+    private ChmCompleteInfo _completeInfo = null;
     
 }
 

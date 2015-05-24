@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.TreeMap;
 
+import wiz.project.jan.ChmCompleteInfo;
+import wiz.project.jan.CompleteJanPai;
+import wiz.project.jan.CompleteType;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
@@ -148,6 +151,7 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
+                _info.setCompleteInfo(getCompleteInfo(discard, _info.getActiveWind(), true));
                 _info.setCalledIndex(activeWind);
                 
                 // ゲームセット
@@ -171,11 +175,14 @@ class ChmJanController implements JanController {
         }
         
         synchronized (_GAME_INFO_LOCK) {
-            final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), _info.getActiveTsumo());
+            // ツモ対象牌を取得
+            final JanPai tsumo = _info.getActiveTsumo();
+            final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), tsumo);
             if (!ChmHandCheckUtil.isComplete(handWithTsumo)) {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
+            _info.setCompleteInfo(getCompleteInfo(tsumo, _info.getActiveWind(), false));
             
             // ゲームセット
             _onGame = false;
@@ -663,6 +670,45 @@ class ChmJanController implements JanController {
     }
     
     /**
+     * 和了情報を取得
+     * 
+     * @param pai 和了牌。
+     * @param wind プレイヤーの風。
+     * @param isRon ロン和了か。
+     * @return 和了情報。
+     */
+    private ChmCompleteInfo getCompleteInfo(final JanPai pai, final Wind wind, final boolean isRon) {
+        final CompleteJanPai completePai = new CompleteJanPai(pai, getCompleteType(wind, isRon));
+        return ChmHandCheckUtil.getCompleteInfo(_info.getHand(wind), completePai, _info.getActiveWind(), _info.getFieldWind());
+    }
+    
+    /**
+     * 和了タイプを取得
+     * 
+     * @param wind プレイヤーの風。
+     * @param isRon ロン和了か。
+     * @return 和了タイプ。
+     */
+    private CompleteType getCompleteType(final Wind wind, final boolean isRon) {
+        if (isRon) {
+            if (_info.getHand(wind).getFixedMenTsuList().isEmpty()) {
+                return CompleteType.RON_MENZEN;
+            }
+            else {
+                return CompleteType.RON_NOT_MENZEN;
+            }
+        }
+        else {
+            if (_info.getHand(wind).getFixedMenTsuList().isEmpty()) {
+                return CompleteType.TSUMO_MENZEN;
+            }
+            else {
+                return CompleteType.TSUMO_NOT_MENZEN;
+            }
+        }
+    }
+    
+    /**
      * プレイヤーの手牌マップを取得
      * 
      * @param info ゲーム情報。
@@ -858,9 +904,9 @@ class ChmJanController implements JanController {
      * 実況フラグ
      */
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_COMPLETE_RON =
-        EnumSet.of(AnnounceFlag.COMPLETE_RON, AnnounceFlag.FIELD, AnnounceFlag.URA_DORA, AnnounceFlag.RIVER_SINGLE, AnnounceFlag.HAND, AnnounceFlag.ACTIVE_DISCARD);
+        EnumSet.of(AnnounceFlag.COMPLETE_RON, AnnounceFlag.FIELD, AnnounceFlag.URA_DORA, AnnounceFlag.RIVER_SINGLE, AnnounceFlag.HAND, AnnounceFlag.ACTIVE_DISCARD, AnnounceFlag.SCORE);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_COMPLETE_TSUMO =
-        EnumSet.of(AnnounceFlag.COMPLETE_TSUMO, AnnounceFlag.FIELD, AnnounceFlag.URA_DORA, AnnounceFlag.RIVER_SINGLE, AnnounceFlag.HAND, AnnounceFlag.ACTIVE_TSUMO);
+        EnumSet.of(AnnounceFlag.COMPLETE_TSUMO, AnnounceFlag.FIELD, AnnounceFlag.URA_DORA, AnnounceFlag.RIVER_SINGLE, AnnounceFlag.HAND, AnnounceFlag.ACTIVE_TSUMO, AnnounceFlag.SCORE);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_HAND_TSUMO =
         EnumSet.of(AnnounceFlag.HAND, AnnounceFlag.ACTIVE_TSUMO);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_HAND_TSUMO_FIELD =
