@@ -136,6 +136,9 @@ public class GameAnnouncer implements Observer {
             IRCBOT.getInstance().println("北" + convertRiverToString(info.getRiver(Wind.PEI)));
             messageList.clear();
         }
+        if (flagSet.contains(AnnounceFlag.RELEASED_CHM_YAKU)) {
+            addReleasedChmYakuString(messageList);
+        }
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
         }
@@ -216,6 +219,26 @@ public class GameAnnouncer implements Observer {
         }
         buf.append("計：残り" + total.toString() + "枚");
         messageList.add(buf.toString());
+    }
+    
+    /**
+     * 中国麻雀の実装済みの役を文字列に変換し出力内容に追加
+     * 
+     * @param messageList 出力内容。
+     */
+    private void addReleasedChmYakuString(final List<String> messageList) {
+        final StringBuilder buf = new StringBuilder();
+        int count = 1;
+        for (final ChmYaku yaku : ChmYaku.getReleased()) {
+            buf.append(yaku.toString() + ", ");
+            
+            if (count % 6 == 0) {
+                messageList.add(buf.toString());
+                buf.delete(0, buf.length());
+            }
+            count++;
+        }
+        messageList.add(ChmYaku.getReleased().size() + "/" + ChmYaku.values().length + "種類を実装済み");
     }
     
     /**

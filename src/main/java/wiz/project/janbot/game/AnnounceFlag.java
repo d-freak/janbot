@@ -106,7 +106,12 @@ public enum AnnounceFlag {
     /**
      * 点数
      */
-    SCORE;
+    SCORE,
+    
+    /**
+     * 中国麻雀の実装済みの役
+     */
+    RELEASED_CHM_YAKU;
     
     
     

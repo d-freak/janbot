@@ -98,6 +98,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan i ra")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
             }
+            else if (message.equals("chm") || message.equals("jan c") || message.equals("jan chm")) {
+            	GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RELEASED_CHM_YAKU);
+            }
 //            else if (message.startsWith("jan ri- ")) {
 //                TODO リーチ対応
 //                GameMaster.getInstance().onRichi(message.substring(8));
@@ -142,12 +145,12 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
-                                  "tsumo, hu：ツモ和了   kan X：指定牌でカン");
+                                  "tsumo, hu：ツモ和了   kan X：指定牌でカン   c：中国麻雀の実装済みの役");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.equals("chm help")) {
                 final List<String> messageList =
-                    Arrays.asList("chm s：中国麻雀を開始   chm replay：中国麻雀でリプレイ");
+                    Arrays.asList("chm s：中国麻雀を開始   chm replay：中国麻雀でリプレイ   chm：中国麻雀の実装済みの役");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.startsWith("ri-chi!") || message.startsWith("りち！") || message.startsWith("りぃち！") || message.startsWith("りーち！") || message.startsWith("リーチ！")) {
@@ -264,6 +267,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan i r") || message.equals("jan r i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
+            else if (message.equals("chm") || message.equals("jan c") || message.equals("jan chm")) {
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RELEASED_CHM_YAKU);
+            }
             else if (message.startsWith("jan chi ")) {
                 _confirmMode = false;
                 GameMaster.getInstance().onCallChi(playerName, message.substring(8));
@@ -332,6 +338,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_SINGLE);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL =
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_ALL);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_RELEASED_CHM_YAKU =
+        EnumSet.of(AnnounceFlag.RELEASED_CHM_YAKU);
     
     /**
      * 色付けフラグ
