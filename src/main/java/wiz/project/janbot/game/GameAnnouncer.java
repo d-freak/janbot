@@ -180,19 +180,17 @@ public class GameAnnouncer implements Observer {
         if (completeInfo.getYakuList().isEmpty()) {
             return;
         }
-        final StringBuilder buf = new StringBuilder();
         Integer total = 0;
         for (final ChmYaku yaku : completeInfo.getYakuList()) {
-            buf.append(yaku.toString() + "(" + String.valueOf(yaku.getPoint()) + "点), ");
+            messageList.add(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
             total += yaku.getPoint();
         }
         if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-        	buf.append("計：(" + total.toString() + " + 8) * 3 = " + String.valueOf((total + 8) * 3)  + "点");
+            messageList.add("合計(" + total.toString() + "+8)a点");
         }
         else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
-        	buf.append("計：" + total.toString() + " + 3 * 8 = " + String.valueOf(total + 24) + "点");
+            messageList.add("合計" + total.toString() + "+8a点");
         }
-        messageList.add(buf.toString());
     }
     
     /**
