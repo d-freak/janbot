@@ -236,6 +236,7 @@ public class GameAnnouncer implements Observer {
             }
             count++;
         }
+        messageList.add(buf.toString());
         messageList.add(ChmYaku.getReleased().size() + "/" + ChmYaku.values().length + "種類を実装済み");
     }
     
