@@ -151,7 +151,8 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
-                _info.setCompleteInfo(getCompleteInfo(discard, _info.getActiveWind(), true));
+                _info.setRiverOuts(Arrays.asList(discard));
+                _info.setCompleteInfo(getCompleteInfo(discard, _info.getCompleteOuts(true), _info.getActiveWind(), true));
                 _info.setCalledIndex(activeWind);
                 
                 // ゲームセット
@@ -182,7 +183,8 @@ class ChmJanController implements JanController {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
-            _info.setCompleteInfo(getCompleteInfo(tsumo, _info.getActiveWind(), false));
+            _info.setRiverOuts(Arrays.asList(tsumo));
+            _info.setCompleteInfo(getCompleteInfo(tsumo, _info.getCompleteOuts(false), _info.getActiveWind(), false));
             
             // ゲームセット
             _onGame = false;
@@ -673,12 +675,13 @@ class ChmJanController implements JanController {
      * 和了情報を取得
      * 
      * @param pai 和了牌。
+     * @param remainCount 和了牌の残り枚数。
      * @param wind プレイヤーの風。
      * @param isRon ロン和了か。
      * @return 和了情報。
      */
-    private ChmCompleteInfo getCompleteInfo(final JanPai pai, final Wind wind, final boolean isRon) {
-        final CompleteJanPai completePai = new CompleteJanPai(pai, getCompleteType(wind, isRon));
+    private ChmCompleteInfo getCompleteInfo(final JanPai pai, final int remainCount, final Wind wind, final boolean isRon) {
+        final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, getCompleteType(wind, isRon));
         return ChmHandCheckUtil.getCompleteInfo(_info.getHand(wind), completePai, _info.getActiveWind(), _info.getFieldWind());
     }
     

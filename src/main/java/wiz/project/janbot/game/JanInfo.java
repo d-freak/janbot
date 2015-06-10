@@ -190,6 +190,25 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 和了牌の残り枚数を取得
+     * 
+     * @param isRon ロン和了か。
+     * @return 和了牌の残り枚数。
+     */
+    public int getCompleteOuts(boolean isRon) {
+        if (isRon) {
+            return _riverOuts.get(getActiveDiscard());
+        }
+        else {
+            final Map<JanPai, Integer> outs = deepCopyMap(_riverOuts);
+            if (getActiveTsumo() != null && outs.get(getActiveTsumo()) != null) {
+                outs.put(getActiveTsumo(), outs.get(getActiveTsumo()) - 1);
+            }
+            return outs.get(getActiveTsumo());
+        }
+    }
+    
+    /**
      * 牌山を取得
      * 
      * @return 牌山。
