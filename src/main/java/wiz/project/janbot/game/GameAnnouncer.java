@@ -159,39 +159,14 @@ public class GameAnnouncer implements Observer {
             messageList.add("---- 流局 ----");
         }
         
-        if (flagSet.contains(AnnounceFlag.SCORE)) {
-            addCompleteInfoString(messageList, info, flagSet);
-        }
-        
         IRCBOT.getInstance().println(messageList);
-    }
-    
-    
-    
-    /**
-     * 和了情報を文字列に変換し出力内容に追加
-     * 
-     * @param messageList 出力内容。
-     * @param info ゲーム情報。
-     * @param flagSet 実況フラグ。
-     */
-    private void addCompleteInfoString(final List<String> messageList, final JanInfo info, final EnumSet<AnnounceFlag> flagSet) {
-        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
-        if (completeInfo.getYakuList().isEmpty()) {
-            return;
-        }
-        Integer total = 0;
-        for (final ChmYaku yaku : completeInfo.getYakuList()) {
-            messageList.add(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
-            total += yaku.getPoint();
-        }
-        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-            messageList.add("合計(" + total.toString() + "+8)a点");
-        }
-        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
-            messageList.add("合計" + total.toString() + "+8a点");
+        
+        if (flagSet.contains(AnnounceFlag.SCORE)) {
+            printCompleteInfo(info, flagSet);
         }
     }
+    
+    
     
     /**
      * 残り枚数テーブルを文字列に変換し出力内容に追加
@@ -480,6 +455,30 @@ public class GameAnnouncer implements Observer {
             }
         }
         return false;
+    }
+    
+    /**
+     * 和了情報を出力
+     * 
+     * @param info ゲーム情報。
+     * @param flagSet 実況フラグ。
+     */
+    private void printCompleteInfo(final JanInfo info, final EnumSet<AnnounceFlag> flagSet) {
+        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
+        if (completeInfo.getYakuList().isEmpty()) {
+            return;
+        }
+        Integer total = 0;
+        for (final ChmYaku yaku : completeInfo.getYakuList()) {
+        	IRCBOT.getInstance().println(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
+            total += yaku.getPoint();
+        }
+        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+        	IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
+        }
+        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
+        	IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
+        }
     }
     
     
