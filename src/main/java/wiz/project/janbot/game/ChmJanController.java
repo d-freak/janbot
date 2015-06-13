@@ -694,19 +694,49 @@ class ChmJanController implements JanController {
      */
     private CompleteType getCompleteType(final Wind wind, final boolean isRon) {
         if (isRon) {
-            if (_info.getHand(wind).getFixedMenTsuList().isEmpty()) {
-                return CompleteType.RON_MENZEN;
+            if (_info.getRemainCount() == 0) {
+                if (_info.getHand(wind).isMenZen()) {
+                    return CompleteType.RON_MENZEN_HO_TEI;
+                }
+                else {
+                    return CompleteType.RON_NOT_MENZEN_HO_TEI;
+                }
             }
             else {
-                return CompleteType.RON_NOT_MENZEN;
+                if (_info.getHand(wind).isMenZen()) {
+                    return CompleteType.RON_MENZEN;
+                }
+                else {
+                    return CompleteType.RON_NOT_MENZEN;
+                }
             }
         }
         else {
-            if (_info.getHand(wind).getFixedMenTsuList().isEmpty()) {
-                return CompleteType.TSUMO_MENZEN;
+            if (_callKan) {
+                if (_info.getHand(wind).isMenZen()) {
+                    return CompleteType.TSUMO_MENZEN_RIN_SYAN;
+                }
+                else {
+                    return CompleteType.TSUMO_NOT_MENZEN_RIN_SYAN;
+                }
             }
             else {
-                return CompleteType.TSUMO_NOT_MENZEN;
+                if (_info.getRemainCount() == 0) {
+                    if (_info.getHand(wind).isMenZen()) {
+                        return CompleteType.TSUMO_MENZEN_HAI_TEI;
+                    }
+                    else {
+                        return CompleteType.TSUMO_NOT_MENZEN_HAI_TEI;
+                    }
+                }
+                else {
+                    if (_info.getHand(wind).isMenZen()) {
+                        return CompleteType.TSUMO_MENZEN;
+                    }
+                    else {
+                        return CompleteType.TSUMO_NOT_MENZEN;
+                    }
+                }
             }
         }
     }
@@ -849,6 +879,7 @@ class ChmJanController implements JanController {
         final JanPai activeTsumo = getJanPaiFromDeck();
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
+        _callKan = false;
         
         // 打牌
         final Player activePlayer = _info.getActivePlayer();
@@ -883,6 +914,7 @@ class ChmJanController implements JanController {
         final JanPai activeTsumo = getJanPaiFromDeckWall();
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
+        _callKan = true;
         
         // 手変わりがあったので待ち判定更新
         updateWaitList(_info, activeWind);
@@ -947,6 +979,11 @@ class ChmJanController implements JanController {
      * 副露後の打牌フラグ
      */
     private volatile boolean _afterCall = false;
+    
+    /**
+     * カンフラグ
+     */
+    private volatile boolean _callKan = false;
     
     /**
      * 和了の待ち
