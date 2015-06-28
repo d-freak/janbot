@@ -34,6 +34,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _turnTable.put(wind, 0);
         }
     }
     
@@ -64,6 +65,9 @@ public final class JanInfo extends Observable implements Cloneable {
             }
             for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
                 _riverTable.put(entry.getKey(), entry.getValue().clone());
+            }
+            for (final Entry<Wind, Integer> entry : source._turnTable.entrySet()) {
+                _turnTable.put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -104,6 +108,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _turnTable.put(wind, 0);
         }
     }
     
@@ -348,6 +353,16 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 指定した風の巡目を取得
+     * 
+     * @param wind 風。
+     * @return 指定した風の巡目。
+     */
+    public Integer getTurnCount(final Wind wind) {
+        return _turnTable.get(wind);
+    }
+    
+    /**
      * 王牌を取得
      * 
      * @return 王牌。
@@ -369,6 +384,13 @@ public final class JanInfo extends Observable implements Cloneable {
         if (isLastShitatsumo()) {
             setDeckIndex(_deckIndex + 1);
         }
+    }
+    
+    /**
+     * 指定した風の巡目を増加
+     */
+    public void increaseTurnCount(final Wind wind) {
+        _turnTable.put(wind, _turnTable.get(wind) + 1);
     }
     
     /**
@@ -782,6 +804,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 捨て牌テーブル
      */
     private Map<Wind, River> _riverTable = new TreeMap<>();
+    
+    /**
+     * 巡目テーブル
+     */
+    private Map<Wind, Integer> _turnTable = new TreeMap<>();
     
     /**
      * 直前のツモ牌

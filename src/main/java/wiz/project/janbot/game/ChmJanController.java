@@ -883,6 +883,8 @@ class ChmJanController implements JanController {
         
         // 打牌
         final Player activePlayer = _info.getActivePlayer();
+        final Wind activeWind = _info.getActiveWind();
+        _info.increaseTurnCount(activeWind);
         switch (activePlayer.getType()) {
         case COM:
             // ツモ切り

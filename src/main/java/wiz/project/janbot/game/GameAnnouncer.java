@@ -6,6 +6,10 @@
 
 package wiz.project.janbot.game;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -13,6 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 
 import wiz.project.ircbot.IRCBOT;
 import wiz.project.jan.ChmCompleteInfo;
@@ -149,14 +162,19 @@ public class GameAnnouncer implements Observer {
             addOutsString(messageList, info.getOutsOnConfirm(playerWind));
         }
         
+        final Player player = info.getPlayer(playerWind);
+        final Integer turnCount = info.getTurnCount(playerWind);
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
+            recordResultXml(player, turnCount, flagSet);
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了 ----");
+            recordResultXml(player, turnCount, flagSet);
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
+            recordResultXml(player, turnCount, flagSet);
         }
         
         IRCBOT.getInstance().println(messageList);
@@ -478,6 +496,68 @@ public class GameAnnouncer implements Observer {
         }
         else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
         	IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
+        }
+    }
+    
+    /**
+     * ゲーム結果をxmlに保存
+     * 
+     * @param player プレイヤー。
+     * @param turnCount 巡目。
+     * @param flagSet 実況フラグ。
+     */
+    @SuppressWarnings("unchecked")
+	private void recordResultXml(final Player player, final Integer turnCount, final EnumSet<AnnounceFlag> flagSet) {
+        final String path = "./" + player.getName() + ".xml";
+        List<Node> completeType = new ArrayList<Node>();
+        List<Node> completeTurn = new ArrayList<Node>();
+        try {
+            final SAXReader reader = new SAXReader();
+            final Document readDocument = reader.read(path);
+            completeType = readDocument.selectNodes("/results/result/completeType");
+            completeTurn = readDocument.selectNodes("/results/result/completeTurn");
+        } catch (DocumentException e) {
+        }
+        String addCompleteType = null;
+        String addCompleteTurn = null;
+        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+            addCompleteType = "tsumo";
+            addCompleteTurn = turnCount.toString();
+        }
+        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
+            addCompleteType = "ron";
+            addCompleteTurn = turnCount.toString();
+        }
+        else {
+            addCompleteType = "-";
+            addCompleteTurn = "-";
+        }
+        
+        final Document writeDocument = DocumentHelper.createDocument();
+        final Element root = writeDocument.addElement("results");
+        for (int count = 0; count < completeType.size(); count++) {
+            final Element result = root.addElement("result");
+            result.addElement("completeType").setText(completeType.get(count).getStringValue());
+            result.addElement("completeTurn").setText(completeTurn.get(count).getStringValue());
+        }
+        final Element result = root.addElement("result");
+        result.addElement("completeType").setText(addCompleteType);
+        result.addElement("completeTurn").setText(addCompleteTurn);
+        
+        XMLWriter writer = null;
+        try {
+            final FileOutputStream outputStream = new FileOutputStream(path);
+            final OutputFormat format = new OutputFormat("  ", true, "UTF-8");
+            writer = new XMLWriter(outputStream, format);
+            writer.write(writeDocument);
+        } catch (FileNotFoundException e) {
+        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException e) {
+            }
         }
     }
     

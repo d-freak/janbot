@@ -9,7 +9,6 @@ package wiz.project.janbot.game;
 import java.util.ArrayList;
 import java.util.List;
 
-import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 
 
