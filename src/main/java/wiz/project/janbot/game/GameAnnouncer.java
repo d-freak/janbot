@@ -7,6 +7,7 @@
 package wiz.project.janbot.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -137,7 +138,7 @@ public class GameAnnouncer implements Observer {
             messageList.clear();
         }
         if (flagSet.contains(AnnounceFlag.RELEASED_CHM_YAKU)) {
-            addReleasedChmYakuString(messageList);
+            addNotReleasedChmYakuString(messageList);
         }
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
@@ -195,14 +196,18 @@ public class GameAnnouncer implements Observer {
     }
     
     /**
-     * 中国麻雀の実装済みの役を文字列に変換し出力内容に追加
+     * 中国麻雀の未実装の役を文字列に変換し出力内容に追加
      * 
      * @param messageList 出力内容。
      */
-    private void addReleasedChmYakuString(final List<String> messageList) {
+    private void addNotReleasedChmYakuString(final List<String> messageList) {
         final StringBuilder buf = new StringBuilder();
+        final List<ChmYaku> notReleasedList = new ArrayList<ChmYaku>(Arrays.asList(ChmYaku.values()));
         int count = 1;
-        for (final ChmYaku yaku : ChmYaku.getReleased()) {
+        
+        notReleasedList.removeAll(ChmYaku.getReleased());
+        
+        for (final ChmYaku yaku : notReleasedList) {
             buf.append(yaku.toString() + ", ");
             
             if (count % 6 == 0) {
@@ -212,7 +217,7 @@ public class GameAnnouncer implements Observer {
             count++;
         }
         messageList.add(buf.toString());
-        messageList.add(ChmYaku.getReleased().size() + "/" + ChmYaku.values().length + "種類を実装済み");
+        messageList.add(notReleasedList.size() + "/" + ChmYaku.values().length + "種類が未実装");
     }
     
     /**
