@@ -17,12 +17,12 @@ import java.util.Observer;
 
 import wiz.project.ircbot.IRCBOT;
 import wiz.project.jan.ChmCompleteInfo;
-import wiz.project.jan.ChmYaku;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
 import wiz.project.jan.MenTsuType;
 import wiz.project.jan.Wind;
+import wiz.project.jan.yaku.ChmYaku;
 
 
 
