@@ -104,6 +104,11 @@ public enum AnnounceFlag {
     CONFIRM_OUTS,
     
     /**
+     * 七対モード切り替え
+     */
+    SEVENTH,
+    
+    /**
      * 点数
      */
     SCORE,

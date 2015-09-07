@@ -352,6 +352,26 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 手牌で1枚だけの牌リストを取得
+     * 
+     * @param wind 風。
+     * @return 手牌で1枚だけの牌リスト。
+     */
+    public List<JanPai> getSingleJanPaiList(final Wind wind) {
+        final List<JanPai> paiList = new ArrayList<>();
+        final Map<JanPai, Integer> paiMap = getHand(wind).getCleanMenZenMap(getActiveTsumo());
+        
+        for (final JanPai pai : paiMap.keySet()) {
+            final int paiCount = paiMap.get(pai);
+            
+            if (paiCount == 1) {
+                paiList.add(pai);
+            }
+        }
+        return paiList;
+    }
+    
+    /**
      * 指定した風の巡目を取得
      * 
      * @param wind 風。

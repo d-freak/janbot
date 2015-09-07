@@ -161,6 +161,11 @@ public class GameAnnouncer implements Observer {
         }
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
+            
+            if (_7thMode && flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
+                addOutsString(messageList, info.getOuts(paiList, playerWind));
+            }
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
@@ -170,20 +175,33 @@ public class GameAnnouncer implements Observer {
             final List<JanPai> paiList = param.getPaiList();
             addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
         }
+        if (flagSet.contains(AnnounceFlag.SEVENTH)) {
+            if (_7thMode) {
+                messageList.add("七対モードを無効にしました。");
+                _7thMode = false;
+            }
+            else {
+                messageList.add("七対モードを有効にしました。");
+                _7thMode = true;
+            }
+        }
         
         final Player player = info.getPlayer(playerWind);
         final Integer turnCount = info.getTurnCount(playerWind);
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
             recordResultXml(player, turnCount, flagSet);
+            _7thMode = false;
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了 ----");
             recordResultXml(player, turnCount, flagSet);
+            _7thMode = false;
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
             recordResultXml(player, turnCount, flagSet);
+            _7thMode = false;
         }
         
         IRCBOT.getInstance().println(messageList);
@@ -587,6 +605,11 @@ public class GameAnnouncer implements Observer {
      * 中国麻雀フラグ
      */
     private boolean _isChm = false;
+    
+    /**
+     * 七対モード
+     */
+    private boolean _7thMode = false;
     
 }
 
