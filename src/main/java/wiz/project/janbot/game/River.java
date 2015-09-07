@@ -90,7 +90,7 @@ public final class River implements Cloneable {
      * 被副露牌インデックスを設定
      */
     public void setCalledIndex() {
-        _calledIndexList.add(_paiList.size());
+        _calledIndexList.add(_paiList.size() - 1);
     }
     
     

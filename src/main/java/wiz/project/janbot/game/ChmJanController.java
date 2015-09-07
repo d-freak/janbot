@@ -151,9 +151,8 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
-                _info.setRiverOuts(Arrays.asList(discard));
-                _info.setCompleteInfo(getCompleteInfo(discard, _info.getCompleteOuts(true), _info.getActiveWind(), true));
                 _info.setCalledIndex(activeWind);
+                _info.setCompleteInfo(getCompleteInfo(discard, _info.getCompleteOuts(true), _info.getActiveWind(), true));
                 
                 // ゲームセット
                 _onGame = false;
@@ -183,7 +182,6 @@ class ChmJanController implements JanController {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
-            _info.setRiverOuts(Arrays.asList(tsumo));
             _info.setCompleteInfo(getCompleteInfo(tsumo, _info.getCompleteOuts(false), _info.getActiveWind(), false));
             
             // ゲームセット

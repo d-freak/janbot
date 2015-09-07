@@ -163,10 +163,12 @@ public class GameAnnouncer implements Observer {
             messageList.add(convertHandToString(playerWind, info, flagSet));
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
-            addOutsString(messageList, info.getOuts(playerWind));
+            final List<JanPai> paiList = param.getPaiList();
+            addOutsString(messageList, info.getOuts(paiList, playerWind));
         }
         if (flagSet.contains(AnnounceFlag.CONFIRM_OUTS)) {
-            addOutsString(messageList, info.getOutsOnConfirm(playerWind));
+            final List<JanPai> paiList = param.getPaiList();
+            addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
         }
         
         final Player player = info.getPlayer(playerWind);
@@ -387,7 +389,7 @@ public class GameAnnouncer implements Observer {
      */
     private String convertRiverToString(final River river) {
         final StringBuilder buf = new StringBuilder();
-        int count = 1;
+        int count = 0;
         int calledIndex = 0;
         buf.append("捨牌：");
         for (final JanPai pai : river.get()) {
@@ -398,7 +400,7 @@ public class GameAnnouncer implements Observer {
             else {
             	buf.append(convertJanPaiToString(pai));
             }
-            if (count % 6 == 0) {
+            if (count % 6 == 5) {
                 buf.append("  ");
             }
             count++;

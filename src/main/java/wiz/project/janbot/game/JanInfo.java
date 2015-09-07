@@ -57,9 +57,6 @@ public final class JanInfo extends Observable implements Cloneable {
             _activeDiscard = source._activeDiscard;
             _completeInfo = source._completeInfo;
             
-            for (final Map.Entry<JanPai, Integer> entry : source._riverOuts.entrySet()) {
-                _riverOuts.put(entry.getKey(), new Integer(entry.getValue()));
-            }
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
                 _handTable.put(entry.getKey(), entry.getValue().clone());
             }
@@ -99,7 +96,6 @@ public final class JanInfo extends Observable implements Cloneable {
         _fieldWind = Wind.TON;
         _activeWind = Wind.TON;
         _remainCount = 0;
-        _riverOuts.clear();
         _activeTsumo = JanPai.HAKU;
         _activeDiscard = JanPai.HAKU;
         _completeInfo = null;
@@ -201,16 +197,16 @@ public final class JanInfo extends Observable implements Cloneable {
      * @return 和了牌の残り枚数。
      */
     public int getCompleteOuts(boolean isRon) {
+        JanPai completePai = JanPai.HAKU;
         if (isRon) {
-            return _riverOuts.get(getActiveDiscard());
+        	completePai = getActiveDiscard();
         }
         else {
-            final Map<JanPai, Integer> outs = deepCopyMap(_riverOuts);
-            if (getActiveTsumo() != null && outs.get(getActiveTsumo()) != null) {
-                outs.put(getActiveTsumo(), outs.get(getActiveTsumo()) - 1);
-            }
-            return outs.get(getActiveTsumo());
+        	completePai = getActiveTsumo();
         }
+        final int completeOuts = getVisibleOuts(completePai) - 1;
+        
+        return completeOuts;
     }
     
     /**
@@ -276,11 +272,12 @@ public final class JanInfo extends Observable implements Cloneable {
     /**
      * 残り枚数テーブルを取得
      * 
+     * @param paiList 牌リスト。
      * @param wind 風。
      * @return 残り枚数テーブル。
      */
-    public Map<JanPai, Integer> getOuts(final Wind wind) {
-        Map<JanPai, Integer> outs = getOutsOnConfirm(wind);
+    public Map<JanPai, Integer> getOuts(final List<JanPai> paiList, final Wind wind) {
+        Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
         if (getActiveTsumo() != null && outs.get(getActiveTsumo()) != null) {
             outs.put(getActiveTsumo(), outs.get(getActiveTsumo()) - 1);
         }
@@ -290,14 +287,16 @@ public final class JanInfo extends Observable implements Cloneable {
     /**
      * 残り枚数テーブルを取得(確認メッセージ用)
      * 
+     * @param paiList 牌リスト。
      * @param wind 風。
      * @return 残り枚数テーブル。
      */
-    public Map<JanPai, Integer> getOutsOnConfirm(final Wind wind) {
-        final Map<JanPai, Integer> outs = deepCopyMap(_riverOuts);
+    public Map<JanPai, Integer> getOutsOnConfirm(final List<JanPai> paiList, final Wind wind) {
+        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
         
-        for (final JanPai pai : outs.keySet()) {
+        for (final JanPai pai : paiList) {
             int visibleCount = 0;
+            //TODO 副露牌を加えるのはgetVisibleOuts()で行ない、ここで加えるのは門前牌のみとする
             visibleCount += getHand(wind).getAllJanPaiMap().get(pai);
             outs.put(pai, outs.get(pai) - visibleCount);
         }
@@ -360,6 +359,58 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Integer getTurnCount(final Wind wind) {
         return _turnTable.get(wind);
+    }
+    
+    /**
+     * 河の残り枚数を取得
+     * 
+     * @param pai 牌。
+     * @return 河の残り枚数。
+     */
+    public int getVisibleOuts(final JanPai pai) {
+        final List<JanPai> paiList = Arrays.asList(pai);
+        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
+        return outs.get(pai);
+    }
+    
+    /**
+     * 河の残り枚数テーブルを取得
+     * 
+     * @param paiList 牌リスト。
+     * @return 河の残り枚数テーブル。
+     */
+    public Map<JanPai, Integer> getVisibleOuts(final List<JanPai> paiList) {
+        final Map<JanPai, Integer> outs = new TreeMap<>();
+        
+        for (final JanPai pai : paiList) {
+            int visibleCount = 0;
+            
+            for (final Wind wind : Wind.values()) {
+                final List<JanPai> river = getRiver(wind).get();
+                final List<Integer> calledIndexList = getRiver(wind).getCalledIndexList();
+                
+                for (int count = 0; count < river.size(); count++) {
+                    boolean isCalledIndex = false;
+                    
+                    for (final Integer index : calledIndexList) {
+                        if (count == index) {
+                        	isCalledIndex = true;
+                        }
+                    }
+                    
+                    if (isCalledIndex) {
+                        continue;
+                    }
+                    
+                    if (pai.equals(river.get(count))) {
+                        visibleCount++;
+                    }
+                }
+                //TODO 副露牌もvisibleCountに加える
+            }
+            outs.put(pai, 4 - visibleCount);
+        }
+        return outs;
     }
     
     /**
@@ -654,30 +705,6 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 河での残り枚数テーブルを設定
-     * 
-     * @param targetList 残り枚数を確認したい牌リスト。
-     */
-    public void setRiverOuts(final List<JanPai> targetList) {
-        for (final JanPai pai : targetList) {
-            final List<JanPai> paiList = Arrays.asList(pai);
-            int visibleCount = 0;
-            
-            for (final Wind wind : Wind.values()) {
-                final List<JanPai> river = getRiver(wind).get();
-                river.retainAll(paiList);
-                visibleCount += river.size();
-                for (final Integer index : getRiver(wind).getCalledIndexList()) {
-                    if (pai.equals(getRiver(wind).get().get(index - 1))) {
-                        visibleCount--;
-                    }
-                }
-            }
-            _riverOuts.put(pai, 4 - visibleCount);
-        }
-    }
-    
-    /**
      * 王牌を設定
      * 
      * @param wanPai 王牌。
@@ -789,11 +816,6 @@ public final class JanInfo extends Observable implements Cloneable {
      * 残り枚数
      */
     private int _remainCount = 0;
-    
-    /**
-     * 河での残り枚数テーブル
-     */
-    private Map<JanPai, Integer> _riverOuts = new TreeMap<>();
     
     /**
      * 手牌テーブル

@@ -267,7 +267,6 @@ public final class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final AnnounceParam param = new AnnounceParam(AnnounceFlag.CONFIRM_OUTS, paiList);
-            info.setRiverOuts(paiList);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
@@ -414,7 +413,6 @@ public final class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final AnnounceParam param = new AnnounceParam(AnnounceFlag.OUTS, paiList);
-            info.setRiverOuts(paiList);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
