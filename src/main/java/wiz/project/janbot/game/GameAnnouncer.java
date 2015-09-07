@@ -62,10 +62,15 @@ public class GameAnnouncer implements Observer {
     public void update(final Observable target, final Object param) {
         if (target instanceof JanInfo) {
             if (param instanceof EnumSet) {
-                updateOnSolo((JanInfo)target, (EnumSet<AnnounceFlag>)param);
+                final AnnounceParam announceParam = new AnnounceParam((EnumSet<AnnounceFlag>) param);
+                updateOnSolo((JanInfo)target, announceParam);
             }
             else if (param instanceof AnnounceFlag) {
-                updateOnSolo((JanInfo)target, EnumSet.of((AnnounceFlag)param));
+                final AnnounceParam announceParam = new AnnounceParam(EnumSet.of((AnnounceFlag) param));
+                updateOnSolo((JanInfo)target, announceParam);
+            }
+            else if (param instanceof AnnounceParam) {
+                updateOnSolo((JanInfo)target, (AnnounceParam) param);
             }
         }
     }
@@ -117,14 +122,15 @@ public class GameAnnouncer implements Observer {
      * @param info 麻雀ゲーム情報。
      * @param flagSet 実況フラグ。
      */
-    protected void updateOnSolo(final JanInfo info, final EnumSet<AnnounceFlag> flagSet) {
+    protected void updateOnSolo(final JanInfo info, final AnnounceParam param) {
         if (info == null) {
             throw new NullPointerException("Game information is null.");
         }
-        if (flagSet == null) {
-            throw new NullPointerException("Announce type is null.");
+        if (param == null) {
+            throw new NullPointerException("Announce parameter is null.");
         }
         
+        final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
         final Wind playerWind = getPlayerWind(info);
         final List<String> messageList = new ArrayList<>();
         if (isCallable(flagSet)) {

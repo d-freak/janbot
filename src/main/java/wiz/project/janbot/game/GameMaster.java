@@ -251,24 +251,25 @@ public final class GameMaster {
         if (target.isEmpty()) {
             throw new InvalidInputException("Confirm outs target is empty.");
         }
-        final List<JanPai> targetPai = new ArrayList<>();
+        final List<JanPai> paiList = new ArrayList<>();
         for (final String string : target.split(" ")) {
             try {
-                targetPai.add(convertStringToJanPai(string));
+                paiList.add(convertStringToJanPai(string));
             }
             catch (final InvalidInputException e) {
             	// 指定ミスに対しては何もせず継続
             }
         }
         
-        if (targetPai.isEmpty()) {
+        if (paiList.isEmpty()) {
             throw new InvalidInputException("Confirm outs target JanPai is empty.");
         }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            info.setRiverOuts(targetPai);
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.CONFIRM_OUTS, paiList);
+            info.setRiverOuts(paiList);
             info.addObserver(_announcer);
-            info.notifyObservers(AnnounceFlag.CONFIRM_OUTS);
+            info.notifyObservers(param);
         }
     }
     
@@ -397,24 +398,25 @@ public final class GameMaster {
         if (target.isEmpty()) {
             throw new InvalidInputException("Outs target is empty.");
         }
-        final List<JanPai> targetPai = new ArrayList<>();
+        final List<JanPai> paiList = new ArrayList<>();
         for (final String string : target.split(" ")) {
             try {
-                targetPai.add(convertStringToJanPai(string));
+                paiList.add(convertStringToJanPai(string));
             }
             catch (final InvalidInputException e) {
                 // 指定ミスに対しては何もせず継続
             }
         }
         
-        if (targetPai.isEmpty()) {
+        if (paiList.isEmpty()) {
             throw new InvalidInputException("Outs target JanPai is empty.");
         }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            info.setRiverOuts(targetPai);
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.OUTS, paiList);
+            info.setRiverOuts(paiList);
             info.addObserver(_announcer);
-            info.notifyObservers(AnnounceFlag.OUTS);
+            info.notifyObservers(param);
         }
     }
     
