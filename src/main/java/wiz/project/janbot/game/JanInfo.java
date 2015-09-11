@@ -18,6 +18,7 @@ import wiz.project.jan.ChmCompleteInfo;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.Wind;
+import wiz.project.jan.util.JanPaiUtil;
 
 
 
@@ -355,11 +356,20 @@ public final class JanInfo extends Observable implements Cloneable {
      * 手牌で1枚だけの牌リストを取得
      * 
      * @param wind 風。
+     * @param isTsumo ツモっているか。
      * @return 手牌で1枚だけの牌リスト。
      */
-    public List<JanPai> getSingleJanPaiList(final Wind wind) {
+    public List<JanPai> getSingleJanPaiList(final Wind wind, final boolean isTsumo) {
         final List<JanPai> paiList = new ArrayList<>();
-        final Map<JanPai, Integer> paiMap = getHand(wind).getCleanMenZenMap(getActiveTsumo());
+        Map<JanPai, Integer> paiMap = new TreeMap<JanPai, Integer>();
+        
+        if (isTsumo) {
+            paiMap = getHand(wind).getCleanMenZenMap(getActiveTsumo());
+        }
+        else {
+            paiMap = getHand(wind).getMenZenMap();
+            JanPaiUtil.cleanJanPaiMap(paiMap);
+        }
         
         for (final JanPai pai : paiMap.keySet()) {
             final int paiCount = paiMap.get(pai);

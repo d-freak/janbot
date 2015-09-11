@@ -34,6 +34,11 @@ public enum AnnounceFlag {
     GAME_OVER,
     
     /**
+     * ゲーム終了
+     */
+    GAME_END,
+    
+    /**
      * ロン可能
      */
     CALLABLE_RON,

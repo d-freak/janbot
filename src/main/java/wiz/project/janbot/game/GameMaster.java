@@ -343,9 +343,15 @@ public final class GameMaster {
      */
     public void onEnd() {
         synchronized (_STATUS_LOCK) {
-            if (_status != GameStatus.IDLE) {
-                _status = GameStatus.IDLE;
-                IRCBOT.getInstance().println("--- 終了 ---");
+            if (_status.isIdle()) {
+                return;
+            }
+            _status = GameStatus.IDLE;
+            
+            synchronized (_CONTROLLER_LOCK) {
+                final JanInfo info = _controller.getGameInfo();
+                info.addObserver(_announcer);
+                info.notifyObservers(AnnounceFlag.GAME_END);
             }
         }
     }
