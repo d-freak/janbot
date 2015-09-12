@@ -162,8 +162,9 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
-            if (_7thMode && flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
+            if (_7thMode && isSelectingDiscard(flagSet)) {
+                final boolean isTsumo = flagSet.contains(AnnounceFlag.ACTIVE_TSUMO);
+                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind, isTsumo);
                 addOutsString(messageList, info.getOuts(paiList, playerWind));
             }
         }
@@ -177,12 +178,17 @@ public class GameAnnouncer implements Observer {
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
             if (_7thMode) {
-                messageList.add("七対モードを無効にしました。");
                 _7thMode = false;
+                messageList.add("七対モードを無効にしました。");
             }
             else {
-                messageList.add("七対モードを有効にしました。");
                 _7thMode = true;
+                messageList.add("七対モードを有効にしました。");
+                
+                final boolean isTsumo = flagSet.contains(AnnounceFlag.ACTIVE_TSUMO);
+                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind, isTsumo);
+                addOutsString(messageList, info.getOuts(paiList, playerWind));
+                
             }
         }
         
@@ -191,16 +197,18 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
             recordResultXml(player, turnCount, flagSet);
-            _7thMode = false;
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了 ----");
             recordResultXml(player, turnCount, flagSet);
-            _7thMode = false;
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
             recordResultXml(player, turnCount, flagSet);
+        }
+        
+        if (flagSet.contains(AnnounceFlag.GAME_END)) {
+            messageList.add("--- 終了 ---");
             _7thMode = false;
         }
         
@@ -502,6 +510,27 @@ public class GameAnnouncer implements Observer {
             if (flag.isCallable()) {
                 return true;
             }
+        }
+        return false;
+    }
+    
+    /**
+     * 捨て牌を選択中か
+     * 
+     * @param flagSet 実況フラグ。
+     * @return 判定結果。
+     */
+    private boolean isSelectingDiscard(final EnumSet<AnnounceFlag> flagSet) {
+        if (flagSet.contains(AnnounceFlag.RIVER_SINGLE)) {
+            return false;
+        }
+        
+        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+            return true;
+        }
+        
+        if (flagSet.contains(AnnounceFlag.AFTER_CALL)) {
+            return true;
         }
         return false;
     }
