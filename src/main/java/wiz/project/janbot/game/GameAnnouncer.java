@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -156,9 +155,6 @@ public class GameAnnouncer implements Observer {
             IRCBOT.getInstance().println("北" + convertRiverToString(info.getRiver(Wind.PEI)));
             messageList.clear();
         }
-        if (flagSet.contains(AnnounceFlag.RELEASED_CHM_YAKU)) {
-            addNotReleasedChmYakuString(messageList);
-        }
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
@@ -245,31 +241,6 @@ public class GameAnnouncer implements Observer {
         }
         buf.append("計：残り" + total.toString() + "枚");
         messageList.add(buf.toString());
-    }
-    
-    /**
-     * 中国麻雀の未実装の役を文字列に変換し出力内容に追加
-     * 
-     * @param messageList 出力内容。
-     */
-    private void addNotReleasedChmYakuString(final List<String> messageList) {
-        final StringBuilder buf = new StringBuilder();
-        final List<ChmYaku> notReleasedList = new ArrayList<ChmYaku>(Arrays.asList(ChmYaku.values()));
-        int count = 1;
-        
-        notReleasedList.removeAll(ChmYaku.getReleased());
-        
-        for (final ChmYaku yaku : notReleasedList) {
-            buf.append(yaku.toString() + ", ");
-            
-            if (count % 6 == 0) {
-                messageList.add(buf.toString());
-                buf.delete(0, buf.length());
-            }
-            count++;
-        }
-        messageList.add(buf.toString());
-        messageList.add(notReleasedList.size() + "/" + ChmYaku.values().length + "種類が未実装");
     }
     
     /**
