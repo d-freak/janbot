@@ -99,7 +99,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
             }
             else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_TSUMO);
             }
 //            else if (message.startsWith("jan ri- ")) {
 //                TODO リーチ対応
@@ -269,7 +269,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
             else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_AFTER_CALL);
             }
             else if (message.startsWith("jan chi ")) {
                 _confirmMode = false;
@@ -340,8 +340,10 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_SINGLE);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL =
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_ALL);
-    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH =
-        EnumSet.of(AnnounceFlag.SEVENTH);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_TSUMO =
+        EnumSet.of(AnnounceFlag.SEVENTH, AnnounceFlag.ACTIVE_TSUMO);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_AFTER_CALL =
+            EnumSet.of(AnnounceFlag.SEVENTH, AnnounceFlag.AFTER_CALL);
     
     /**
      * 色付けフラグ
