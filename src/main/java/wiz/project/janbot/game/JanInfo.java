@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import wiz.project.jan.ChmCompleteInfo;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
+import wiz.project.jan.MenTsu;
 import wiz.project.jan.Wind;
 import wiz.project.jan.util.JanPaiUtil;
 
@@ -297,8 +298,7 @@ public final class JanInfo extends Observable implements Cloneable {
         
         for (final JanPai pai : paiList) {
             int visibleCount = 0;
-            //TODO 副露牌を加えるのはgetVisibleOuts()で行ない、ここで加えるのは門前牌のみとする
-            visibleCount += getHand(wind).getAllJanPaiMap().get(pai);
+            visibleCount += getHand(wind).getMenZenMap().get(pai);
             outs.put(pai, outs.get(pai) - visibleCount);
         }
         return outs;
@@ -437,7 +437,15 @@ public final class JanInfo extends Observable implements Cloneable {
                         visibleCount++;
                     }
                 }
-                //TODO 副露牌もvisibleCountに加える
+                final List<MenTsu> fixedMenTsuList = getHand(wind).getFixedMenTsuList();
+                
+                for (final MenTsu fixedMenTsu : fixedMenTsuList) {
+                    final boolean isCalled = fixedMenTsu.getMenTsuType().isCalled();
+                    
+                    if (isCalled) {
+                        visibleCount += fixedMenTsu.getJanPaiCount(pai);
+                    }
+                }
             }
             outs.put(pai, 4 - visibleCount);
         }
