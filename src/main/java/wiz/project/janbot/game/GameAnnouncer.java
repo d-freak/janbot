@@ -159,8 +159,7 @@ public class GameAnnouncer implements Observer {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
             if (_7thMode && isSelectingDiscard(flagSet)) {
-                final boolean isTsumo = flagSet.contains(AnnounceFlag.ACTIVE_TSUMO);
-                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind, isTsumo);
+                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
                 addOutsString(messageList, info.getOuts(paiList, playerWind));
             }
         }
@@ -181,8 +180,7 @@ public class GameAnnouncer implements Observer {
                 _7thMode = true;
                 messageList.add("七対モードを有効にしました。");
                 
-                final boolean isTsumo = flagSet.contains(AnnounceFlag.ACTIVE_TSUMO);
-                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind, isTsumo);
+                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
                 addOutsString(messageList, info.getOuts(paiList, playerWind));
                 
             }

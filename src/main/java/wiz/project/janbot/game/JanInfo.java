@@ -359,11 +359,12 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param isTsumo ツモっているか。
      * @return 手牌で1枚だけの牌リスト。
      */
-    public List<JanPai> getSingleJanPaiList(final Wind wind, final boolean isTsumo) {
+    public List<JanPai> getSingleJanPaiList(final Wind wind) {
         final List<JanPai> paiList = new ArrayList<>();
         Map<JanPai, Integer> paiMap = new TreeMap<JanPai, Integer>();
+        final int usableSize = getHand(wind).getUsableSize();
         
-        if (isTsumo) {
+        if (usableSize != 0) {
             paiMap = getHand(wind).getCleanMenZenMap(getActiveTsumo());
         }
         else {
