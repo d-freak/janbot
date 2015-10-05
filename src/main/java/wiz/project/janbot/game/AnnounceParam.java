@@ -41,6 +41,14 @@ final class AnnounceParam {
         _flagSet = flagSet;
     }
     
+    /**
+     * コンストラクタ
+     */
+    public AnnounceParam(final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
+        _flagSet = flagSet;
+        _paiList = paiList;
+    }
+    
     
     
     /**

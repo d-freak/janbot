@@ -266,7 +266,8 @@ public final class GameMaster {
         }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.CONFIRM_OUTS, paiList);
+            final EnumSet<AnnounceFlag> flagSet = EnumSet.of(AnnounceFlag.OUTS, AnnounceFlag.CONFIRM);
+            final AnnounceParam param = new AnnounceParam(flagSet, paiList);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }

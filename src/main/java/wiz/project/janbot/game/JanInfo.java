@@ -279,9 +279,18 @@ public final class JanInfo extends Observable implements Cloneable {
      * @return 残り枚数テーブル。
      */
     public Map<JanPai, Integer> getOuts(final List<JanPai> paiList, final Wind wind) {
-        Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
-        if (getActiveTsumo() != null && outs.get(getActiveTsumo()) != null) {
-            outs.put(getActiveTsumo(), outs.get(getActiveTsumo()) - 1);
+        final Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
+        final int usableSize = getHand(wind).getUsableSize();
+        
+        if (usableSize == 0) {
+            // すでに14枚あり、ツモ牌の考慮は不要なのでreturn
+            return outs;
+        }
+        final JanPai activeTsumo = getActiveTsumo();
+        final Integer activeTsumoCount = outs.get(activeTsumo);
+        
+        if (activeTsumoCount != null) {
+            outs.put(activeTsumo, activeTsumoCount - 1);
         }
         return outs;
     }
@@ -299,6 +308,16 @@ public final class JanInfo extends Observable implements Cloneable {
         for (final JanPai pai : paiList) {
             int visibleCount = 0;
             visibleCount += getHand(wind).getMenZenMap().get(pai);
+            
+            final List<MenTsu> fixedMenTsuList = getHand(wind).getFixedMenTsuList();
+            
+            for (final MenTsu fixedMenTsu : fixedMenTsuList) {
+                final boolean isCalled = fixedMenTsu.getMenTsuType().isCalled();
+                
+                if (!isCalled) {
+                    visibleCount += fixedMenTsu.getJanPaiCount(pai);
+                }
+            }
             outs.put(pai, outs.get(pai) - visibleCount);
         }
         return outs;
@@ -359,12 +378,12 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param isTsumo ツモっているか。
      * @return 手牌で1枚だけの牌リスト。
      */
-    public List<JanPai> getSingleJanPaiList(final Wind wind) {
+    public List<JanPai> getSingleJanPaiList(final Wind wind, final boolean isTsumo) {
         final List<JanPai> paiList = new ArrayList<>();
         Map<JanPai, Integer> paiMap = new TreeMap<JanPai, Integer>();
         final int usableSize = getHand(wind).getUsableSize();
         
-        if (usableSize != 0) {
+        if (isTsumo && usableSize != 0) {
             paiMap = getHand(wind).getCleanMenZenMap(getActiveTsumo());
         }
         else {
@@ -425,7 +444,7 @@ public final class JanInfo extends Observable implements Cloneable {
                     
                     for (final Integer index : calledIndexList) {
                         if (count == index) {
-                        	isCalledIndex = true;
+                            isCalledIndex = true;
                         }
                     }
                     
@@ -604,9 +623,6 @@ public final class JanInfo extends Observable implements Cloneable {
     public void setCalledIndex(final Wind wind) {
         if (wind != null) {
             _riverTable.get(wind).setCalledIndex();
-            // 副露後の捨て牌選択時の残り枚数確認で、
-            // _activeTsumoをカウントしないようnullを設定
-            setActiveTsumo(null);
         }
     }
     

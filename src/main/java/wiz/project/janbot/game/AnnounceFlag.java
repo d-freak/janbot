@@ -104,14 +104,14 @@ public enum AnnounceFlag {
     OUTS,
     
     /**
-     * 指定牌の残り枚数(確認メッセージ用)
-     */
-    CONFIRM_OUTS,
-    
-    /**
      * 七対モード切り替え
      */
     SEVENTH,
+    
+    /**
+     * 確認メッセージ用
+     */
+    CONFIRM,
     
     /**
      * 点数

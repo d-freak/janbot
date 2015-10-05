@@ -269,7 +269,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
             else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
             }
             else if (message.startsWith("jan chi ")) {
                 _confirmMode = false;
@@ -342,6 +342,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_ALL);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH =
         EnumSet.of(AnnounceFlag.SEVENTH);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_CONFIRM =
+        EnumSet.of(AnnounceFlag.SEVENTH, AnnounceFlag.CONFIRM);
     
     /**
      * 色付けフラグ

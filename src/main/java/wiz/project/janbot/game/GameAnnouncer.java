@@ -159,17 +159,27 @@ public class GameAnnouncer implements Observer {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
             if (_7thMode && isSelectingDiscard(flagSet)) {
-                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
-                addOutsString(messageList, info.getOuts(paiList, playerWind));
+                List<JanPai> paiList = new ArrayList<>();
+                
+                if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+                    paiList = info.getSingleJanPaiList(playerWind, true);
+                }
+                else {
+                    paiList = info.getSingleJanPaiList(playerWind, false);
+                }
+                // ツモ牌はgetSingleJanPaiList()で加え、getOutsOnConfirm()を呼ぶ
+                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
             }
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
-            addOutsString(messageList, info.getOuts(paiList, playerWind));
-        }
-        if (flagSet.contains(AnnounceFlag.CONFIRM_OUTS)) {
-            final List<JanPai> paiList = param.getPaiList();
-            addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
+            
+            if (flagSet.contains(AnnounceFlag.CONFIRM)) {
+                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
+            }
+            else {
+                addOutsString(messageList, info.getOuts(paiList, playerWind));
+            }
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
             if (_7thMode) {
@@ -180,9 +190,16 @@ public class GameAnnouncer implements Observer {
                 _7thMode = true;
                 messageList.add("七対モードを有効にしました。");
                 
-                final List<JanPai> paiList = info.getSingleJanPaiList(playerWind);
-                addOutsString(messageList, info.getOuts(paiList, playerWind));
+                List<JanPai> paiList = new ArrayList<>();
                 
+                if (flagSet.contains(AnnounceFlag.CONFIRM)) {
+                    paiList = info.getSingleJanPaiList(playerWind, false);
+                }
+                else {
+                    paiList = info.getSingleJanPaiList(playerWind, true);
+                }
+                // ツモ牌はgetSingleJanPaiList()で加え、getOutsOnConfirm()を呼ぶ
+                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
             }
         }
         
