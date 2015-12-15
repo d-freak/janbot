@@ -167,19 +167,13 @@ public class GameAnnouncer implements Observer {
                 else {
                     paiList = info.getSingleJanPaiList(playerWind, false);
                 }
-                // ツモ牌はgetSingleJanPaiList()で加え、getOutsOnConfirm()を呼ぶ
-                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
+                addOutsString(messageList, getOuts(info, flagSet, paiList));
             }
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
             
-            if (flagSet.contains(AnnounceFlag.CONFIRM)) {
-                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
-            }
-            else {
-                addOutsString(messageList, info.getOuts(paiList, playerWind));
-            }
+            addOutsString(messageList, getOuts(info, flagSet, paiList));
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
             if (_7thMode) {
@@ -198,8 +192,7 @@ public class GameAnnouncer implements Observer {
                 else {
                     paiList = info.getSingleJanPaiList(playerWind, true);
                 }
-                // ツモ牌はgetSingleJanPaiList()で加え、getOutsOnConfirm()を呼ぶ
-                addOutsString(messageList, info.getOutsOnConfirm(paiList, playerWind));
+                addOutsString(messageList, getOuts(info, flagSet, paiList));
             }
         }
         
@@ -467,6 +460,23 @@ public class GameAnnouncer implements Observer {
             return "06";  // 紫
         default:
             return "01";  // 黒
+        }
+    }
+    
+    /**
+     * プレイヤーの風を取得
+     * 
+     * @param info ゲーム情報。
+     * @return プレイヤーの風。
+     */
+    private Map<JanPai, Integer> getOuts(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
+        final Wind playerWind = getPlayerWind(info);
+        
+        if (flagSet.contains(AnnounceFlag.CONFIRM)) {
+            return info.getOutsOnConfirm(paiList, playerWind);
+        }
+        else {
+            return info.getOuts(paiList, playerWind);
         }
     }
     
