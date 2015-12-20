@@ -98,6 +98,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan i ra")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
             }
+            else if (message.equals("jan w")) {
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
+            }
             else if (message.equals("jan 7th")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
             }
@@ -113,6 +116,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
             else if (message.startsWith("jan o ")) {
                 GameMaster.getInstance().onOuts(message.substring(6));
+            }
+            else if (message.startsWith("jan w ")) {
+                GameMaster.getInstance().onWatch(message.substring(6));
             }
             else if (message.equals("jan replay")) {
                 GameMaster.getInstance().onReplay(playerName);
@@ -143,7 +149,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                     Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
-                                  "ra：他家を含む全ての捨て牌",
+                                  "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
+                                  "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)",
                                   "tsumo, hu：ツモ和了   kan X：指定牌でカン");
@@ -268,6 +275,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan i r") || message.equals("jan r i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
+            else if (message.equals("jan w")) {
+                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
+            }
             else if (message.equals("jan 7th")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
             }
@@ -287,6 +297,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 _confirmMode = false;
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
+            else if (message.startsWith("jan w ")) {
+                GameMaster.getInstance().onWatch(message.substring(6));
+            }
             else if (message.startsWith("jan o ")) {
                 GameMaster.getInstance().onConfirmOuts(message.substring(6));
             }
@@ -294,7 +307,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 final List<String> messageList =
                     Arrays.asList("chi X：指定牌(ex.3p)を先頭牌としてチー",
                                   "pon：ポン   kan X：指定牌でカン   ron, hu：ロン",
-                                  "ra：他家を含む全ての捨て牌",
+                                  "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
+                                  "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)",
                                   "d：キャンセル");
@@ -340,6 +354,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_SINGLE);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL =
         EnumSet.of(AnnounceFlag.FIELD, AnnounceFlag.RIVER_ALL);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_WATCHING_END =
+        EnumSet.of(AnnounceFlag.WATCHING_END);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH =
         EnumSet.of(AnnounceFlag.SEVENTH);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_CONFIRM =

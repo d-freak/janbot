@@ -677,6 +677,50 @@ public final class GameMaster {
         }
     }
     
+    /**
+     * 指定牌の残り枚数の自動表示
+     * 
+     * @param target 指定牌。
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onWatch(final String target) throws JanException {
+        if (target == null) {
+            throw new NullPointerException("Watch target is null.");
+        }
+        
+        // 開始判定
+        synchronized (_STATUS_LOCK) {
+            if (_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Not started ---");
+                return;
+            }
+        }
+        
+        if (target.isEmpty()) {
+            throw new InvalidInputException("Watch target is empty.");
+        }
+        final List<JanPai> paiList = new ArrayList<>();
+        for (final String string : target.split(" ")) {
+            try {
+                paiList.add(convertStringToJanPai(string));
+            }
+            catch (final InvalidInputException e) {
+                // 指定ミスに対しては何もせず継続
+            }
+        }
+        
+        if (paiList.isEmpty()) {
+            throw new InvalidInputException("Watch target JanPai is empty.");
+        }
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.WATCHING_START);
+            info.setWatchingJanPaiList(paiList);
+            info.addObserver(_announcer);
+            info.notifyObservers(param);
+        }
+    }
+    
     
     
     /**

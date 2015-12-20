@@ -57,6 +57,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _remainCount = source._remainCount;
             _activeTsumo = source._activeTsumo;
             _activeDiscard = source._activeDiscard;
+            _watchingJanPaiList = deepCopyList(source._watchingJanPaiList);
             _completeInfo = source._completeInfo;
             
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
@@ -100,6 +101,7 @@ public final class JanInfo extends Observable implements Cloneable {
         _remainCount = 0;
         _activeTsumo = JanPai.HAKU;
         _activeDiscard = JanPai.HAKU;
+        _watchingJanPaiList.clear();
         _completeInfo = null;
         
         for (final Wind wind : Wind.values()) {
@@ -481,6 +483,15 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 監視牌のリストを取得
+     * 
+     * @return 監視牌のリスト。
+     */
+    public List<JanPai> getWatchingJanPaiList() {
+        return deepCopyList(_watchingJanPaiList);
+    }
+    
+    /**
      * 牌山インデックスを増加
      */
     public void increaseDeckIndex() {
@@ -773,6 +784,20 @@ public final class JanInfo extends Observable implements Cloneable {
         }
     }
     
+    /**
+     * 監視牌のリストを設定
+     * 
+     * @param watchingJanPaiList 監視牌のリスト。
+     */
+    public void setWatchingJanPaiList(final List<JanPai> watchingJanPaiList) {
+        if (watchingJanPaiList != null) {
+            _watchingJanPaiList = deepCopyList(watchingJanPaiList);
+        }
+        else {
+        	_watchingJanPaiList.clear();
+        }
+    }
+    
     
     
     /**
@@ -896,6 +921,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 直前の捨て牌
      */
     private JanPai _activeDiscard = JanPai.HAKU;
+    
+    /**
+     * 監視牌のリスト
+     */
+    private List<JanPai> _watchingJanPaiList = new ArrayList<>();
     
     /**
      * 和了情報

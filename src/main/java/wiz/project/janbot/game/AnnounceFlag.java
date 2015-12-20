@@ -99,6 +99,16 @@ public enum AnnounceFlag {
     URA_DORA,
     
     /**
+     * 監視モード開始
+     */
+    WATCHING_START,
+    
+    /**
+     * 監視モード終了
+     */
+    WATCHING_END,
+    
+    /**
      * 指定牌の残り枚数
      */
     OUTS,

@@ -158,16 +158,38 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
-            if (_7thMode && isSelectingDiscard(flagSet)) {
+            if (isSelectingDiscard(flagSet)) {
                 List<JanPai> paiList = new ArrayList<>();
                 
-                if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-                    paiList = info.getSingleJanPaiList(playerWind, true);
+                switch (_announceMode) {
+                case WATCH:
+                    paiList = info.getWatchingJanPaiList();
+                    addOutsString(messageList, getOuts(info, flagSet, paiList));
+                    break;
+                case SEVENTH:
+                    if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+                        paiList = info.getSingleJanPaiList(playerWind, true);
+                    }
+                    else {
+                        paiList = info.getSingleJanPaiList(playerWind, false);
+                    }
+                    addOutsString(messageList, getOuts(info, flagSet, paiList));
+                    break;
+                default:
                 }
-                else {
-                    paiList = info.getSingleJanPaiList(playerWind, false);
-                }
-                addOutsString(messageList, getOuts(info, flagSet, paiList));
+            }
+        }
+        if (flagSet.contains(AnnounceFlag.WATCHING_START)) {
+            _announceMode = AnnounceMode.WATCH;
+            messageList.add("監視モードを有効にしました。");
+            
+            final List<JanPai> paiList = info.getWatchingJanPaiList();
+            addOutsString(messageList, getOuts(info, flagSet, paiList));
+        }
+        if (flagSet.contains(AnnounceFlag.WATCHING_END)) {
+            if (AnnounceMode.WATCH.equals(_announceMode)) {
+                _announceMode = AnnounceMode.NORMAL;
+                messageList.add("監視モードを無効にしました。");
             }
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
@@ -176,12 +198,12 @@ public class GameAnnouncer implements Observer {
             addOutsString(messageList, getOuts(info, flagSet, paiList));
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
-            if (_7thMode) {
-                _7thMode = false;
+            if (AnnounceMode.SEVENTH.equals(_announceMode)) {
+                _announceMode = AnnounceMode.NORMAL;
                 messageList.add("七対モードを無効にしました。");
             }
             else {
-                _7thMode = true;
+                _announceMode = AnnounceMode.SEVENTH;
                 messageList.add("七対モードを有効にしました。");
                 
                 List<JanPai> paiList = new ArrayList<>();
@@ -213,7 +235,7 @@ public class GameAnnouncer implements Observer {
         
         if (flagSet.contains(AnnounceFlag.GAME_END)) {
             messageList.add("--- 終了 ---");
-            _7thMode = false;
+            _announceMode = AnnounceMode.NORMAL;
         }
         
         IRCBOT.getInstance().println(messageList);
@@ -632,9 +654,9 @@ public class GameAnnouncer implements Observer {
     private boolean _isChm = false;
     
     /**
-     * 七対モード
+     * 実況モード
      */
-    private boolean _7thMode = false;
+    private AnnounceMode _announceMode = AnnounceMode.NORMAL;
     
 }
 
