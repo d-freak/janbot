@@ -90,5 +90,13 @@ interface JanController {
      */
     public void start(final List<JanPai> deck, final Map<Wind, Player> playerTable) throws JanException;
     
+    /**
+     * 監視
+     * 
+     * @param watchList 監視牌リスト。
+     * @throws JanException 例外イベント。
+     */
+    public void watch(final List<JanPai> watchList) throws JanException;
+    
 }
 

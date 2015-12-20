@@ -203,6 +203,13 @@ class VSJanController implements JanController {
         }
     }
     
+    /**
+     * 監視
+     */
+    public void watch(final List<JanPai> watchList) throws JanException {
+        // 未対応
+    }
+    
     
     
     /**

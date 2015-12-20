@@ -713,11 +713,7 @@ public final class GameMaster {
             throw new InvalidInputException("Watch target JanPai is empty.");
         }
         synchronized (_CONTROLLER_LOCK) {
-            final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.WATCHING_START);
-            info.setWatchingJanPaiList(paiList);
-            info.addObserver(_announcer);
-            info.notifyObservers(param);
+            _controller.watch(paiList);
         }
     }
     

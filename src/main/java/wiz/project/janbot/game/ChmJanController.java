@@ -353,6 +353,17 @@ class ChmJanController implements JanController {
         }
     }
     
+    /**
+     * 監視
+     */
+    public void watch(final List<JanPai> watchList) throws JanException {
+        if (watchList == null) {
+            throw new NullPointerException("WatchList is null.");
+        }
+        _info.setWatchingJanPaiList(watchList);
+        _info.notifyObservers(ANNOUNCE_FLAG_WATCHING_START);
+    }
+    
     
     
     /**
@@ -950,6 +961,8 @@ class ChmJanController implements JanController {
         EnumSet.of(AnnounceFlag.HAND, AnnounceFlag.AFTER_CALL);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_HAND_TSUMO_FIELD_AFTER_CALL =
         EnumSet.of(AnnounceFlag.HAND, AnnounceFlag.ACTIVE_TSUMO, AnnounceFlag.FIELD, AnnounceFlag.AFTER_CALL);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_WATCHING_START =
+        EnumSet.of(AnnounceFlag.WATCHING_START);
     
     
     
