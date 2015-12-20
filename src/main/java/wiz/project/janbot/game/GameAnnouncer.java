@@ -132,9 +132,14 @@ public class GameAnnouncer implements Observer {
         final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
         final Wind playerWind = getPlayerWind(info);
         final List<String> messageList = new ArrayList<>();
+        final Player player = info.getPlayer(playerWind);
+        final Integer turnCount = info.getTurnCount(playerWind);
         if (isCallable(flagSet)) {
             messageList.add(convertCallInfoToString(info.getActiveDiscard(), flagSet));
             messageList.add("(詳細：「jan help」を参照)");
+        }
+        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO) || flagSet.contains(AnnounceFlag.AFTER_CALL)) {
+            messageList.add(turnCount + "巡目");
         }
         if (flagSet.contains(AnnounceFlag.AFTER_CALL)) {
             messageList.add("捨て牌を選んでください");
@@ -217,9 +222,6 @@ public class GameAnnouncer implements Observer {
                 addOutsString(messageList, getOuts(info, flagSet, paiList));
             }
         }
-        
-        final Player player = info.getPlayer(playerWind);
-        final Integer turnCount = info.getTurnCount(playerWind);
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
             recordResultXml(player, turnCount, flagSet);
