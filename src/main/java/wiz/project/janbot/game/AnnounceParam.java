@@ -29,6 +29,14 @@ final class AnnounceParam {
     /**
      * コンストラクタ
      */
+    public AnnounceParam(final AnnounceFlag flag, final String playerName) {
+        _flagSet = EnumSet.of(flag);
+        _playerName = playerName;
+    }
+    
+    /**
+     * コンストラクタ
+     */
     public AnnounceParam(final AnnounceFlag flag, final List<JanPai> paiList) {
         _flagSet = EnumSet.of(flag);
         _paiList = paiList;
@@ -65,6 +73,13 @@ final class AnnounceParam {
         return _paiList;
     }
     
+    /**
+     * プレイヤー名を取得
+     */
+    public String getPlayerName() {
+        return _playerName;
+    }
+    
     
     
     /**
@@ -76,5 +91,10 @@ final class AnnounceParam {
      * 牌リスト
      */
     private List<JanPai> _paiList = null;
+    
+    /**
+     * プレイヤー名
+     */
+    private String _playerName = null;
 }
 

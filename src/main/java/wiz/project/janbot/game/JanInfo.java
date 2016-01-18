@@ -282,12 +282,6 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Map<JanPai, Integer> getOuts(final List<JanPai> paiList, final Wind wind) {
         final Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
-        final int usableSize = getHand(wind).getUsableSize();
-        
-        if (usableSize == 0) {
-            // すでに14枚あり、ツモ牌の考慮は不要なのでreturn
-            return outs;
-        }
         final JanPai activeTsumo = getActiveTsumo();
         final Integer activeTsumoCount = outs.get(activeTsumo);
         

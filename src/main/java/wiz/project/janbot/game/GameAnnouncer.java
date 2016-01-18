@@ -35,6 +35,7 @@ import wiz.project.jan.MenTsu;
 import wiz.project.jan.MenTsuType;
 import wiz.project.jan.Wind;
 import wiz.project.jan.yaku.ChmYaku;
+import wiz.project.janbot.statistics.Statistics;
 
 
 
@@ -239,6 +240,10 @@ public class GameAnnouncer implements Observer {
             messageList.add("--- 終了 ---");
             _announceMode = AnnounceMode.NORMAL;
         }
+        if (flagSet.contains(AnnounceFlag.STATISTICS)) {
+            final String playerName = param.getPlayerName();
+            addStatisticsString(messageList, playerName);
+        }
         
         IRCBOT.getInstance().println(messageList);
         
@@ -273,6 +278,27 @@ public class GameAnnouncer implements Observer {
         }
         buf.append("計：残り" + total.toString() + "枚");
         messageList.add(buf.toString());
+    }
+    
+    /**
+     * 指定したプレイヤー名のゲーム統計を出力内容に追加
+     * 
+     * @param messageList 出力内容。
+     * @param playerName プレイヤー名。
+     */
+    private void addStatisticsString(final List<String> messageList, final String playerName) {
+        Statistics statistics = null;
+        
+        try {
+            statistics = new Statistics(playerName);
+        }
+        catch (DocumentException e) {
+            messageList.add(playerName + "というプレイヤーの記録はありません。");
+            return;
+        }
+        messageList.add(statistics.completeRate());
+        messageList.add(statistics.tsumoRate());
+        messageList.add(statistics.turnAverage());
     }
     
     /**

@@ -114,6 +114,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan tsumo") || message.equals("jan hu")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
+            else if (message.startsWith("jan s ")) {
+                GameMaster.getInstance().onStatistics(message.substring(6));
+            }
             else if (message.startsWith("jan o ")) {
                 GameMaster.getInstance().onOuts(message.substring(6));
             }
@@ -146,7 +149,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 //            }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
-                    Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了",
+                    Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了   s X：指定したプレイヤーのゲーム統計を表示",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
@@ -297,6 +300,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 _confirmMode = false;
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
+            else if (message.startsWith("jan s ")) {
+                GameMaster.getInstance().onStatistics(message.substring(6));
+            }
             else if (message.startsWith("jan w ")) {
                 GameMaster.getInstance().onWatch(message.substring(6));
             }
@@ -305,7 +311,7 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
-                    Arrays.asList("chi X：指定牌(ex.3p)を先頭牌としてチー",
+                    Arrays.asList("s X：指定したプレイヤーのゲーム統計を表示   chi X：指定牌(ex.3p)を先頭牌としてチー",
                                   "pon：ポン   kan X：指定牌でカン   ron, hu：ロン",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",

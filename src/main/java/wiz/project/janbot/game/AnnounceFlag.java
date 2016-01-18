@@ -19,6 +19,11 @@ public enum AnnounceFlag {
     GAME_START,
     
     /**
+     * ゲーム統計表示
+     */
+    STATISTICS,
+    
+    /**
      * ロン和了
      */
     COMPLETE_RON,

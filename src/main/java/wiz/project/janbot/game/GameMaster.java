@@ -683,6 +683,26 @@ public final class GameMaster {
      * @param target 指定牌。
      * @throws JanException ゲーム処理エラー。
      */
+    public void onStatistics(final String target) throws JanException {
+        if (target == null) {
+            throw new NullPointerException("Watch target is null.");
+        }
+        final String name = target.replaceAll(" ", "");
+        
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name);
+            info.addObserver(_announcer);
+            info.notifyObservers(param);
+        }
+    }
+    
+    /**
+     * 指定牌の残り枚数の自動表示
+     * 
+     * @param target 指定牌。
+     * @throws JanException ゲーム処理エラー。
+     */
     public void onWatch(final String target) throws JanException {
         if (target == null) {
             throw new NullPointerException("Watch target is null.");
