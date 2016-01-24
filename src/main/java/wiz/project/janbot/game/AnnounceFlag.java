@@ -131,7 +131,12 @@ public enum AnnounceFlag {
     /**
      * 点数
      */
-    SCORE;
+    SCORE,
+    
+    /**
+     * 8点縛り超え
+     */
+    IS_OVER_TIED_POINT;
     
     
     

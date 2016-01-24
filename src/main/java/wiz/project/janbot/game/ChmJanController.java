@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.TreeMap;
 
-import wiz.project.jan.ChmCompleteInfo;
-import wiz.project.jan.CompleteJanPai;
-import wiz.project.jan.CompleteType;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
@@ -153,8 +150,10 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
+                final Wind playerWind = _info.getActiveWind();
+                
                 _info.setCalledIndex(activeWind);
-                _info.setCompleteInfo(getCompleteInfo(discard, _info.getCompleteOuts(true), _info.getActiveWind(), true));
+                _info.setCompleteInfo(playerWind, true);
                 
                 // ゲームセット
                 _onGame = false;
@@ -179,12 +178,13 @@ class ChmJanController implements JanController {
         synchronized (_GAME_INFO_LOCK) {
             // ツモ対象牌を取得
             final JanPai tsumo = _info.getActiveTsumo();
-            final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), tsumo);
+            final Wind activeWind = _info.getActiveWind();
+            final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, activeWind, tsumo);
             if (!ChmHandCheckUtil.isComplete(handWithTsumo)) {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
-            _info.setCompleteInfo(getCompleteInfo(tsumo, _info.getCompleteOuts(false), _info.getActiveWind(), false));
+            _info.setCompleteInfo(activeWind, false);
             
             // ゲームセット
             _onGame = false;
@@ -683,76 +683,6 @@ class ChmJanController implements JanController {
     }
     
     /**
-     * 和了情報を取得
-     * 
-     * @param pai 和了牌。
-     * @param remainCount 和了牌の残り枚数。
-     * @param wind プレイヤーの風。
-     * @param isRon ロン和了か。
-     * @return 和了情報。
-     */
-    private ChmCompleteInfo getCompleteInfo(final JanPai pai, final int remainCount, final Wind wind, final boolean isRon) {
-        final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, getCompleteType(wind, isRon));
-        return ChmHandCheckUtil.getCompleteInfo(_info.getHand(wind), completePai, _info.getActiveWind(), _info.getFieldWind());
-    }
-    
-    /**
-     * 和了タイプを取得
-     * 
-     * @param wind プレイヤーの風。
-     * @param isRon ロン和了か。
-     * @return 和了タイプ。
-     */
-    private CompleteType getCompleteType(final Wind wind, final boolean isRon) {
-        if (isRon) {
-            if (_info.getRemainCount() == 0) {
-                if (_info.getHand(wind).isMenZen()) {
-                    return CompleteType.RON_MENZEN_HO_TEI;
-                }
-                else {
-                    return CompleteType.RON_NOT_MENZEN_HO_TEI;
-                }
-            }
-            else {
-                if (_info.getHand(wind).isMenZen()) {
-                    return CompleteType.RON_MENZEN;
-                }
-                else {
-                    return CompleteType.RON_NOT_MENZEN;
-                }
-            }
-        }
-        else {
-            if (_callKan) {
-                if (_info.getHand(wind).isMenZen()) {
-                    return CompleteType.TSUMO_MENZEN_RIN_SYAN;
-                }
-                else {
-                    return CompleteType.TSUMO_NOT_MENZEN_RIN_SYAN;
-                }
-            }
-            else {
-                if (_info.getRemainCount() == 0) {
-                    if (_info.getHand(wind).isMenZen()) {
-                        return CompleteType.TSUMO_MENZEN_HAI_TEI;
-                    }
-                    else {
-                        return CompleteType.TSUMO_NOT_MENZEN_HAI_TEI;
-                    }
-                }
-                else {
-                    if (_info.getHand(wind).isMenZen()) {
-                        return CompleteType.TSUMO_MENZEN;
-                    }
-                    else {
-                        return CompleteType.TSUMO_NOT_MENZEN;
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
      * プレイヤーの手牌マップを取得
      * 
      * @param info ゲーム情報。
@@ -890,7 +820,7 @@ class ChmJanController implements JanController {
         final JanPai activeTsumo = getJanPaiFromDeck();
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
-        _callKan = false;
+        _info.setCallKan(false);
         
         // 打牌
         final Player activePlayer = _info.getActivePlayer();
@@ -927,10 +857,7 @@ class ChmJanController implements JanController {
         final JanPai activeTsumo = getJanPaiFromDeckWall();
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
-        _callKan = true;
-        
-        // 手変わりがあったので待ち判定更新
-        updateWaitList(_info, activeWind);
+        _info.setCallKan(true);
     }
     
     /**
@@ -941,9 +868,11 @@ class ChmJanController implements JanController {
      */
     private void updateWaitList(final JanInfo info, final Wind targetWind) {
         final Map<JanPai, Integer> hand = getHandMap(info, targetWind);
-        _completeWait.put(targetWind, ChmHandCheckUtil.getCompletableJanPaiList(hand));
+        final List<JanPai> completableJanPaiList = ChmHandCheckUtil.getCompletableJanPaiList(hand);
+        _completeWait.put(targetWind, completableJanPaiList);
         _chiWait.put(targetWind, getChiWaitList(hand));
         _ponWait.put(targetWind, getPonWaitList(hand));
+        info.setCompletableTurnCount(targetWind, completableJanPaiList);
     }
     
     
@@ -994,11 +923,6 @@ class ChmJanController implements JanController {
      * 副露後の打牌フラグ
      */
     private volatile boolean _afterCall = false;
-    
-    /**
-     * カンフラグ
-     */
-    private volatile boolean _callKan = false;
     
     /**
      * 和了の待ち

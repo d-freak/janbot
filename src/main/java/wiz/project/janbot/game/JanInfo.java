@@ -15,10 +15,13 @@ import java.util.Observable;
 import java.util.TreeMap;
 
 import wiz.project.jan.ChmCompleteInfo;
+import wiz.project.jan.CompleteJanPai;
+import wiz.project.jan.CompleteType;
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.MenTsu;
 import wiz.project.jan.Wind;
+import wiz.project.jan.util.ChmHandCheckUtil;
 import wiz.project.jan.util.JanPaiUtil;
 
 
@@ -36,6 +39,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
         }
     }
@@ -65,6 +69,9 @@ public final class JanInfo extends Observable implements Cloneable {
             }
             for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
                 _riverTable.put(entry.getKey(), entry.getValue().clone());
+            }
+            for (final Entry<Wind, Integer> entry : source._completableTurnTable.entrySet()) {
+            	_completableTurnTable.put(entry.getKey(), entry.getValue());
             }
             for (final Entry<Wind, Integer> entry : source._turnTable.entrySet()) {
                 _turnTable.put(entry.getKey(), entry.getValue());
@@ -108,6 +115,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
         }
     }
@@ -186,6 +194,16 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 指定した風の和了可能巡目を取得
+     * 
+     * @param wind 風。
+     * @return 指定した風の和了可能巡目。
+     */
+    public Integer getCompletableTurnCount(final Wind wind) {
+        return _completableTurnTable.get(wind);
+    }
+    
+    /**
      * 和了情報を取得
      * 
      * @return 和了情報。
@@ -197,18 +215,11 @@ public final class JanInfo extends Observable implements Cloneable {
     /**
      * 和了牌の残り枚数を取得
      * 
-     * @param isRon ロン和了か。
+     * @param pai 和了牌。
      * @return 和了牌の残り枚数。
      */
-    public int getCompleteOuts(boolean isRon) {
-        JanPai completePai = JanPai.HAKU;
-        if (isRon) {
-        	completePai = getActiveDiscard();
-        }
-        else {
-        	completePai = getActiveTsumo();
-        }
-        final int completeOuts = getVisibleOuts(completePai) - 1;
+    public int getCompleteOuts(final JanPai pai) {
+        final int completeOuts = getVisibleOuts(pai) - 1;
         
         return completeOuts;
     }
@@ -502,6 +513,8 @@ public final class JanInfo extends Observable implements Cloneable {
     
     /**
      * 指定した風の巡目を増加
+     * 
+     * @param wind 風。
      */
     public void increaseTurnCount(final Wind wind) {
         _turnTable.put(wind, _turnTable.get(wind) + 1);
@@ -632,12 +645,52 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * カンフラグを設定
+     * 
+     * @param callKan カンフラグ。
+     */
+    public void setCallKan(final boolean callKan) {
+        _callKan = callKan;
+    }
+    
+    /**
+     * 指定した風の和了可能巡目を設定
+     * 
+     * @param wind 風。
+     * @param completableJanPaiList 待ち牌リスト。
+     */
+    public void setCompletableTurnCount(final Wind wind, final List<JanPai> completableJanPaiList) {
+        final int completableTurn = _completableTurnTable.get(wind);
+        
+        if (completableTurn != 0) {
+            return;
+        }
+        final boolean isOverTiedPoint = isOverTiedPoint(wind, completableJanPaiList);
+        
+        if (!isOverTiedPoint) {
+            return;
+        }
+        final int turnCount = _turnTable.get(wind);
+        _completableTurnTable.put(wind, turnCount);
+        
+        final AnnounceParam param = new AnnounceParam(AnnounceFlag.IS_OVER_TIED_POINT, turnCount);
+        notifyObservers(param);
+    }
+    
+    /**
      * 和了情報を設定
      * 
+     * @param playerWind プレイヤーの風。
+     * @param isRon ロン和了か。
      * @param wind 和了情報。
      */
-    public void setCompleteInfo(final ChmCompleteInfo completeInfo) {
-        _completeInfo = completeInfo;
+    public void setCompleteInfo(final Wind playerWind, final boolean isRon) {
+        JanPai pai = getActiveTsumo();
+        
+        if (isRon) {
+            pai = getActiveDiscard();
+        }
+        _completeInfo = getCompleteInfo(playerWind, pai, isRon);
     }
     
     /**
@@ -815,7 +868,110 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 和了情報を取得
+     * 
+     * @param playerWind プレイヤーの風。
+     * @param pai 和了牌。
+     * @param isRon ロン和了か。
+     * @param wind 和了情報。
+     */
+    private ChmCompleteInfo getCompleteInfo(final Wind playerWind, final JanPai pai, final boolean isRon) {
+        final int remainCount = getCompleteOuts(pai);
+        final CompleteType completeType = getCompleteType(playerWind, isRon, _callKan);
+        final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, completeType);
+        final Hand hand = getHand(playerWind);
+        final Wind fieldWind = getFieldWind();
+        
+        return ChmHandCheckUtil.getCompleteInfo(hand, completePai, playerWind, fieldWind);
+    }
+    
+    /**
+     * 和了タイプを取得
+     * 
+     * @param playerWind プレイヤーの風。
+     * @param isRon ロン和了か。
+     * @param isKan カンか。
+     * @return 和了タイプ。
+     */
+    private CompleteType getCompleteType(final Wind playerWind, final boolean isRon, final boolean isKan) {
+        final boolean isMenZen = getHand(playerWind).isMenZen();
+        final int remainCount = getRemainCount();
+        
+        if (isRon) {
+            if (remainCount == 0) {
+                if (isMenZen) {
+                    return CompleteType.RON_MENZEN_HO_TEI;
+                }
+                else {
+                    return CompleteType.RON_NOT_MENZEN_HO_TEI;
+                }
+            }
+            else {
+                if (isMenZen) {
+                    return CompleteType.RON_MENZEN;
+                }
+                else {
+                    return CompleteType.RON_NOT_MENZEN;
+                }
+            }
+        }
+        else {
+            if (isKan) {
+                if (isMenZen) {
+                    return CompleteType.TSUMO_MENZEN_RIN_SYAN;
+                }
+                else {
+                    return CompleteType.TSUMO_NOT_MENZEN_RIN_SYAN;
+                }
+            }
+            else {
+                if (remainCount == 0) {
+                    if (isMenZen) {
+                        return CompleteType.TSUMO_MENZEN_HAI_TEI;
+                    }
+                    else {
+                        return CompleteType.TSUMO_NOT_MENZEN_HAI_TEI;
+                    }
+                }
+                else {
+                    if (isMenZen) {
+                        return CompleteType.TSUMO_MENZEN;
+                    }
+                    else {
+                        return CompleteType.TSUMO_NOT_MENZEN;
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * 8点縛り超えか
+     * 
+     * @param wind 風。
+     * @param completableJanPaiList 待ち牌リスト。
+     * @return 判定結果。
+     */
+    private boolean isOverTiedPoint(final Wind wind, final List<JanPai> completableJanPaiList) {
+        for (final JanPai pai : completableJanPaiList) {
+            final ChmCompleteInfo completeInfo = getCompleteInfo(wind, pai, true);
+            final int totalPoint = completeInfo.getTotalPoint();
+            
+            if (totalPoint >= 7) {
+                return true;
+            }
+            final boolean isMenZen = getHand(wind).isMenZen();
+            
+            if (isMenZen && totalPoint >= 4) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * 最後の下ヅモか(中国麻雀用)
+     * 
      * @return 判定結果。
      */
     private boolean isLastShitatsumo() {
@@ -830,6 +986,7 @@ public final class JanInfo extends Observable implements Cloneable {
     
     /**
      * 牌山インデックスが嶺上インデックスと同じか(中国麻雀用)
+     * 
      * @return 判定結果。
      */
     private boolean isSameIndex() {
@@ -838,6 +995,7 @@ public final class JanInfo extends Observable implements Cloneable {
     
     /**
      * 嶺上牌が上ヅモか(中国麻雀用)
+     * 
      * @return 判定結果。
      */
     private boolean isUwatsumo() {
@@ -902,6 +1060,11 @@ public final class JanInfo extends Observable implements Cloneable {
     private Map<Wind, River> _riverTable = new TreeMap<>();
     
     /**
+     * 和了可能巡目テーブル
+     */
+    private Map<Wind, Integer> _completableTurnTable = new TreeMap<>();
+    
+    /**
      * 巡目テーブル
      */
     private Map<Wind, Integer> _turnTable = new TreeMap<>();
@@ -925,6 +1088,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 和了情報
      */
     private ChmCompleteInfo _completeInfo = null;
+    
+    /**
+     * カンフラグ
+     */
+    private volatile boolean _callKan = false;
     
 }
 

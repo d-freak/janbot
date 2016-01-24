@@ -240,9 +240,15 @@ public class GameAnnouncer implements Observer {
             messageList.add("--- 終了 ---");
             _announceMode = AnnounceMode.NORMAL;
         }
+        
         if (flagSet.contains(AnnounceFlag.STATISTICS)) {
             final String playerName = param.getPlayerName();
             addStatisticsString(messageList, playerName);
+        }
+        
+        if (flagSet.contains(AnnounceFlag.IS_OVER_TIED_POINT)) {
+            final int completableTurn = param.getCompletableTurn();
+            messageList.add(completableTurn + "巡目で8点縛りを超えました。");
         }
         
         IRCBOT.getInstance().println(messageList);
@@ -592,11 +598,11 @@ public class GameAnnouncer implements Observer {
         if (completeInfo.getYakuList().isEmpty()) {
             return;
         }
-        Integer total = 0;
         for (final ChmYaku yaku : completeInfo.getYakuList()) {
         	IRCBOT.getInstance().println(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
-            total += yaku.getPoint();
         }
+        Integer total = completeInfo.getTotalPoint();
+        
         if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
         	IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
         }

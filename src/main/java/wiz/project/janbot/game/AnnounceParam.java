@@ -29,6 +29,14 @@ final class AnnounceParam {
     /**
      * コンストラクタ
      */
+    public AnnounceParam(final AnnounceFlag flag, final int completableTurn) {
+        _flagSet = EnumSet.of(flag);
+        _completableTurn = completableTurn;
+    }
+    
+    /**
+     * コンストラクタ
+     */
     public AnnounceParam(final AnnounceFlag flag, final String playerName) {
         _flagSet = EnumSet.of(flag);
         _playerName = playerName;
@@ -60,6 +68,13 @@ final class AnnounceParam {
     
     
     /**
+     * 和了可能巡目を取得
+     */
+    public int getCompletableTurn() {
+        return _completableTurn;
+    }
+    
+    /**
      * 実況フラグを取得
      */
     public EnumSet<AnnounceFlag> getFlagSet() {
@@ -81,6 +96,11 @@ final class AnnounceParam {
     }
     
     
+    
+    /**
+     * 和了可能巡目
+     */
+    private int _completableTurn = 0;
     
     /**
      * 実況フラグ
