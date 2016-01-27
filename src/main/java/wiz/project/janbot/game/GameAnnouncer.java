@@ -630,7 +630,7 @@ public class GameAnnouncer implements Observer {
         try {
             final SAXReader reader = new SAXReader();
             final Document readDocument = reader.read(path);
-            completeTurn = readDocument.selectNodes("/results/result/completableTurn");
+            completableTurn = readDocument.selectNodes("/results/result/completableTurn");
             completeType = readDocument.selectNodes("/results/result/completeType");
             completeTurn = readDocument.selectNodes("/results/result/completeTurn");
         } catch (DocumentException e) {
