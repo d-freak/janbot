@@ -224,18 +224,19 @@ public class GameAnnouncer implements Observer {
             }
         }
         final int completableTurn = info.getCompletableTurnCount(playerWind);
+        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
         
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
-            recordResultXml(player, turnCount, completableTurn, flagSet);
+            recordResultXml(player, turnCount, completableTurn, completeInfo);
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了 ----");
-            recordResultXml(player, turnCount, completableTurn, flagSet);
+            recordResultXml(player, turnCount, completableTurn, completeInfo);
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
-            recordResultXml(player, turnCount, completableTurn, flagSet);
+            recordResultXml(player, turnCount, completableTurn, completeInfo);
         }
         
         if (flagSet.contains(AnnounceFlag.GAME_END)) {
@@ -255,7 +256,7 @@ public class GameAnnouncer implements Observer {
         IRCBOT.getInstance().println(messageList);
         
         if (flagSet.contains(AnnounceFlag.SCORE)) {
-            printCompleteInfo(info, flagSet);
+            printCompleteInfo(completeInfo);
         }
     }
     
@@ -308,6 +309,8 @@ public class GameAnnouncer implements Observer {
         messageList.add(statistics.completeRate());
         messageList.add(statistics.tsumoRate());
         messageList.add(statistics.turnAverage());
+        messageList.add(statistics.pointAverage());
+        messageList.add(statistics.resultPointAverage());
     }
     
     /**
@@ -593,24 +596,23 @@ public class GameAnnouncer implements Observer {
     /**
      * 和了情報を出力
      * 
-     * @param info ゲーム情報。
-     * @param flagSet 実況フラグ。
+     * @param completeInfo 和了情報。
      */
-    private void printCompleteInfo(final JanInfo info, final EnumSet<AnnounceFlag> flagSet) {
-        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
+    private void printCompleteInfo(final ChmCompleteInfo completeInfo) {
         if (completeInfo.getYakuList().isEmpty()) {
             return;
         }
         for (final ChmYaku yaku : completeInfo.getYakuList()) {
         	IRCBOT.getInstance().println(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
         }
-        Integer total = completeInfo.getTotalPoint();
+        final boolean isRon = completeInfo.getCompleteType().isRon();
+        final Integer total = completeInfo.getTotalPoint();
         
-        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-        	IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
-        }
-        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
+        if (isRon) {
         	IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
+        }
+        else {
+        	IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
         }
     }
     
@@ -619,42 +621,51 @@ public class GameAnnouncer implements Observer {
      * 
      * @param player プレイヤー。
      * @param turnCount 巡目。
-     * @param flagSet 実況フラグ。
+     * @param completableTurnCount 和了可能巡目。
+     * @param completeInfo 和了情報。
      */
     @SuppressWarnings("unchecked")
-	private void recordResultXml(final Player player, final Integer turnCount, final Integer completableTurnCount, final EnumSet<AnnounceFlag> flagSet) {
+	private void recordResultXml(final Player player, final int turnCount, final int completableTurnCount, final ChmCompleteInfo completeInfo) {
         final String path = "./" + player.getName() + ".xml";
         List<Node> completableTurn = new ArrayList<Node>();
         List<Node> completeType = new ArrayList<Node>();
         List<Node> completeTurn = new ArrayList<Node>();
+        List<Node> point = new ArrayList<Node>();
         try {
             final SAXReader reader = new SAXReader();
             final Document readDocument = reader.read(path);
             completableTurn = readDocument.selectNodes("/results/result/completableTurn");
             completeType = readDocument.selectNodes("/results/result/completeType");
             completeTurn = readDocument.selectNodes("/results/result/completeTurn");
+            point = readDocument.selectNodes("/results/result/point");
         } catch (DocumentException e) {
         }
-        String addCompletableTurn = null;
+        String addCompletableTurn;
         if (completableTurnCount != 0) {
-            addCompletableTurn = completableTurnCount.toString();
+            addCompletableTurn = String.valueOf(completableTurnCount);
         }
         else {
             addCompletableTurn = "-";
         }
-        String addCompleteType = null;
-        String addCompleteTurn = null;
-        if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-            addCompleteType = "tsumo";
-            addCompleteTurn = turnCount.toString();
-        }
-        else if (flagSet.contains(AnnounceFlag.ACTIVE_DISCARD)) {
-            addCompleteType = "ron";
-            addCompleteTurn = turnCount.toString();
-        }
-        else {
+        String addCompleteType;
+        String addCompleteTurn;
+        String addPoint;
+        if (completeInfo == null) {
             addCompleteType = "-";
             addCompleteTurn = "-";
+            addPoint = "-";
+        }
+        else {
+            final boolean isRon = completeInfo.getCompleteType().isRon();
+            
+            if (isRon) {
+                addCompleteType = "ron";
+            }
+            else {
+                addCompleteType = "tsumo";
+            }
+            addCompleteTurn = String.valueOf(turnCount);
+            addPoint = String.valueOf(completeInfo.getTotalPoint());
         }
         
         final Document writeDocument = DocumentHelper.createDocument();
@@ -664,11 +675,13 @@ public class GameAnnouncer implements Observer {
             result.addElement("completableTurn").setText(completableTurn.get(count).getStringValue());
             result.addElement("completeType").setText(completeType.get(count).getStringValue());
             result.addElement("completeTurn").setText(completeTurn.get(count).getStringValue());
+            result.addElement("point").setText(point.get(count).getStringValue());
         }
         final Element result = root.addElement("result");
         result.addElement("completableTurn").setText(addCompletableTurn);
         result.addElement("completeType").setText(addCompleteType);
         result.addElement("completeTurn").setText(addCompleteTurn);
+        result.addElement("point").setText(addPoint);
         
         XMLWriter writer = null;
         try {

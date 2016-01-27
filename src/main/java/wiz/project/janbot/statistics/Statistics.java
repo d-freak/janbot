@@ -31,6 +31,7 @@ public final class Statistics {
         final List<Node> completableTurnList = readDocument.selectNodes("/results/result/completableTurn");
         final List<Node> completeTypeList = readDocument.selectNodes("/results/result/completeType");
         final List<Node> completeTurnList = readDocument.selectNodes("/results/result/completeTurn");
+        final List<Node> pointList = readDocument.selectNodes("/results/result/point");
         _completableCount = 0;
         _completableTurnSum = 0;
         
@@ -42,8 +43,6 @@ public final class Statistics {
                 _completableTurnSum += Integer.parseInt(completableTurn);
             }
         }
-        _completeCount = 0;
-        _tsumoCount = 0;
         
         for (final Node node : completeTypeList) {
             final String type = node.getStringValue();
@@ -56,7 +55,6 @@ public final class Statistics {
                 _completeCount++;
             }
         }
-        _turnSum = 0;
         
         for (final Node node : completeTurnList) {
             final String turn = node.getStringValue();
@@ -64,6 +62,29 @@ public final class Statistics {
             if (!turn.equals("-")) {
                 _turnSum += Integer.parseInt(turn);
             }
+        }
+        int count = 0;
+        
+        for (final Node node : pointList) {
+            final String pointString = node.getStringValue();
+            
+            if (!pointString.equals("-")) {
+                final int point = Integer.parseInt(pointString);
+                
+                _pointSum += point;
+                
+                final String type = completeTypeList.get(count).getStringValue();
+                int resultPoint = 0;
+                
+                if (type.equals("tsumo")) {
+                    resultPoint = (point + 8) * 3;
+                }
+                else if (type.equals("ron")) {
+                    resultPoint = point + 8 * 3;
+                }
+                _resultPointSum += resultPoint;
+            }
+            count++;
         }
         _playCount = completeTypeList.size();
     }
@@ -98,6 +119,26 @@ public final class Statistics {
         final String completeRateString = String.format("%.2f", completeRate);
         
         return "和了率: " + completeRateString + " % (" + _completeCount + "/" + _playCount + ")";
+    }
+    
+    /**
+     * 平均打点
+     */
+    public String pointAverage() {
+        final double pointAverage = (double) _pointSum / (double) _completeCount;
+        final String pointAverageString = String.format("%.2f", pointAverage);
+        
+        return "平均打点: " + pointAverageString + " 点";
+    }
+    
+    /**
+     * 平均素点
+     */
+    public String resultPointAverage() {
+        final double resultPointAverage = (double) _resultPointSum / (double) _completeCount;
+        final String resultPointAverageString = String.format("%.2f", resultPointAverage);
+        
+        return "平均素点: " + resultPointAverageString + " 点";
     }
     
     /**
@@ -141,6 +182,16 @@ public final class Statistics {
      * ゲーム回数
      */
     private int _playCount = 0;
+    
+    /**
+     * 打点の合計
+     */
+    private int _pointSum = 0;
+    
+    /**
+     * 素点の合計
+     */
+    private int _resultPointSum = 0;
     
     /**
      * ツモ回数
