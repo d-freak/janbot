@@ -28,8 +28,20 @@ public final class Statistics {
         final String path = "./" + playerName + ".xml";
         final SAXReader reader = new SAXReader();
         final Document readDocument = reader.read(path);
+        final List<Node> completableTurnList = readDocument.selectNodes("/results/result/completableTurn");
         final List<Node> completeTypeList = readDocument.selectNodes("/results/result/completeType");
         final List<Node> completeTurnList = readDocument.selectNodes("/results/result/completeTurn");
+        _completableCount = 0;
+        _completableTurnSum = 0;
+        
+        for (final Node node : completableTurnList) {
+            final String completableTurn = node.getStringValue();
+            
+            if (!completableTurn.equals("-")) {
+                _completableCount++;
+                _completableTurnSum += Integer.parseInt(completableTurn);
+            }
+        }
         _completeCount = 0;
         _tsumoCount = 0;
         
@@ -57,6 +69,26 @@ public final class Statistics {
     }
     
     
+    
+    /**
+     * 聴牌率
+     */
+    public String completableRate() {
+        final double completableRate = (double) _completableCount * 100 / (double) _playCount;
+        final String completableRateString = String.format("%.2f", completableRate);
+        
+        return "聴牌率: " + completableRateString + " % (" + _completableCount + "/" + _playCount + ")";
+    }
+    
+    /**
+     * 平均聴牌巡目
+     */
+    public String completableTurnAverage() {
+        final double completableTurnAverage = (double) _completableTurnSum / (double) _completableCount;
+        final String completableTurnAverageString = String.format("%.2f", completableTurnAverage);
+        
+        return "平均聴牌巡目: " + completableTurnAverageString + " 巡目";
+    }
     
     /**
      * 和了率
@@ -89,6 +121,16 @@ public final class Statistics {
     }
     
     
+    
+    /**
+     * 聴牌回数
+     */
+    private int _completableCount = 0;
+    
+    /**
+     * 聴牌巡目の合計
+     */
+    private int _completableTurnSum = 0;
     
     /**
      * 和了回数

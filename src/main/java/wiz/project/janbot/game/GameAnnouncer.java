@@ -223,17 +223,19 @@ public class GameAnnouncer implements Observer {
                 addOutsString(messageList, getOuts(info, flagSet, paiList));
             }
         }
+        final int completableTurn = info.getCompletableTurnCount(playerWind);
+        
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了 ----");
-            recordResultXml(player, turnCount, flagSet);
+            recordResultXml(player, turnCount, completableTurn, flagSet);
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了 ----");
-            recordResultXml(player, turnCount, flagSet);
+            recordResultXml(player, turnCount, completableTurn, flagSet);
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
-            recordResultXml(player, turnCount, flagSet);
+            recordResultXml(player, turnCount, completableTurn, flagSet);
         }
         
         if (flagSet.contains(AnnounceFlag.GAME_END)) {
@@ -247,7 +249,6 @@ public class GameAnnouncer implements Observer {
         }
         
         if (flagSet.contains(AnnounceFlag.IS_OVER_TIED_POINT)) {
-            final int completableTurn = param.getCompletableTurn();
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
         }
         
@@ -302,6 +303,8 @@ public class GameAnnouncer implements Observer {
             messageList.add(playerName + "というプレイヤーの記録はありません。");
             return;
         }
+        messageList.add(statistics.completableRate());
+        messageList.add(statistics.completableTurnAverage());
         messageList.add(statistics.completeRate());
         messageList.add(statistics.tsumoRate());
         messageList.add(statistics.turnAverage());
@@ -619,16 +622,25 @@ public class GameAnnouncer implements Observer {
      * @param flagSet 実況フラグ。
      */
     @SuppressWarnings("unchecked")
-	private void recordResultXml(final Player player, final Integer turnCount, final EnumSet<AnnounceFlag> flagSet) {
+	private void recordResultXml(final Player player, final Integer turnCount, final Integer completableTurnCount, final EnumSet<AnnounceFlag> flagSet) {
         final String path = "./" + player.getName() + ".xml";
+        List<Node> completableTurn = new ArrayList<Node>();
         List<Node> completeType = new ArrayList<Node>();
         List<Node> completeTurn = new ArrayList<Node>();
         try {
             final SAXReader reader = new SAXReader();
             final Document readDocument = reader.read(path);
+            completeTurn = readDocument.selectNodes("/results/result/completableTurn");
             completeType = readDocument.selectNodes("/results/result/completeType");
             completeTurn = readDocument.selectNodes("/results/result/completeTurn");
         } catch (DocumentException e) {
+        }
+        String addCompletableTurn = null;
+        if (completableTurnCount != 0) {
+            addCompletableTurn = completableTurnCount.toString();
+        }
+        else {
+            addCompletableTurn = "-";
         }
         String addCompleteType = null;
         String addCompleteTurn = null;
@@ -649,10 +661,12 @@ public class GameAnnouncer implements Observer {
         final Element root = writeDocument.addElement("results");
         for (int count = 0; count < completeType.size(); count++) {
             final Element result = root.addElement("result");
+            result.addElement("completableTurn").setText(completableTurn.get(count).getStringValue());
             result.addElement("completeType").setText(completeType.get(count).getStringValue());
             result.addElement("completeTurn").setText(completeTurn.get(count).getStringValue());
         }
         final Element result = root.addElement("result");
+        result.addElement("completableTurn").setText(addCompletableTurn);
         result.addElement("completeType").setText(addCompleteType);
         result.addElement("completeTurn").setText(addCompleteTurn);
         
