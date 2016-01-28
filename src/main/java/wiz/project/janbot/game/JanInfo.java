@@ -962,7 +962,7 @@ public final class JanInfo extends Observable implements Cloneable {
             }
             final boolean isMenZen = getHand(wind).isMenZen();
             
-            if (isMenZen && totalPoint >= 4) {
+            if (isMenZen && totalPoint >= 6) {
                 return true;
             }
         }
