@@ -625,7 +625,10 @@ public class GameAnnouncer implements Observer {
      * @param completeInfo 和了情報。
      */
     @SuppressWarnings("unchecked")
-	private void recordResultXml(final Player player, final int turnCount, final int completableTurnCount, final ChmCompleteInfo completeInfo) {
+    private void recordResultXml(final Player player, final int turnCount, final int completableTurnCount, final ChmCompleteInfo completeInfo) {
+        if (!_isChm) {
+            return;
+        }
         final String path = "./" + player.getName() + ".xml";
         List<Node> completableTurn = new ArrayList<Node>();
         List<Node> completeType = new ArrayList<Node>();
