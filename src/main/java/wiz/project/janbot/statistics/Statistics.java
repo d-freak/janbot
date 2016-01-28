@@ -74,15 +74,15 @@ public final class Statistics {
                 _pointSum += point;
                 
                 final String type = completeTypeList.get(count).getStringValue();
-                int resultPoint = 0;
+                int getPoint = 0;
                 
                 if (type.equals("tsumo")) {
-                    resultPoint = (point + 8) * 3;
+                    getPoint = (point + 8) * 3;
                 }
                 else if (type.equals("ron")) {
-                    resultPoint = point + 8 * 3;
+                    getPoint = point + 8 * 3;
                 }
-                _resultPointSum += resultPoint;
+                _getPointSum += getPoint;
             }
             count++;
         }
@@ -122,23 +122,23 @@ public final class Statistics {
     }
     
     /**
-     * 平均打点
+     * 平均獲得点数
+     */
+    public String getPointAverage() {
+        final double getPointAverage = (double) _getPointSum / (double) _completeCount;
+        final String getPointAverageString = String.format("%.2f", getPointAverage);
+        
+        return "平均獲得点数: " + getPointAverageString + " 点";
+    }
+    
+    /**
+     * 平均点数
      */
     public String pointAverage() {
         final double pointAverage = (double) _pointSum / (double) _completeCount;
         final String pointAverageString = String.format("%.2f", pointAverage);
         
-        return "平均打点: " + pointAverageString + " 点";
-    }
-    
-    /**
-     * 平均素点
-     */
-    public String resultPointAverage() {
-        final double resultPointAverage = (double) _resultPointSum / (double) _completeCount;
-        final String resultPointAverageString = String.format("%.2f", resultPointAverage);
-        
-        return "平均素点: " + resultPointAverageString + " 点";
+        return "平均点数: " + pointAverageString + " 点";
     }
     
     /**
@@ -179,19 +179,19 @@ public final class Statistics {
     private int _completeCount = 0;
     
     /**
+     * 獲得点数の合計
+     */
+    private int _getPointSum = 0;
+    
+    /**
      * ゲーム回数
      */
     private int _playCount = 0;
     
     /**
-     * 打点の合計
+     * 点数の合計
      */
     private int _pointSum = 0;
-    
-    /**
-     * 素点の合計
-     */
-    private int _resultPointSum = 0;
     
     /**
      * ツモ回数

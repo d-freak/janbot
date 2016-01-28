@@ -310,7 +310,7 @@ public class GameAnnouncer implements Observer {
         messageList.add(statistics.tsumoRate());
         messageList.add(statistics.turnAverage());
         messageList.add(statistics.pointAverage());
-        messageList.add(statistics.resultPointAverage());
+        messageList.add(statistics.getPointAverage());
     }
     
     /**
