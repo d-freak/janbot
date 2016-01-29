@@ -359,6 +359,7 @@ class ChmJanController implements JanController {
                 }
                 else {
                     updateWaitList(_info, wind);
+                    setCompletableTurnCount(_info, wind);
                 }
             }
             
@@ -627,11 +628,13 @@ class ChmJanController implements JanController {
         final Wind activeWind = _info.getActiveWind();
         _info.addDiscard(activeWind, target);
         _info.setActiveDiscard(target);
+        _info.setCallKan(false);
         
         // 他家の待ち判定
         Wind targetWind = activeWind.getNext();
         while (targetWind != activeWind) {
             if (_info.getPlayer(targetWind).getType() != PlayerType.COM) {
+                setCompletableTurnCount(_info, targetWind);
                 // NPCはツモ切り固定
                 final List<CallType> callableList = getCallableList(_info, activeWind, targetWind, target);
                 if (!callableList.isEmpty()) {
@@ -872,6 +875,20 @@ class ChmJanController implements JanController {
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
         _info.setCallKan(true);
+        
+        // 手変わりがあったので待ち判定更新
+        updateWaitList(_info, activeWind);
+    }
+    
+    /**
+     * 指定した風の和了可能巡目を設定
+     * 
+     * @param info ゲーム情報。
+     * @param targetWind 設定対象の風。
+     */
+    private void setCompletableTurnCount(final JanInfo info, final Wind targetWind) {
+        final List<JanPai> completableJanPaiList = _completeWait.get(targetWind);
+        info.setCompletableTurnCount(targetWind, completableJanPaiList);
     }
     
     /**
@@ -886,7 +903,6 @@ class ChmJanController implements JanController {
         _completeWait.put(targetWind, completableJanPaiList);
         _chiWait.put(targetWind, getChiWaitList(hand));
         _ponWait.put(targetWind, getPonWaitList(hand));
-        info.setCompletableTurnCount(targetWind, completableJanPaiList);
     }
     
     
