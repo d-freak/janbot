@@ -673,7 +673,7 @@ public final class JanInfo extends Observable implements Cloneable {
         final int turnCount = _turnTable.get(wind);
         _completableTurnTable.put(wind, turnCount);
         
-        final AnnounceParam param = new AnnounceParam(AnnounceFlag.IS_OVER_TIED_POINT, turnCount);
+        final AnnounceParam param = new AnnounceParam(AnnounceFlag.OVER_TIED_POINT, turnCount);
         notifyObservers(param);
     }
     

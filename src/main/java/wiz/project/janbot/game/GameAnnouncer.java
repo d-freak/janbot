@@ -249,10 +249,15 @@ public class GameAnnouncer implements Observer {
             addStatisticsString(messageList, playerName);
         }
         
-        if (flagSet.contains(AnnounceFlag.IS_OVER_TIED_POINT)) {
+        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
         }
         
+        if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
+            final int totalPoint = completeInfo.getTotalPoint();
+            
+            messageList.add((8 - totalPoint) + "点足りません");
+        }
         IRCBOT.getInstance().println(messageList);
         
         if (flagSet.contains(AnnounceFlag.SCORE)) {

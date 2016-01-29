@@ -136,7 +136,12 @@ public enum AnnounceFlag {
     /**
      * 8点縛り超え
      */
-    IS_OVER_TIED_POINT;
+    OVER_TIED_POINT,
+    
+    /**
+     * 8点縛り超えず
+     */
+    NOT_OVER_TIED_POINT;
     
     
     

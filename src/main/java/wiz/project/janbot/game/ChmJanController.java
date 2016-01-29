@@ -155,6 +155,13 @@ class ChmJanController implements JanController {
                 _info.setCalledIndex(activeWind);
                 _info.setCompleteInfo(playerWind, true);
                 
+                final int totalPoint = _info.getCompleteInfo().getTotalPoint();
+                
+                if (totalPoint < 8) {
+                    // チョンボ
+                    _info.notifyObservers(ANNOUNCE_FLAG_NOT_OVER_TIED_POINT);
+                    throw new BoneheadException("Not completed.");
+                }
                 // ゲームセット
                 _onGame = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
@@ -186,6 +193,13 @@ class ChmJanController implements JanController {
             }
             _info.setCompleteInfo(activeWind, false);
             
+            final int totalPoint = _info.getCompleteInfo().getTotalPoint();
+            
+            if (totalPoint < 8) {
+                // チョンボ
+                _info.notifyObservers(ANNOUNCE_FLAG_NOT_OVER_TIED_POINT);
+                throw new BoneheadException("Not completed.");
+            }
             // ゲームセット
             _onGame = false;
             _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_TSUMO);
@@ -894,6 +908,8 @@ class ChmJanController implements JanController {
         EnumSet.of(AnnounceFlag.HAND, AnnounceFlag.ACTIVE_TSUMO, AnnounceFlag.FIELD, AnnounceFlag.AFTER_CALL);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_WATCHING_START =
         EnumSet.of(AnnounceFlag.WATCHING_START);
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_NOT_OVER_TIED_POINT =
+        EnumSet.of(AnnounceFlag.NOT_OVER_TIED_POINT, AnnounceFlag.SCORE);
     
     
     
