@@ -305,12 +305,12 @@ public class GameAnnouncer implements Observer {
             return;
         }
         messageList.add(statistics.completableRate());
-        messageList.add(statistics.completableTurnAverage());
         messageList.add(statistics.completeRate());
-        messageList.add(statistics.tsumoRate());
+        messageList.add(statistics.completableTurnAverage());
         messageList.add(statistics.turnAverage());
         messageList.add(statistics.pointAverage());
         messageList.add(statistics.getPointAverage());
+        messageList.add(statistics.tsumoRate());
     }
     
     /**
