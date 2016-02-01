@@ -83,11 +83,11 @@ class ChmJanController implements JanController {
             
             // 打牌したプレイヤーの風を記録
             final Wind calledWind = _info.getActiveWind();
+            // 副露宣言したプレイヤーをアクティブ化して判定
+            _info.setActivePlayer(playerName);
+            final Wind activeWind = _info.getActiveWind();
+            _info.increaseTurnCount(activeWind);
             try {
-                // 副露宣言したプレイヤーをアクティブ化して判定
-                _info.setActivePlayer(playerName);
-                final Wind activeWind = _info.getActiveWind();
-                _info.increaseTurnCount(activeWind);
                 switch (type) {
                 case CHI:
                     if (calledWind.getNext() != activeWind) {
@@ -112,7 +112,8 @@ class ChmJanController implements JanController {
                 }
             }
             catch (final Throwable e) {
-                // 副露しない場合、アクティブプレイヤーを元に戻す
+                // 副露しない場合、巡目とアクティブプレイヤーを元に戻す
+                _info.decreaseTurnCount(activeWind);
                 _info.setActiveWind(calledWind);
                 throw e;
             }

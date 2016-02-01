@@ -140,6 +140,19 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 指定した風の巡目を減少
+     * 
+     * @param wind 風。
+     */
+    public void decreaseTurnCount(final Wind wind) {
+        final int turnCount = _turnTable.get(wind);
+        
+        if (turnCount > 0) {
+            _turnTable.put(wind, turnCount - 1);
+        }
+    }
+    
+    /**
      * 直前の捨て牌を取得
      * 
      * @return 直前の捨て牌。
