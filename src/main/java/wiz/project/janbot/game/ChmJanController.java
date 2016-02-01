@@ -140,21 +140,21 @@ class ChmJanController implements JanController {
             }
             
             // 打牌したプレイヤーの風を記録
+            final Wind calledWind = _info.getActiveWind();
+            // ロン宣言したプレイヤーをアクティブ化して判定
+            _info.setActivePlayer(playerName);
             final Wind activeWind = _info.getActiveWind();
+            _info.increaseTurnCount(activeWind);
             try {
-                // ロン宣言したプレイヤーをアクティブ化して判定
-                _info.setActivePlayer(playerName);
                 // ロン対象牌を取得
                 final JanPai discard = _info.getActiveDiscard();
-                final Map<JanPai, Integer> handWithDiscard = getHandMap(_info, _info.getActiveWind(), discard);
+                final Map<JanPai, Integer> handWithDiscard = getHandMap(_info, activeWind, discard);
                 if (!ChmHandCheckUtil.isComplete(handWithDiscard)) {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
-                final Wind playerWind = _info.getActiveWind();
-                
-                _info.setCalledIndex(activeWind);
-                _info.setCompleteInfo(playerWind, true);
+                _info.setCalledIndex(calledWind);
+                _info.setCompleteInfo(activeWind, true);
                 
                 final int totalPoint = _info.getCompleteInfo().getTotalPoint();
                 
@@ -168,8 +168,9 @@ class ChmJanController implements JanController {
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
             }
             catch (final Throwable e) {
-                // 和了しない場合、アクティブプレイヤーを元に戻す
-                _info.setActiveWind(activeWind);
+                // 和了しない場合、巡目とアクティブプレイヤーを元に戻す
+                _info.decreaseTurnCount(activeWind);
+                _info.setActiveWind(calledWind);
                 throw e;
             }
         }
