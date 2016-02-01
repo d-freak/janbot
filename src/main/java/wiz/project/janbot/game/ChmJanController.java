@@ -153,7 +153,6 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
-                _info.setCalledIndex(calledWind);
                 _info.setCompleteInfo(activeWind, true);
                 
                 final int totalPoint = _info.getCompleteInfo().getTotalPoint();
@@ -163,6 +162,7 @@ class ChmJanController implements JanController {
                     _info.notifyObservers(ANNOUNCE_FLAG_NOT_OVER_TIED_POINT);
                     throw new BoneheadException("Not completed.");
                 }
+                _info.setCalledIndex(calledWind);
                 // ゲームセット
                 _onGame = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
