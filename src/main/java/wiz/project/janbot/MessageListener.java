@@ -149,7 +149,8 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 //            }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
-                    Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了   s X：指定したプレイヤーのゲーム統計を表示",
+                    Arrays.asList("s：開始   s chm：中国麻雀を開始   e：終了",
+                                  "s X [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
@@ -311,9 +312,9 @@ final class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
-                    Arrays.asList("s X：指定したプレイヤーのゲーム統計を表示   chi X：指定牌(ex.3p)を先頭牌としてチー",
-                                  "pon：ポン   kan X：指定牌でカン   ron, hu：ロン",
-                                  "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
+                    Arrays.asList("s X [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
+                                  "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
+                                  "ron, hu：ロン   ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)",

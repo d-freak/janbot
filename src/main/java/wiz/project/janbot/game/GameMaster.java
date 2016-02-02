@@ -685,13 +685,40 @@ public final class GameMaster {
      */
     public void onStatistics(final String target) throws JanException {
         if (target == null) {
-            throw new NullPointerException("Watch target is null.");
+            throw new NullPointerException("Statistics target is null.");
         }
-        final String name = target.replaceAll(" ", "");
+        
+        if (target.isEmpty()) {
+            throw new InvalidInputException("Statistics target is empty.");
+        }
+        final String reg = "\\d*+-\\d*+";
+        int start = 0;
+        int end = 0;
+        String name = "";
+        
+        for (final String string : target.split(" ")) {
+            if (string.matches(reg)) {
+                try {
+                    start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // startを更新せず継続
+                }
+                
+                try {
+                    end = Integer.parseInt(string.replaceFirst("\\d*+-", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // endを更新せず継続
+                }
+                break;
+            }
+            name += string;
+        }
         
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name);
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name, start, end);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }

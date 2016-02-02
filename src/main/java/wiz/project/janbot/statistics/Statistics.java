@@ -13,6 +13,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import wiz.project.janbot.game.exception.InvalidInputException;
+
 
 
 /**
@@ -24,7 +26,7 @@ public final class Statistics {
      * コンストラクタ
      */
     @SuppressWarnings("unchecked")
-    public Statistics(final String playerName) throws DocumentException {
+    public Statistics(final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
         final String path = "./" + playerName + ".xml";
         final SAXReader reader = new SAXReader();
         final Document readDocument = reader.read(path);
@@ -32,11 +34,16 @@ public final class Statistics {
         final List<Node> completeTypeList = readDocument.selectNodes("/results/result/completeType");
         final List<Node> completeTurnList = readDocument.selectNodes("/results/result/completeTurn");
         final List<Node> pointList = readDocument.selectNodes("/results/result/point");
-        _completableCount = 0;
-        _completableTurnSum = 0;
+        final int size = completeTypeList.size();
+        final int countStart = start != 0 ? start - 1 : 0;
+        final int countEnd = end != 0 ? end : size;
         
-        for (final Node node : completableTurnList) {
-            final String completableTurn = node.getStringValue();
+        if (countStart >= countEnd || countEnd > size) {
+            throw new InvalidInputException("start is greater or equal end");
+        }
+        
+        for (int count = countStart; count < countEnd; count++) {
+            final String completableTurn = completableTurnList.get(count).getStringValue();
             
             if (!completableTurn.equals("-")) {
                 _completableCount++;
@@ -44,8 +51,8 @@ public final class Statistics {
             }
         }
         
-        for (final Node node : completeTypeList) {
-            final String type = node.getStringValue();
+        for (int count = countStart; count < countEnd; count++) {
+            final String type = completeTypeList.get(count).getStringValue();
             
             if (type.equals("tsumo")) {
                 _tsumoCount++;
@@ -56,17 +63,16 @@ public final class Statistics {
             }
         }
         
-        for (final Node node : completeTurnList) {
-            final String turn = node.getStringValue();
+        for (int count = countStart; count < countEnd; count++) {
+            final String turn = completeTurnList.get(count).getStringValue();
             
             if (!turn.equals("-")) {
                 _turnSum += Integer.parseInt(turn);
             }
         }
-        int count = 0;
         
-        for (final Node node : pointList) {
-            final String pointString = node.getStringValue();
+        for (int count = countStart; count < countEnd; count++) {
+            final String pointString = pointList.get(count).getStringValue();
             
             if (!pointString.equals("-")) {
                 final int point = Integer.parseInt(pointString);
@@ -84,9 +90,8 @@ public final class Statistics {
                 }
                 _getPointSum += getPoint;
             }
-            count++;
         }
-        _playCount = completeTypeList.size();
+        _playCount = countEnd - countStart;
     }
     
     
@@ -105,9 +110,12 @@ public final class Statistics {
      * 平均聴牌巡目
      */
     public String completableTurnAverage() {
-        final double completableTurnAverage = (double) _completableTurnSum / (double) _completableCount;
-        final String completableTurnAverageString = String.format("%.2f", completableTurnAverage);
+        String completableTurnAverageString = "-";
         
+        if (_completableCount != 0) {
+            final double completableTurnAverage = (double) _completableTurnSum / (double) _completableCount;
+            completableTurnAverageString = String.format("%.2f", completableTurnAverage);
+        }
         return "平均聴牌巡目: " + completableTurnAverageString + " 巡目";
     }
     
@@ -125,9 +133,12 @@ public final class Statistics {
      * 平均獲得点数
      */
     public String getPointAverage() {
-        final double getPointAverage = (double) _getPointSum / (double) _completeCount;
-        final String getPointAverageString = String.format("%.2f", getPointAverage);
+        String getPointAverageString = "-";
         
+        if (_completeCount != 0) {
+            final double getPointAverage = (double) _getPointSum / (double) _completeCount;
+            getPointAverageString = String.format("%.2f", getPointAverage);
+        }
         return "平均獲得点数: " + getPointAverageString + " 点";
     }
     
@@ -135,9 +146,12 @@ public final class Statistics {
      * 平均点数
      */
     public String pointAverage() {
-        final double pointAverage = (double) _pointSum / (double) _completeCount;
-        final String pointAverageString = String.format("%.2f", pointAverage);
+        String pointAverageString = "-";
         
+        if (_completeCount != 0) {
+            final double pointAverage = (double) _pointSum / (double) _completeCount;
+            pointAverageString = String.format("%.2f", pointAverage);
+        }
         return "平均点数: " + pointAverageString + " 点";
     }
     
@@ -145,9 +159,12 @@ public final class Statistics {
      * ツモ率
      */
     public String tsumoRate() {
-        final double tsumoRate = (double) _tsumoCount  * 100 / (double) _completeCount;
-        final String tsumoRateString = String.format("%.2f", tsumoRate);
+        String tsumoRateString = "-";
         
+        if (_completeCount != 0) {
+            final double tsumoRate = (double) _tsumoCount  * 100 / (double) _completeCount;
+            tsumoRateString = String.format("%.2f", tsumoRate);
+        }
         return "ツモ率: " + tsumoRateString + " % (" + _tsumoCount + "/" + _completeCount + ")";
     }
     
@@ -155,9 +172,12 @@ public final class Statistics {
      * 平均和了巡目
      */
     public String turnAverage() {
-        final double turnAverage = (double) _turnSum / (double) _completeCount;
-        final String turnAverageString = String.format("%.2f", turnAverage);
+        String turnAverageString = "-";
         
+        if (_completeCount != 0) {
+            final double turnAverage = (double) _turnSum / (double) _completeCount;
+            turnAverageString = String.format("%.2f", turnAverage);
+        }
         return "平均和了巡目: " + turnAverageString + " 巡目";
     }
     

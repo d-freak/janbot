@@ -35,6 +35,7 @@ import wiz.project.jan.MenTsu;
 import wiz.project.jan.MenTsuType;
 import wiz.project.jan.Wind;
 import wiz.project.jan.yaku.ChmYaku;
+import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.statistics.Statistics;
 
 
@@ -246,7 +247,9 @@ public class GameAnnouncer implements Observer {
         
         if (flagSet.contains(AnnounceFlag.STATISTICS)) {
             final String playerName = param.getPlayerName();
-            addStatisticsString(messageList, playerName);
+            final int start = param.getStart();
+            final int end = param.getEnd();
+            addStatisticsString(messageList, playerName, start, end);
         }
         
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
@@ -299,14 +302,18 @@ public class GameAnnouncer implements Observer {
      * @param messageList 出力内容。
      * @param playerName プレイヤー名。
      */
-    private void addStatisticsString(final List<String> messageList, final String playerName) {
+    private void addStatisticsString(final List<String> messageList, final String playerName, final int start, final int end) {
         Statistics statistics = null;
         
         try {
-            statistics = new Statistics(playerName);
+            statistics = new Statistics(playerName, start, end);
         }
         catch (DocumentException e) {
             messageList.add(playerName + "というプレイヤーの記録はありません。");
+            return;
+        }
+        catch (InvalidInputException e) {
+            messageList.add("不正な開始値、終了値が指定されました。");
             return;
         }
         messageList.add(statistics.completableRate());
