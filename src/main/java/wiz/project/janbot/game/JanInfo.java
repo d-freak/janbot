@@ -226,18 +226,6 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 和了牌の残り枚数を取得
-     * 
-     * @param pai 和了牌。
-     * @return 和了牌の残り枚数。
-     */
-    public int getCompleteOuts(final JanPai pai) {
-        final int completeOuts = getVisibleOuts(pai) - 1;
-        
-        return completeOuts;
-    }
-    
-    /**
      * 牌山を取得
      * 
      * @return 牌山。
@@ -889,7 +877,7 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param wind 和了情報。
      */
     private ChmCompleteInfo getCompleteInfo(final Wind playerWind, final JanPai pai, final boolean isRon) {
-        final int remainCount = getCompleteOuts(pai);
+        final int remainCount = getVisibleOuts(pai);
         final CompleteType completeType = getCompleteType(playerWind, isRon, _callKan);
         final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, completeType);
         final Hand hand = getHand(playerWind);
