@@ -683,14 +683,11 @@ public final class GameMaster {
      * @param target 指定牌。
      * @throws JanException ゲーム処理エラー。
      */
-    public void onStatistics(final String target) throws JanException {
+    public void onStatistics(final String playerName, final String target) throws JanException {
         if (target == null) {
             throw new NullPointerException("Statistics target is null.");
         }
         
-        if (target.isEmpty()) {
-            throw new InvalidInputException("Statistics target is empty.");
-        }
         final String reg = "\\d*+-\\d*+";
         int start = 0;
         int end = 0;
@@ -714,6 +711,10 @@ public final class GameMaster {
                 break;
             }
             name += string;
+        }
+        
+        if ("".equals(name)) {
+            name = playerName;
         }
         
         synchronized (_CONTROLLER_LOCK) {
