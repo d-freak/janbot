@@ -316,6 +316,8 @@ public class GameAnnouncer implements Observer {
             messageList.add("不正な開始値、終了値が指定されました。");
             return;
         }
+        messageList.add(statistics.until6thTurnRate());
+        messageList.add(statistics.until12thTurnRate());
         messageList.add(statistics.completableRate());
         messageList.add(statistics.completeRate());
         messageList.add(statistics.completableTurnAverage());

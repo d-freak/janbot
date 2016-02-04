@@ -43,11 +43,20 @@ public final class Statistics {
         }
         
         for (int count = countStart; count < countEnd; count++) {
-            final String completableTurn = completableTurnList.get(count).getStringValue();
+            final String completableTurnString = completableTurnList.get(count).getStringValue();
             
-            if (!completableTurn.equals("-")) {
+            if (!completableTurnString.equals("-")) {
+                final int completableTurn = Integer.parseInt(completableTurnString);
+                
                 _completableCount++;
-                _completableTurnSum += Integer.parseInt(completableTurn);
+                _completableTurnSum += completableTurn;
+                
+                if (completableTurn < 7) {
+                    _until6thTurnCount++;
+                }
+                else if (completableTurn < 13) {
+                    _until12thTurnCount++;
+                }
             }
         }
         
@@ -181,6 +190,26 @@ public final class Statistics {
         return "平均和了巡目: " + turnAverageString + " 巡目";
     }
     
+    /**
+     * 6巡目までの聴牌率
+     */
+    public String until6thTurnRate() {
+        final double until6thTurnRate = (double) _until6thTurnCount * 100 / (double) _playCount;
+        final String until6thTurnRateString = String.format("%.2f", until6thTurnRate);
+        
+        return "6巡目までの聴牌率: " + until6thTurnRateString + " % (" + _until6thTurnCount + "/" + _playCount + ")";
+    }
+    
+    /**
+     * 12巡目までの聴牌率
+     */
+    public String until12thTurnRate() {
+        final double until12thTurnRate = (double) _until12thTurnCount * 100 / (double) _playCount;
+        final String until12thTurnRateString = String.format("%.2f", until12thTurnRate);
+        
+        return "12巡目までの聴牌率: " + until12thTurnRateString + " % (" + _until12thTurnCount + "/" + _playCount + ")";
+    }
+    
     
     
     /**
@@ -222,6 +251,16 @@ public final class Statistics {
      * 和了巡目の合計
      */
     private int _turnSum = 0;
+    
+    /**
+     * 6巡目までに聴牌した回数
+     */
+    private int _until6thTurnCount = 0;
+    
+    /**
+     * 12巡目までに聴牌した回数
+     */
+    private int _until12thTurnCount = 0;
     
 }
 
