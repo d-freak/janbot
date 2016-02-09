@@ -22,7 +22,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -643,20 +642,6 @@ public class GameAnnouncer implements Observer {
         if (!_isChm) {
             return;
         }
-        final String path = "./" + player.getName() + ".xml";
-        List<Node> completableTurn = new ArrayList<Node>();
-        List<Node> completeType = new ArrayList<Node>();
-        List<Node> completeTurn = new ArrayList<Node>();
-        List<Node> point = new ArrayList<Node>();
-        try {
-            final SAXReader reader = new SAXReader();
-            final Document readDocument = reader.read(path);
-            completableTurn = readDocument.selectNodes("/results/result/completableTurn");
-            completeType = readDocument.selectNodes("/results/result/completeType");
-            completeTurn = readDocument.selectNodes("/results/result/completeTurn");
-            point = readDocument.selectNodes("/results/result/point");
-        } catch (DocumentException e) {
-        }
         String addCompletableTurn;
         if (completableTurnCount != 0) {
             addCompletableTurn = String.valueOf(completableTurnCount);
@@ -686,15 +671,40 @@ public class GameAnnouncer implements Observer {
         }
         
         final Document writeDocument = DocumentHelper.createDocument();
-        final Element root = writeDocument.addElement("results");
-        for (int count = 0; count < completeType.size(); count++) {
-            final Element result = root.addElement("result");
-            result.addElement("completableTurn").setText(completableTurn.get(count).getStringValue());
-            result.addElement("completeType").setText(completeType.get(count).getStringValue());
-            result.addElement("completeTurn").setText(completeTurn.get(count).getStringValue());
-            result.addElement("point").setText(point.get(count).getStringValue());
+        final Element writeRoot = writeDocument.addElement("results");
+        final String path = "./" + player.getName() + ".xml";
+        try {
+            final SAXReader reader = new SAXReader();
+            final Document readDocument = reader.read(path);
+            final Element readRoot = readDocument.getRootElement();
+            for (final Object element : readRoot.elements()) {
+                final Element readResult = (Element) element;
+                final Element writeResult = writeRoot.addElement("result");
+                
+                for (final Object e : readResult.elements()) {
+                    final Element data = (Element) e;
+                    final String name = data.getName();
+                    
+                    switch (name) {
+                    case "completableTurn":
+                        writeResult.addElement("completableTurn").setText(data.getStringValue());
+                        break;
+                    case "completeType":
+                        writeResult.addElement("completeType").setText(data.getStringValue());
+                        break;
+                    case "completeTurn":
+                        writeResult.addElement("completeTurn").setText(data.getStringValue());
+                        break;
+                    case "point":
+                        writeResult.addElement("point").setText(data.getStringValue());
+                        break;
+                    default:
+                    }
+                }
+            }
+        } catch (DocumentException e) {
         }
-        final Element result = root.addElement("result");
+        final Element result = writeRoot.addElement("result");
         result.addElement("completableTurn").setText(addCompletableTurn);
         result.addElement("completeType").setText(addCompleteType);
         result.addElement("completeTurn").setText(addCompleteTurn);
