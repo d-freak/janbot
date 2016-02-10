@@ -6,11 +6,9 @@
 
 package wiz.project.janbot.statistics;
 
-import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Node;
+import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import wiz.project.janbot.game.exception.InvalidInputException;
@@ -25,81 +23,86 @@ public final class Statistics {
     /**
      * コンストラクタ
      */
-    @SuppressWarnings("unchecked")
     public Statistics(final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
         final String path = "./" + playerName + ".xml";
         final SAXReader reader = new SAXReader();
         final Document readDocument = reader.read(path);
-        final List<Node> completableTurnList = readDocument.selectNodes("/results/result/completableTurn");
-        final List<Node> completeTypeList = readDocument.selectNodes("/results/result/completeType");
-        final List<Node> completeTurnList = readDocument.selectNodes("/results/result/completeTurn");
-        final List<Node> pointList = readDocument.selectNodes("/results/result/point");
-        final int size = completeTypeList.size();
+        final Element readRoot = readDocument.getRootElement();
+        final int size = readRoot.elements().size();
         final int countStart = start != 0 ? start - 1 : 0;
         final int countEnd = end != 0 ? end : size;
         
         if (countStart >= countEnd || countEnd > size) {
             throw new InvalidInputException("start is greater or equal end");
         }
+        int count = 0;
         
-        for (int count = countStart; count < countEnd; count++) {
-            final String completableTurnString = completableTurnList.get(count).getStringValue();
+        for (final Object element : readRoot.elements()) {
+            if (count < countStart) {
+                count++;
+                continue;
+            }
+            else if (count == countEnd) {
+                break;
+            }
+            final Element readResult = (Element) element;
+            String completeType = "";
             
-            if (!completableTurnString.equals("-")) {
-                final int completableTurn = Integer.parseInt(completableTurnString);
+            for (final Object e : readResult.elements()) {
+                final Element data = (Element) e;
+                final String valueString = data.getStringValue();
                 
-                _completableCount++;
-                _completableTurnSum += completableTurn;
-                
-                if (completableTurn <= 6) {
-                    _until6thTurnCount++;
+                if (!valueString.equals("-")) {
+                    final String name = data.getName();
+                    
+                    switch (name) {
+                    case "completableTurn":
+                        final int completableTurn = Integer.parseInt(valueString);
+                        
+                        _completableCount++;
+                        _completableTurnSum += completableTurn;
+                        
+                        if (completableTurn <= 6) {
+                            _until6thTurnCount++;
+                        }
+                        
+                        if (completableTurn <= 12) {
+                            _until12thTurnCount++;
+                        }
+                        break;
+                    case "completeType":
+                        completeType = valueString;
+                        
+                        if (valueString.equals("tsumo")) {
+                            _tsumoCount++;
+                            _completeCount++;
+                        }
+                        else if (valueString.equals("ron")) {
+                            _completeCount++;
+                        }
+                        break;
+                    case "completeTurn":
+                        _turnSum += Integer.parseInt(valueString);
+                        break;
+                    case "point":
+                        final int point = Integer.parseInt(valueString);
+                        int getPoint = 0;
+                        
+                        _pointSum += point;
+                        
+                        if (completeType.equals("tsumo")) {
+                            getPoint = (point + 8) * 3;
+                        }
+                        else if (completeType.equals("ron")) {
+                            getPoint = point + 8 * 3;
+                        }
+                        _getPointSum += getPoint;
+                        break;
+                    default:
+                    }
                 }
-                
-                if (completableTurn <= 12) {
-                    _until12thTurnCount++;
-                }
             }
-        }
-        
-        for (int count = countStart; count < countEnd; count++) {
-            final String type = completeTypeList.get(count).getStringValue();
-            
-            if (type.equals("tsumo")) {
-                _tsumoCount++;
-                _completeCount++;
-            }
-            else if (type.equals("ron")) {
-                _completeCount++;
-            }
-        }
-        
-        for (int count = countStart; count < countEnd; count++) {
-            final String turn = completeTurnList.get(count).getStringValue();
-            
-            if (!turn.equals("-")) {
-                _turnSum += Integer.parseInt(turn);
-            }
-        }
-        
-        for (int count = countStart; count < countEnd; count++) {
-            final String pointString = pointList.get(count).getStringValue();
-            
-            if (!pointString.equals("-")) {
-                final int point = Integer.parseInt(pointString);
-                
-                _pointSum += point;
-                
-                final String type = completeTypeList.get(count).getStringValue();
-                int getPoint = 0;
-                
-                if (type.equals("tsumo")) {
-                    getPoint = (point + 8) * 3;
-                }
-                else if (type.equals("ron")) {
-                    getPoint = point + 8 * 3;
-                }
-                _getPointSum += getPoint;
-            }
+            count++;
         }
         _playCount = countEnd - countStart;
     }

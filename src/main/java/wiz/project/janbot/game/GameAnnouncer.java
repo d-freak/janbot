@@ -637,7 +637,6 @@ public class GameAnnouncer implements Observer {
      * @param completableTurnCount 和了可能巡目。
      * @param completeInfo 和了情報。
      */
-    @SuppressWarnings("unchecked")
     private void recordResultXml(final Player player, final int turnCount, final int completableTurnCount, final ChmCompleteInfo completeInfo) {
         if (!_isChm) {
             return;
