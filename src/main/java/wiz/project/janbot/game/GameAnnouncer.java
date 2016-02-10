@@ -651,10 +651,12 @@ public class GameAnnouncer implements Observer {
         String addCompleteType;
         String addCompleteTurn;
         String addPoint;
+        String addYaku;
         if (completeInfo == null) {
             addCompleteType = "-";
             addCompleteTurn = "-";
             addPoint = "-";
+            addYaku = "-";
         }
         else {
             final boolean isRon = completeInfo.getCompleteType().isRon();
@@ -667,6 +669,7 @@ public class GameAnnouncer implements Observer {
             }
             addCompleteTurn = String.valueOf(turnCount);
             addPoint = String.valueOf(completeInfo.getTotalPoint());
+            addYaku = String.valueOf(completeInfo.getYakuList());
         }
         
         final Document writeDocument = DocumentHelper.createDocument();
@@ -697,6 +700,9 @@ public class GameAnnouncer implements Observer {
                     case "point":
                         writeResult.addElement("point").setText(data.getStringValue());
                         break;
+                    case "yaku":
+                        writeResult.addElement("yaku").setText(data.getStringValue());
+                        break;
                     default:
                     }
                 }
@@ -708,6 +714,7 @@ public class GameAnnouncer implements Observer {
         result.addElement("completeType").setText(addCompleteType);
         result.addElement("completeTurn").setText(addCompleteTurn);
         result.addElement("point").setText(addPoint);
+        result.addElement("yaku").setText(addYaku);
         
         XMLWriter writer = null;
         try {
