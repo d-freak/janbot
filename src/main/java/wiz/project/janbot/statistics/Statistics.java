@@ -51,10 +51,11 @@ public final class Statistics {
                 _completableCount++;
                 _completableTurnSum += completableTurn;
                 
-                if (completableTurn < 7) {
+                if (completableTurn <= 6) {
                     _until6thTurnCount++;
                 }
-                else if (completableTurn < 13) {
+                
+                if (completableTurn <= 12) {
                     _until12thTurnCount++;
                 }
             }
