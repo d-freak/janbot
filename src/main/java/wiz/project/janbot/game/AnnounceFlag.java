@@ -24,6 +24,11 @@ public enum AnnounceFlag {
     STATISTICS,
     
     /**
+     * 役のゲーム統計表示
+     */
+    YAKU_STATISTICS,
+    
+    /**
      * ロン和了
      */
     COMPLETE_RON,

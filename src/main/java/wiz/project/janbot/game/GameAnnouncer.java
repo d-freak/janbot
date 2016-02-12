@@ -251,6 +251,13 @@ public class GameAnnouncer implements Observer {
             addStatisticsString(messageList, playerName, start, end);
         }
         
+        if (flagSet.contains(AnnounceFlag.YAKU_STATISTICS)) {
+            final String playerName = param.getPlayerName();
+            final int start = param.getStart();
+            final int end = param.getEnd();
+            addYakuStatisticsString(messageList, playerName, start, end);
+        }
+        
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
         }
@@ -300,6 +307,8 @@ public class GameAnnouncer implements Observer {
      * 
      * @param messageList 出力内容。
      * @param playerName プレイヤー名。
+     * @param start 開始値。
+     * @param end 終了値。
      */
     private void addStatisticsString(final List<String> messageList, final String playerName, final int start, final int end) {
         Statistics statistics = null;
@@ -315,15 +324,32 @@ public class GameAnnouncer implements Observer {
             messageList.add("不正な開始値、終了値が指定されました。");
             return;
         }
-        messageList.add(statistics.until6thTurnRate());
-        messageList.add(statistics.until12thTurnRate());
-        messageList.add(statistics.completableRate());
-        messageList.add(statistics.completeRate());
-        messageList.add(statistics.completableTurnAverage());
-        messageList.add(statistics.turnAverage());
-        messageList.add(statistics.pointAverage());
-        messageList.add(statistics.getPointAverage());
-        messageList.add(statistics.tsumoRate());
+        messageList.addAll(statistics.get());
+    }
+    
+    /**
+     * 指定したプレイヤー名の役のゲーム統計を出力内容に追加
+     * 
+     * @param messageList 出力内容。
+     * @param playerName プレイヤー名。
+     * @param start 開始値。
+     * @param end 終了値。
+     */
+    private void addYakuStatisticsString(final List<String> messageList, final String playerName, final int start, final int end) {
+        Statistics statistics = null;
+        
+        try {
+            statistics = new Statistics(playerName, start, end);
+        }
+        catch (DocumentException e) {
+            messageList.add(playerName + "というプレイヤーの記録はありません。");
+            return;
+        }
+        catch (InvalidInputException e) {
+            messageList.add("不正な開始値、終了値が指定されました。");
+            return;
+        }
+        messageList.addAll(statistics.getYaku());
     }
     
     /**

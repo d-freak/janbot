@@ -6,6 +6,12 @@
 
 package wiz.project.janbot.statistics;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -98,6 +104,22 @@ public final class Statistics {
                         }
                         _getPointSum += getPoint;
                         break;
+                    case "yaku":
+                        for (final String string : valueString.split("[\\[, \\]]")) {
+                            if ("".equals(string)) {
+                                continue;
+                            }
+                            Integer yakuCount = _yakuCountTable.get(string);
+                            
+                            if (yakuCount != null) {
+                                _yakuCountTable.put(string, ++yakuCount);
+                            }
+                            else {
+                                _yakuCountTable.put(string, 1);
+                            }
+                        }
+                        _playCountWithYaku++;
+                        break;
                     default:
                     }
                 }
@@ -110,9 +132,36 @@ public final class Statistics {
     
     
     /**
+     * ゲーム統計を取得
+     */
+    public List<String> get() {
+        final List<String> stringList = new ArrayList<>();
+
+        stringList.add(until6thTurnRate());
+        stringList.add(until12thTurnRate());
+        stringList.add(completableRate());
+        stringList.add(completeRate());
+        stringList.add(completableTurnAverage());
+        stringList.add(turnAverage());
+        stringList.add(pointAverage());
+        stringList.add(getPointAverage());
+        stringList.add(tsumoRate());
+        return stringList;
+    }
+    
+    /**
+     * 役のゲーム統計を取得
+     */
+    public List<String> getYaku() {
+        return yaku();
+    }
+    
+    
+    
+    /**
      * 聴牌率
      */
-    public String completableRate() {
+    private String completableRate() {
         final double completableRate = (double) _completableCount * 100 / (double) _playCount;
         final String completableRateString = String.format("%.2f", completableRate);
         
@@ -122,7 +171,7 @@ public final class Statistics {
     /**
      * 平均聴牌巡目
      */
-    public String completableTurnAverage() {
+    private String completableTurnAverage() {
         String completableTurnAverageString = "-";
         
         if (_completableCount != 0) {
@@ -135,7 +184,7 @@ public final class Statistics {
     /**
      * 和了率
      */
-    public String completeRate() {
+    private String completeRate() {
         final double completeRate = (double) _completeCount * 100 / (double) _playCount;
         final String completeRateString = String.format("%.2f", completeRate);
         
@@ -145,7 +194,7 @@ public final class Statistics {
     /**
      * 平均獲得点数
      */
-    public String getPointAverage() {
+    private String getPointAverage() {
         String getPointAverageString = "-";
         
         if (_completeCount != 0) {
@@ -158,7 +207,7 @@ public final class Statistics {
     /**
      * 平均点数
      */
-    public String pointAverage() {
+    private String pointAverage() {
         String pointAverageString = "-";
         
         if (_completeCount != 0) {
@@ -171,7 +220,7 @@ public final class Statistics {
     /**
      * ツモ率
      */
-    public String tsumoRate() {
+    private String tsumoRate() {
         String tsumoRateString = "-";
         
         if (_completeCount != 0) {
@@ -184,7 +233,7 @@ public final class Statistics {
     /**
      * 平均和了巡目
      */
-    public String turnAverage() {
+    private String turnAverage() {
         String turnAverageString = "-";
         
         if (_completeCount != 0) {
@@ -197,7 +246,7 @@ public final class Statistics {
     /**
      * 6巡目までの聴牌率
      */
-    public String until6thTurnRate() {
+    private String until6thTurnRate() {
         final double until6thTurnRate = (double) _until6thTurnCount * 100 / (double) _playCount;
         final String until6thTurnRateString = String.format("%.2f", until6thTurnRate);
         
@@ -207,11 +256,40 @@ public final class Statistics {
     /**
      * 12巡目までの聴牌率
      */
-    public String until12thTurnRate() {
+    private String until12thTurnRate() {
         final double until12thTurnRate = (double) _until12thTurnCount * 100 / (double) _playCount;
         final String until12thTurnRateString = String.format("%.2f", until12thTurnRate);
         
         return "12巡目までの聴牌率: " + until12thTurnRateString + " % (" + _until12thTurnCount + "/" + _playCount + ")";
+    }
+    
+    /**
+     * 役
+     */
+    private List<String> yaku() {
+        final TreeMap<Integer, List<String>> countMap = new TreeMap<>();
+        
+        for (final Entry<String, Integer> entry : _yakuCountTable.entrySet()) {
+            final int yakuCount = entry.getValue();
+            List<String> yakuList = countMap.get(yakuCount);
+            
+            if (yakuList == null) {
+                yakuList = new ArrayList<>();
+            }
+            yakuList.add(entry.getKey());
+            countMap.put(yakuCount, yakuList);
+        }
+        final List<String> yakuStringList = new ArrayList<>();
+        
+        for (final Integer yakuCount : countMap.descendingKeySet()) {
+            final double yakuRate = (double) yakuCount * 100 / (double) _playCountWithYaku;
+            final String yakuRateString = String.format("%.2f", yakuRate);
+            
+            for (final String yakuString : countMap.get(yakuCount)) {
+                yakuStringList.add(yakuString + ": " + yakuRateString + " % (" + yakuCount + "/" + _playCountWithYaku + ")");
+            }
+        }
+        return yakuStringList;
     }
     
     
@@ -242,6 +320,11 @@ public final class Statistics {
     private int _playCount = 0;
     
     /**
+     * 役があるゲーム回数
+     */
+    private int _playCountWithYaku = 0;
+    
+    /**
      * 点数の合計
      */
     private int _pointSum = 0;
@@ -265,6 +348,11 @@ public final class Statistics {
      * 12巡目までに聴牌した回数
      */
     private int _until12thTurnCount = 0;
+    
+    /**
+     * 役カウントテーブル
+     */
+    private Map<String, Integer> _yakuCountTable = new TreeMap<>();
     
 }
 

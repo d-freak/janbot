@@ -678,13 +678,14 @@ public final class GameMaster {
     }
     
     /**
-     * 指定牌の残り枚数の自動表示
+     * ゲーム統計の表示
      * 
-     * @param target 指定牌。
+     * @param playerName プレイヤー名。
+     * @param option オプション。
      * @throws JanException ゲーム処理エラー。
      */
-    public void onStatistics(final String playerName, final String target) throws JanException {
-        if (target == null) {
+    public void onStatistics(final String playerName, final String option) throws JanException {
+        if (option == null) {
             throw new NullPointerException("Statistics target is null.");
         }
         
@@ -693,7 +694,7 @@ public final class GameMaster {
         int end = 0;
         String name = "";
         
-        for (final String string : target.split(" ")) {
+        for (final String string : option.split(" ")) {
             if (string.matches(reg)) {
                 try {
                     start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
@@ -762,6 +763,55 @@ public final class GameMaster {
         }
         synchronized (_CONTROLLER_LOCK) {
             _controller.watch(paiList);
+        }
+    }
+    
+    /**
+     * 役のゲーム統計を表示
+     * 
+     * @param playerName プレイヤー名。
+     * @param option オプション。
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onYakuStatistics(final String playerName, final String option) throws JanException {
+        if (option == null) {
+            throw new NullPointerException("Statistics target is null.");
+        }
+        
+        final String reg = "\\d*+-\\d*+";
+        int start = 0;
+        int end = 0;
+        String name = "";
+        
+        for (final String string : option.split(" ")) {
+            if (string.matches(reg)) {
+                try {
+                    start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // startを更新せず継続
+                }
+                
+                try {
+                    end = Integer.parseInt(string.replaceFirst("\\d*+-", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // endを更新せず継続
+                }
+                break;
+            }
+            name += string;
+        }
+        
+        if ("".equals(name)) {
+            name = playerName;
+        }
+        
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.YAKU_STATISTICS, name, start, end);
+            info.addObserver(_announcer);
+            info.notifyObservers(param);
         }
     }
     
