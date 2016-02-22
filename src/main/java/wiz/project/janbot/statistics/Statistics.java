@@ -72,8 +72,16 @@ public final class Statistics {
                             _until6thTurnCount++;
                         }
                         
+                        if (completableTurn <= 9) {
+                            _until9thTurnCount++;
+                        }
+                        
                         if (completableTurn <= 12) {
                             _until12thTurnCount++;
+                        }
+                        
+                        if (completableTurn <= 15) {
+                            _until15thTurnCount++;
                         }
                         break;
                     case "completeType":
@@ -138,7 +146,9 @@ public final class Statistics {
         final List<String> stringList = new ArrayList<>();
 
         stringList.add(until6thTurnRate());
+        stringList.add(until9thTurnRate());
         stringList.add(until12thTurnRate());
+        stringList.add(until15thTurnRate());
         stringList.add(completableRate());
         stringList.add(completeRate());
         stringList.add(completableTurnAverage());
@@ -254,6 +264,16 @@ public final class Statistics {
     }
     
     /**
+     * 9巡目までの聴牌率
+     */
+    private String until9thTurnRate() {
+        final double until9thTurnRate = (double) _until9thTurnCount * 100 / (double) _playCount;
+        final String until9thTurnRateString = String.format("%.2f", until9thTurnRate);
+        
+        return "9巡目までの聴牌率: " + until9thTurnRateString + " % (" + _until9thTurnCount + "/" + _playCount + ")";
+    }
+    
+    /**
      * 12巡目までの聴牌率
      */
     private String until12thTurnRate() {
@@ -261,6 +281,16 @@ public final class Statistics {
         final String until12thTurnRateString = String.format("%.2f", until12thTurnRate);
         
         return "12巡目までの聴牌率: " + until12thTurnRateString + " % (" + _until12thTurnCount + "/" + _playCount + ")";
+    }
+    
+    /**
+     * 15巡目までの聴牌率
+     */
+    private String until15thTurnRate() {
+        final double until15thTurnRate = (double) _until15thTurnCount * 100 / (double) _playCount;
+        final String until15thTurnRateString = String.format("%.2f", until15thTurnRate);
+        
+        return "15巡目までの聴牌率: " + until15thTurnRateString + " % (" + _until15thTurnCount + "/" + _playCount + ")";
     }
     
     /**
@@ -345,9 +375,19 @@ public final class Statistics {
     private int _until6thTurnCount = 0;
     
     /**
+     * 9巡目までに聴牌した回数
+     */
+    private int _until9thTurnCount = 0;
+    
+    /**
      * 12巡目までに聴牌した回数
      */
     private int _until12thTurnCount = 0;
+    
+    /**
+     * 15巡目までに聴牌した回数
+     */
+    private int _until15thTurnCount = 0;
     
     /**
      * 役カウントテーブル
