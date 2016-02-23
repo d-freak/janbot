@@ -6,6 +6,7 @@
 
 package wiz.project.janbot.statistics;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,111 +31,135 @@ public final class Statistics {
      * コンストラクタ
      */
     public Statistics(final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
-        final String path = "./" + playerName + ".xml";
-        final SAXReader reader = new SAXReader();
-        final Document readDocument = reader.read(path);
-        final Element readRoot = readDocument.getRootElement();
-        final int size = readRoot.elements().size();
-        final int countStart = start != 0 ? start - 1 : 0;
-        final int countEnd = end != 0 ? end : size;
+        final List<String> playerNameList = new ArrayList<>();
+        boolean isAll = false;
         
-        if (countStart >= countEnd || countEnd > size) {
-            throw new InvalidInputException("start is greater or equal end");
-        }
-        int count = 0;
-        
-        for (final Object element : readRoot.elements()) {
-            if (count < countStart) {
-                count++;
-                continue;
-            }
-            else if (count == countEnd) {
-                break;
-            }
-            final Element readResult = (Element) element;
-            String completeType = "";
+        if ("all".equals(playerName)){
+            isAll = true;
             
-            for (final Object e : readResult.elements()) {
-                final Element data = (Element) e;
-                final String valueString = data.getStringValue();
+            final File dir = new File(".");
+            final File[] files = dir.listFiles();
+            final String reg = ".*\\.xml$";
+            
+            for (int i = 0; i < files.length; i++) {
+                final String fileName = files[i].getName();
                 
-                if (!valueString.equals("-")) {
-                    final String name = data.getName();
-                    
-                    switch (name) {
-                    case "completableTurn":
-                        final int completableTurn = Integer.parseInt(valueString);
-                        
-                        _completableCount++;
-                        _completableTurnSum += completableTurn;
-                        
-                        if (completableTurn <= 6) {
-                            _until6thTurnCount++;
-                        }
-                        
-                        if (completableTurn <= 9) {
-                            _until9thTurnCount++;
-                        }
-                        
-                        if (completableTurn <= 12) {
-                            _until12thTurnCount++;
-                        }
-                        
-                        if (completableTurn <= 15) {
-                            _until15thTurnCount++;
-                        }
-                        break;
-                    case "completeType":
-                        completeType = valueString;
-                        
-                        if (valueString.equals("tsumo")) {
-                            _tsumoCount++;
-                            _completeCount++;
-                        }
-                        else if (valueString.equals("ron")) {
-                            _completeCount++;
-                        }
-                        break;
-                    case "completeTurn":
-                        _turnSum += Integer.parseInt(valueString);
-                        break;
-                    case "point":
-                        final int point = Integer.parseInt(valueString);
-                        int getPoint = 0;
-                        
-                        _pointSum += point;
-                        
-                        if (completeType.equals("tsumo")) {
-                            getPoint = (point + 8) * 3;
-                        }
-                        else if (completeType.equals("ron")) {
-                            getPoint = point + 8 * 3;
-                        }
-                        _getPointSum += getPoint;
-                        break;
-                    case "yaku":
-                        for (final String string : valueString.split("[\\[, \\]]")) {
-                            if ("".equals(string)) {
-                                continue;
-                            }
-                            Integer yakuCount = _yakuCountTable.get(string);
-                            
-                            if (yakuCount != null) {
-                                _yakuCountTable.put(string, ++yakuCount);
-                            }
-                            else {
-                                _yakuCountTable.put(string, 1);
-                            }
-                        }
-                        _playCountWithYaku++;
-                        break;
-                    default:
-                    }
+                if (fileName.matches(reg)) {
+                    playerNameList.add(fileName.replaceFirst("\\.xml$", ""));
                 }
             }
-            count++;
         }
-        _playCount = countEnd - countStart;
+        else {
+            playerNameList.add(playerName);
+        }
+        
+        for (final String player : playerNameList) {
+            final String path = "./" + player + ".xml";
+            final SAXReader reader = new SAXReader();
+            final Document readDocument = reader.read(path);
+            final Element readRoot = readDocument.getRootElement();
+            final int size = readRoot.elements().size();
+            final int countStart = !isAll && start != 0 ? start - 1 : 0;
+            final int countEnd = !isAll && end != 0 ? end : size;
+            
+            if (countStart >= countEnd || countEnd > size) {
+                throw new InvalidInputException("start is greater or equal end");
+            }
+            int count = 0;
+            
+            for (final Object element : readRoot.elements()) {
+                if (count < countStart) {
+                    count++;
+                    continue;
+                }
+                else if (count == countEnd) {
+                    break;
+                }
+                final Element readResult = (Element) element;
+                String completeType = "";
+                
+                for (final Object e : readResult.elements()) {
+                    final Element data = (Element) e;
+                    final String valueString = data.getStringValue();
+                    
+                    if (!valueString.equals("-")) {
+                        final String name = data.getName();
+                        
+                        switch (name) {
+                        case "completableTurn":
+                            final int completableTurn = Integer.parseInt(valueString);
+                            
+                            _completableCount++;
+                            _completableTurnSum += completableTurn;
+                            
+                            if (completableTurn <= 6) {
+                                _until6thTurnCount++;
+                            }
+                            
+                            if (completableTurn <= 9) {
+                                _until9thTurnCount++;
+                            }
+                            
+                            if (completableTurn <= 12) {
+                                _until12thTurnCount++;
+                            }
+                            
+                            if (completableTurn <= 15) {
+                                _until15thTurnCount++;
+                            }
+                            break;
+                        case "completeType":
+                            completeType = valueString;
+                            
+                            if (valueString.equals("tsumo")) {
+                                _tsumoCount++;
+                                _completeCount++;
+                            }
+                            else if (valueString.equals("ron")) {
+                                _completeCount++;
+                            }
+                            break;
+                        case "completeTurn":
+                            _turnSum += Integer.parseInt(valueString);
+                            break;
+                        case "point":
+                            final int point = Integer.parseInt(valueString);
+                            int getPoint = 0;
+                            
+                            _pointSum += point;
+                            
+                            if (completeType.equals("tsumo")) {
+                                getPoint = (point + 8) * 3;
+                            }
+                            else if (completeType.equals("ron")) {
+                                getPoint = point + 8 * 3;
+                            }
+                            _getPointSum += getPoint;
+                            break;
+                        case "yaku":
+                            for (final String string : valueString.split("[\\[, \\]]")) {
+                                if ("".equals(string)) {
+                                    continue;
+                                }
+                                Integer yakuCount = _yakuCountTable.get(string);
+                                
+                                if (yakuCount != null) {
+                                    _yakuCountTable.put(string, ++yakuCount);
+                                }
+                                else {
+                                    _yakuCountTable.put(string, 1);
+                                }
+                            }
+                            _playCountWithYaku++;
+                            break;
+                        default:
+                        }
+                    }
+                }
+                count++;
+            }
+            _playCount += countEnd - countStart;
+        }
     }
     
     
