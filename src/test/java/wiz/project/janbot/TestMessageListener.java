@@ -1,7 +1,7 @@
 /**
  * MessageListener.java
  * 
- * @author Yuki
+ * @author Masasutzu
  */
 
 package wiz.project.janbot;
@@ -11,14 +11,13 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 
 import wiz.project.ircbot.IRCBOT;
 import wiz.project.janbot.game.AnnounceFlag;
 import wiz.project.janbot.game.CallType;
-import wiz.project.janbot.game.GameMaster;
+import wiz.project.janbot.game.TestGameMaster;
 import wiz.project.janbot.game.GameSetStatus;
 import wiz.project.janbot.game.exception.BoneheadException;
 import wiz.project.janbot.game.exception.CallableException;
@@ -33,12 +32,12 @@ import wiz.project.janbot.game.exception.JanException;
  * 
  * @param <T> PircBoxT、またはその継承クラス。
  */
-class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
+public class TestMessageListener<T extends PircBotX> extends MessageListener<T> {
     
     /**
      * コンストラクタ
      */
-    public MessageListener() {
+    public TestMessageListener() {
     }
     
     
@@ -69,77 +68,80 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 IRCBOT.getInstance().disconnect();
             }
             else if (message.equals("jan s") || message.equals("jan start")) {
-                GameMaster.getInstance().onStartSolo(playerName);
+                TestGameMaster.getInstance().onStartSolo(playerName);
             }
             else if (message.equals("jan s chm") || message.equals("jan start chm") || message.equals("chm s") || message.equals("chm start")) {
-                GameMaster.getInstance().onStartChmSolo(playerName);
+                TestGameMaster.getInstance().onStartChmSolo(playerName);
             }
             else if (message.equals("jan e") || message.equals("jan end")) {
-                GameMaster.getInstance().onEnd();
+                TestGameMaster.getInstance().onEnd();
             }
             else if (message.equals("jan d")) {
-                GameMaster.getInstance().onDiscard();
+                TestGameMaster.getInstance().onDiscard();
             }
             else if (message.startsWith("jan d ")) {
-                GameMaster.getInstance().onDiscard(message.substring(6));
+                TestGameMaster.getInstance().onDiscard(message.substring(6));
             }
             else if (message.equals("jan i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
             }
             else if (message.equals("jan r")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
             }
             else if (message.equals("jan ra")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
             }
             else if (message.equals("jan i r") || message.equals("jan r i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
             else if (message.equals("jan i ra")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
             }
             else if (message.equals("jan w")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
             }
             else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
             }
 //            else if (message.startsWith("jan ri- ")) {
 //                TODO リーチ対応
-//                GameMaster.getInstance().onRichi(message.substring(8));
+//                TestGameMaster.getInstance().onRichi(message.substring(8));
 //            }
             else if (message.startsWith("jan kan ")) {
-                GameMaster.getInstance().onCallKan(playerName, message.substring(8));
+                TestGameMaster.getInstance().onCallKan(playerName, message.substring(8));
             }
             else if (message.equals("jan tsumo") || message.equals("jan hu")) {
-                GameMaster.getInstance().onCompleteTsumo(playerName);
+                TestGameMaster.getInstance().onCompleteTsumo(playerName);
             }
             else if (message.equals("jan ss")) {
-                GameMaster.getInstance().onStatistics(playerName, "");
+                TestGameMaster.getInstance().onStatistics(playerName, "");
             }
             else if (message.equals("jan sy")) {
-                GameMaster.getInstance().onYakuStatistics(playerName, "");
+                TestGameMaster.getInstance().onYakuStatistics(playerName, "");
             }
             else if (message.startsWith("jan ss ")) {
-                GameMaster.getInstance().onStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan sy ")) {
-                GameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan o ")) {
-                GameMaster.getInstance().onOuts(message.substring(6));
+                TestGameMaster.getInstance().onOuts(message.substring(6));
             }
             else if (message.startsWith("jan w ")) {
-                GameMaster.getInstance().onWatch(message.substring(6));
+                TestGameMaster.getInstance().onWatch(message.substring(6));
             }
             else if (message.equals("jan replay")) {
-                GameMaster.getInstance().onReplay(playerName);
+                TestGameMaster.getInstance().onReplay(playerName);
             }
             else if (message.equals("jan replay chm") || message.equals("chm replay")) {
-                GameMaster.getInstance().onReplayChm(playerName);
+                TestGameMaster.getInstance().onReplayChm(playerName);
             }
             else if (message.startsWith("jan replay ")) {
-                GameMaster.getInstance().onReplay(playerName, message.substring(11));
+                TestGameMaster.getInstance().onReplay(playerName, message.substring(11));
+            }
+            else if (message.startsWith("jan test")) {
+                TestGameMaster.getInstance().onTestChm(playerName);
             }
 //            else if (message.equals("jan download")) {
 //            上手く動かないので封印
@@ -191,7 +193,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         }
         catch (final CallableException e) {
             _confirmMode = true;
-            GameMaster.getInstance().onInfo(convertToCallAnnounceType(e.getTypeList()));
+            TestGameMaster.getInstance().onInfo(convertToCallAnnounceType(e.getTypeList()));
         }
         catch (final GameSetException e) {
             _confirmMode = false;
@@ -272,63 +274,63 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
             else if (message.equals("jan e") || message.equals("jan end")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onEnd();
+                TestGameMaster.getInstance().onEnd();
             }
             else if (message.equals("jan d")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onContinue();
+                TestGameMaster.getInstance().onContinue();
             }
             else if (message.equals("jan i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
             }
             else if (message.equals("jan r")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
             }
             else if (message.equals("jan ra")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
             }
             else if (message.equals("jan i r") || message.equals("jan r i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
             else if (message.equals("jan w")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
             }
             else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
+                TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
             }
             else if (message.startsWith("jan chi ")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onCallChi(playerName, message.substring(8));
+                TestGameMaster.getInstance().onCallChi(playerName, message.substring(8));
             }
             else if (message.equals("jan pon")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onCallPon(playerName);
+                TestGameMaster.getInstance().onCallPon(playerName);
             }
             else if (message.startsWith("jan kan ")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onCallKan(playerName, message.substring(8));
+                TestGameMaster.getInstance().onCallKan(playerName, message.substring(8));
             }
             else if (message.equals("jan ron") || message.equals("jan hu")) {
                 _confirmMode = false;
-                GameMaster.getInstance().onCompleteRon(playerName);
+                TestGameMaster.getInstance().onCompleteRon(playerName);
             }
             else if (message.equals("jan ss")) {
-                GameMaster.getInstance().onStatistics(playerName, "");
+                TestGameMaster.getInstance().onStatistics(playerName, "");
             }
             else if (message.equals("jan sy")) {
-                GameMaster.getInstance().onYakuStatistics(playerName, "");
+                TestGameMaster.getInstance().onYakuStatistics(playerName, "");
             }
             else if (message.startsWith("jan ss ")) {
-                GameMaster.getInstance().onStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan sy ")) {
-                GameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan w ")) {
-                GameMaster.getInstance().onWatch(message.substring(6));
+                TestGameMaster.getInstance().onWatch(message.substring(6));
             }
             else if (message.startsWith("jan o ")) {
-                GameMaster.getInstance().onConfirmOuts(message.substring(6));
+                TestGameMaster.getInstance().onConfirmOuts(message.substring(6));
             }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
@@ -359,7 +361,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
     private void onGameSet(final GameSetStatus status) {
         switch (status) {
         case GAME_OVER:
-            GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_GAME_OVER);
+            TestGameMaster.getInstance().onInfo(ANNOUNCE_FLAG_GAME_OVER);
             break;
         default:
             throw new InternalError();

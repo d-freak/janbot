@@ -31,12 +31,12 @@ import wiz.project.janbot.game.exception.JanException;
 /**
  * ゲーム管理
  */
-public final class GameMaster {
+public class GameMaster {
     
     /**
      * コンストラクタを自分自身に限定許可
      */
-    private GameMaster() {
+    protected GameMaster() {
     }
     
     
@@ -818,6 +818,40 @@ public final class GameMaster {
     
     
     /**
+     * 中国麻雀コントローラを生成
+     * 
+     * @param solo ソロプレイか。
+     * @return 中国麻雀コントローラ。
+     */
+    protected JanController createChmJanController(final boolean solo) {
+        _announcer.setIsChm(true);
+        
+        if (solo) {
+            return new ChmJanController(_announcer);
+        }
+        else {
+            return new VSJanController();
+        }
+    }
+    
+    /**
+     * プレイヤーの風を取得
+     * 
+     * @param playerTable プレイヤーテーブル。
+     * @return プレイヤーの風。
+     */
+    protected Wind getPlayerWind(final Map<Wind, Player> playerTable) {
+        for (final Map.Entry<Wind, Player> entry : playerTable.entrySet()) {
+            if (entry.getValue().getType() != PlayerType.COM) {
+                return entry.getKey();
+            }
+        }
+        throw new InternalError();
+    }
+    
+    
+    
+    /**
      * 文字列を牌に変換
      * 
      * @param source 変換元。
@@ -945,23 +979,6 @@ public final class GameMaster {
     }
     
     /**
-     * 中国麻雀コントローラを生成
-     * 
-     * @param solo ソロプレイか。
-     * @return 中国麻雀コントローラ。
-     */
-    private JanController createChmJanController(final boolean solo) {
-        _announcer.setIsChm(true);
-        
-        if (solo) {
-            return new ChmJanController(_announcer);
-        }
-        else {
-            return new VSJanController();
-        }
-    }
-    
-    /**
      * プレイヤーテーブルを生成
      * 
      * @param playerNameList 参加プレイヤー名のリスト。
@@ -986,27 +1003,38 @@ public final class GameMaster {
         return playerTable;
     }
     
-    /**
-     * プレイヤーの風を取得
-     * 
-     * @param playerTable プレイヤーテーブル。
-     * @return プレイヤーの風。
-     */
-    private Wind getPlayerWind(final Map<Wind, Player> playerTable) {
-        for (final Map.Entry<Wind, Player> entry : playerTable.entrySet()) {
-            if (entry.getValue().getType() != PlayerType.COM) {
-                return entry.getKey();
-            }
-        }
-        throw new InternalError();
-    }
-    
     
     
     /**
      * 自分自身のインスタンス
      */
-    private static final GameMaster INSTANCE = new GameMaster();
+    protected static final GameMaster INSTANCE = new GameMaster();
+    
+    
+    
+    /**
+     * ロックオブジェクト (ゲームコントローラ)
+     */
+    protected final Object _CONTROLLER_LOCK = new Object();
+    
+    /**
+     * ロックオブジェクト (ゲームの状態)
+     */
+    protected final Object _STATUS_LOCK = new Object();
+    
+    
+    
+    /**
+     * ゲームコントローラ
+     */
+    protected JanController _controller = null;
+    
+    /**
+     * ゲームの状態
+     */
+    protected GameStatus _status = GameStatus.IDLE;
+    
+    
     
     /**
      * 保存パス
@@ -1025,31 +1053,9 @@ public final class GameMaster {
     
     
     /**
-     * ロックオブジェクト (ゲームコントローラ)
-     */
-    private final Object _CONTROLLER_LOCK = new Object();
-    
-    /**
-     * ロックオブジェクト (ゲームの状態)
-     */
-    private final Object _STATUS_LOCK = new Object();
-    
-    
-    
-    /**
-     * ゲームコントローラ
-     */
-    private JanController _controller = null;
-    
-    /**
      * ゲーム実況者
      */
     private GameAnnouncer _announcer = new GameAnnouncer();
-    
-    /**
-     * ゲームの状態
-     */
-    private GameStatus _status = GameStatus.IDLE;
     
 }
 

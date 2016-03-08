@@ -26,7 +26,6 @@ public final class WanPaiTest {
     /**
      * コンストラクタのテスト
      */
-    @SuppressWarnings("unused")
     @Test
     public void testConstructor() {
         {
