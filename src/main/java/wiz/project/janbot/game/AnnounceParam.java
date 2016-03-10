@@ -37,11 +37,12 @@ final class AnnounceParam {
     /**
      * コンストラクタ
      */
-    public AnnounceParam(final AnnounceFlag flag, final String playerName, final int start, final int end) {
+    public AnnounceParam(final AnnounceFlag flag, final String playerName, final int start, final int end, final int minimumPoint) {
         _flagSet = EnumSet.of(flag);
         _playerName = playerName;
         _start = start;
         _end = end;
+        _minimumPoint = minimumPoint;
     }
     
     /**
@@ -91,6 +92,13 @@ final class AnnounceParam {
     }
     
     /**
+     * 最小点を取得
+     */
+    public int getMinimumPoint() {
+        return _minimumPoint;
+    }
+    
+    /**
      * 牌リストを取得
      */
     public List<JanPai> getPaiList() {
@@ -127,6 +135,11 @@ final class AnnounceParam {
      * 実況フラグ
      */
     private EnumSet<AnnounceFlag> _flagSet = null;
+    
+    /**
+     * 最小点
+     */
+    private int _minimumPoint = 0;
     
     /**
      * 牌リスト

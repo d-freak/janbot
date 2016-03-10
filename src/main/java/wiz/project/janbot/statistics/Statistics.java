@@ -18,6 +18,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import wiz.project.jan.yaku.ChmYaku;
 import wiz.project.janbot.game.exception.InvalidInputException;
 
 
@@ -186,9 +187,11 @@ public final class Statistics {
     
     /**
      * 役のゲーム統計を取得
+     *
+     * @param minimumPoint 最小点。
      */
-    public List<String> getYaku() {
-        return yaku();
+    public List<String> getYaku(final int minimumPoint) {
+        return yaku(minimumPoint);
     }
     
     
@@ -237,6 +240,22 @@ public final class Statistics {
             getPointAverageString = String.format("%.2f", getPointAverage);
         }
         return "平均獲得点数: " + getPointAverageString + " 点";
+    }
+    
+    /**
+     * 中国麻雀の役の点数を取得
+     * 
+     * @param name 中国麻雀の役の名前。
+     */
+    private int getChmYakuPoint(final String name) {
+        for (final ChmYaku yaku : ChmYaku.values()) {
+            final String yakuName = yaku.toString();
+            
+            if (name.equals(yakuName)) {
+                return yaku.getPoint();
+            }
+        }
+        return 0;
     }
     
     /**
@@ -320,11 +339,18 @@ public final class Statistics {
     
     /**
      * 役
+     *
+     * @param minimumPoint 最小点。
      */
-    private List<String> yaku() {
+    private List<String> yaku(final int minimumPoint) {
         final TreeMap<Integer, List<String>> countMap = new TreeMap<>();
         
         for (final Entry<String, Integer> entry : _yakuCountTable.entrySet()) {
+            final int yakuPoint = getChmYakuPoint(entry.getKey());
+            
+            if (yakuPoint < minimumPoint) {
+                continue;
+            }
             final int yakuCount = entry.getValue();
             List<String> yakuList = countMap.get(yakuCount);
             

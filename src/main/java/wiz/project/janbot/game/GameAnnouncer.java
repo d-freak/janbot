@@ -255,7 +255,8 @@ public class GameAnnouncer implements Observer {
             final String playerName = param.getPlayerName();
             final int start = param.getStart();
             final int end = param.getEnd();
-            addYakuStatisticsString(messageList, playerName, start, end);
+            final int minimumPoint = param.getMinimumPoint();
+            addYakuStatisticsString(messageList, playerName, start, end, minimumPoint);
         }
         
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
@@ -334,8 +335,9 @@ public class GameAnnouncer implements Observer {
      * @param playerName プレイヤー名。
      * @param start 開始値。
      * @param end 終了値。
+     * @param minimumPoint 最小点。
      */
-    private void addYakuStatisticsString(final List<String> messageList, final String playerName, final int start, final int end) {
+    private void addYakuStatisticsString(final List<String> messageList, final String playerName, final int start, final int end, final int minimumPoint) {
         Statistics statistics = null;
         
         try {
@@ -349,7 +351,7 @@ public class GameAnnouncer implements Observer {
             messageList.add("不正な開始値、終了値が指定されました。");
             return;
         }
-        messageList.addAll(statistics.getYaku());
+        messageList.addAll(statistics.getYaku(minimumPoint));
     }
     
     /**

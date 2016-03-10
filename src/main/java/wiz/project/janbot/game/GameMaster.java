@@ -720,7 +720,7 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name, start, end);
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name, start, end, 0);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
@@ -778,13 +778,15 @@ public class GameMaster {
             throw new NullPointerException("Statistics target is null.");
         }
         
-        final String reg = "\\d*+-\\d*+";
+        final String rangeReg = "\\d*+-\\d*+";
+        final String minimumReg = "-p\\d*+";
         int start = 0;
         int end = 0;
+        int minimumPoint = 1;
         String name = "";
         
         for (final String string : option.split(" ")) {
-            if (string.matches(reg)) {
+            if (string.matches(rangeReg)) {
                 try {
                     start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
                 }
@@ -800,6 +802,15 @@ public class GameMaster {
                 }
                 break;
             }
+            else if (string.matches(minimumReg)) {
+                try {
+                    minimumPoint = Integer.parseInt(string.replaceFirst("-p", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // minimumPointを更新せず継続
+                }
+                break;
+            }
             name += string;
         }
         
@@ -809,7 +820,7 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.YAKU_STATISTICS, name, start, end);
+            final AnnounceParam param = new AnnounceParam(AnnounceFlag.YAKU_STATISTICS, name, start, end, minimumPoint);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
