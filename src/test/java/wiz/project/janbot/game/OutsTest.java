@@ -42,9 +42,58 @@ public final class OutsTest {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             System.setOut(new PrintStream(out));
             
-            callOnMessage(pircBotX, listener, MESSAGE_OUTS);
+            callOnMessage(pircBotX, listener, MESSAGE_OUTS_7P);
             
-            assertTrue(out.toString().equals("PRIVMSG #test-channel :12[1p]：残り4枚, 計：残り4枚" + System.lineSeparator()));
+            assertTrue(out.toString().equals("PRIVMSG #test-channel :12[7p]：残り2枚, 計：残り2枚" + System.lineSeparator()));
+        }
+    }
+    
+    /**
+     * 指定牌の残り枚数のテスト(確認メッセージ)
+     */
+    @Test
+    public void testOutsOnConfirm() throws Exception {
+        {
+            MockBOT.initialize();
+            MockBOT.connect();
+            
+            final PircBotX pircBotX = new PircBotX();
+            final TestMessageListener<PircBotX> listener = createMessageListener();
+            
+            callOnMessage(pircBotX, listener, MESSAGE_TEST);
+            callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(out));
+            
+            callOnMessage(pircBotX, listener, MESSAGE_OUTS_7P);
+            
+            assertTrue(out.toString().equals("PRIVMSG #test-channel :12[7p]：残り2枚, 計：残り2枚" + System.lineSeparator()));
+        }
+    }
+    
+    /**
+     * 指定牌の残り枚数のテスト(副露直後)
+     */
+    @Test
+    public void testOutsAfterCall() throws Exception {
+        {
+            MockBOT.initialize();
+            MockBOT.connect();
+            
+            final PircBotX pircBotX = new PircBotX();
+            final TestMessageListener<PircBotX> listener = createMessageListener();
+            
+            callOnMessage(pircBotX, listener, MESSAGE_TEST);
+            callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+            callOnMessage(pircBotX, listener, MESSAGE_PON);
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(out));
+            
+            callOnMessage(pircBotX, listener, MESSAGE_OUTS_3S);
+            
+            assertTrue(out.toString().equals("PRIVMSG #test-channel :03[3s]：残り1枚, 計：残り1枚" + System.lineSeparator()));
         }
     }
     
@@ -76,8 +125,11 @@ public final class OutsTest {
     /**
      * テスト用メッセージ
      */
-    private static final String MESSAGE_TEST      = "jan test";
-    private static final String MESSAGE_OUTS      = "jan o 1p";
+    private static final String MESSAGE_DISCARD    = "jan d";
+    private static final String MESSAGE_OUTS_3S    = "jan o 3s";
+    private static final String MESSAGE_OUTS_7P    = "jan o 7p";
+    private static final String MESSAGE_PON        = "jan pon";
+    private static final String MESSAGE_TEST       = "jan test";
     
     
     

@@ -63,6 +63,8 @@ public final class JanInfo extends Observable implements Cloneable {
             _activeDiscard = source._activeDiscard;
             _watchingJanPaiList = deepCopyList(source._watchingJanPaiList);
             _completeInfo = source._completeInfo;
+            _afterCall = source._afterCall;
+            _callKan = source._callKan;
             
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
                 _handTable.put(entry.getKey(), entry.getValue().clone());
@@ -110,6 +112,8 @@ public final class JanInfo extends Observable implements Cloneable {
         _activeDiscard = JanPai.HAKU;
         _watchingJanPaiList.clear();
         _completeInfo = null;
+        _afterCall = false;
+        _callKan = false;
         
         for (final Wind wind : Wind.values()) {
             _playerTable.put(wind, new Player());
@@ -207,6 +211,15 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 副露後の打牌フラグを取得
+     * 
+     * @return 副露後の打牌フラグ。
+     */
+    public boolean getAfterCall() {
+        return _afterCall;
+    }
+    
+    /**
      * 指定した風の和了可能巡目を取得
      * 
      * @param wind 風。
@@ -294,11 +307,14 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Map<JanPai, Integer> getOuts(final List<JanPai> paiList, final Wind wind) {
         final Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
-        final JanPai activeTsumo = getActiveTsumo();
-        final Integer activeTsumoCount = outs.get(activeTsumo);
         
-        if (activeTsumoCount != null) {
-            outs.put(activeTsumo, activeTsumoCount - 1);
+        if (!_afterCall) {
+            final JanPai activeTsumo = getActiveTsumo();
+            final Integer activeTsumoCount = outs.get(activeTsumo);
+            
+            if (activeTsumoCount != null) {
+                outs.put(activeTsumo, activeTsumoCount - 1);
+            }
         }
         return outs;
     }
@@ -632,6 +648,15 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public void setActiveWindToNext() {
         _activeWind = _activeWind.getNext();
+    }
+    
+    /**
+     * 副露後の打牌フラグを設定
+     * 
+     * @param afterCall 副露後の打牌フラグ。
+     */
+    public void setAfterCall(final boolean afterCall) {
+        _afterCall = afterCall;
     }
     
     /**
@@ -1089,6 +1114,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 和了情報
      */
     private ChmCompleteInfo _completeInfo = null;
+    
+    /**
+     * 副露後の打牌フラグ
+     */
+    private volatile boolean _afterCall = false;
     
     /**
      * カンフラグ

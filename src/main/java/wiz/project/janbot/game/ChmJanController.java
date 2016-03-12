@@ -218,7 +218,7 @@ class ChmJanController implements JanController {
         
         _firstPhase = false;
         
-        if (_afterCall) {
+        if (_info.getAfterCall()) {
             throw new InvalidInputException("Tsumo pai is not exist.");
         }
         
@@ -244,7 +244,7 @@ class ChmJanController implements JanController {
         
         synchronized (_GAME_INFO_LOCK) {
             final JanPai activeTsumo = _info.getActiveTsumo();
-            if (!_afterCall) {
+            if (!_info.getAfterCall()) {
                 if (target == activeTsumo) {
                     // 直前のツモ牌が指定された
                     discard();
@@ -261,10 +261,10 @@ class ChmJanController implements JanController {
             // 打牌
             _firstPhase = false;
             hand.removeJanPai(target);
-            if (!_afterCall) {
+            if (!_info.getAfterCall()) {
                 hand.addJanPai(activeTsumo);
             }
-            _afterCall = false;
+            _info.setAfterCall(false);
             
             final Wind activeWind = _info.getActiveWind();
             _info.setHand(activeWind, hand);
@@ -347,7 +347,7 @@ class ChmJanController implements JanController {
             _info.setHand(Wind.SHA, new Hand(new ArrayList<JanPai>(deck.subList(26, 39))));
             _info.setHand(Wind.PEI, new Hand(new ArrayList<JanPai>(deck.subList(39, 52))));
             _info.setDeckIndex(13 * 4);
-            _info.setDeckWallIndex(34 * 4 - 1 -1);
+            _info.setDeckWallIndex(34 * 4 - 1 - 1);
             // 中国麻雀は王牌がないため、残り枚数は84枚 ※花牌を除く
             _info.setRemainCount(84);
             
@@ -449,7 +449,7 @@ class ChmJanController implements JanController {
         _info.setHand(activeWind, hand);
         
         // 捨て牌選択
-        _afterCall = true;
+        _info.setAfterCall(true);
         _info.notifyObservers(ANNOUNCE_FLAG_HAND_AFTER_CALL);
         
         // 手変わりに対する待ち判定更新は、ここではなく打牌時に行う。
@@ -613,7 +613,7 @@ class ChmJanController implements JanController {
         _info.setHand(activeWind, hand);
         
         // 捨て牌選択
-        _afterCall = true;
+        _info.setAfterCall(true);
         _info.notifyObservers(ANNOUNCE_FLAG_HAND_AFTER_CALL);
         
         // 手変わりに対する待ち判定更新は、ここではなく打牌時に行う。
@@ -874,6 +874,9 @@ class ChmJanController implements JanController {
         _info.setActiveTsumo(activeTsumo);
         _info.decreaseRemainCount();
         _info.setCallKan(true);
+        
+        // 手変わりがあったので待ち判定更新
+        updateWaitList(_info, activeWind);
     }
     
     /**
@@ -936,11 +939,6 @@ class ChmJanController implements JanController {
      * 初巡フラグ
      */
     private volatile boolean _firstPhase = true;
-    
-    /**
-     * 副露後の打牌フラグ
-     */
-    private volatile boolean _afterCall = false;
     
     /**
      * 和了の待ち
