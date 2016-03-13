@@ -188,10 +188,12 @@ public final class Statistics {
     /**
      * 役のゲーム統計を取得
      *
+     * @param maxCount 最大数。
      * @param minimumPoint 最小点。
+     * @return 役のゲーム統計。
      */
-    public List<String> getYaku(final int minimumPoint) {
-        return yaku(minimumPoint);
+    public List<String> getYaku(final int maxCount, final int minimumPoint) {
+        return yaku(maxCount, minimumPoint);
     }
     
     
@@ -340,9 +342,11 @@ public final class Statistics {
     /**
      * 役
      *
+     * @param maxCount 最大数。
      * @param minimumPoint 最小点。
+     * @return 役のゲーム統計。
      */
-    private List<String> yaku(final int minimumPoint) {
+    private List<String> yaku(final int maxCount, final int minimumPoint) {
         final TreeMap<Integer, List<String>> countMap = new TreeMap<>();
         
         for (final Entry<String, Integer> entry : _yakuCountTable.entrySet()) {
@@ -361,13 +365,25 @@ public final class Statistics {
             countMap.put(yakuCount, yakuList);
         }
         final List<String> yakuStringList = new ArrayList<>();
+        int count = 0;
         
         for (final Integer yakuCount : countMap.descendingKeySet()) {
             final double yakuRate = (double) yakuCount * 100 / (double) _playCountWithYaku;
             final String yakuRateString = String.format("%.2f", yakuRate);
+            boolean isEnd = false;
             
             for (final String yakuString : countMap.get(yakuCount)) {
                 yakuStringList.add(yakuString + ": " + yakuRateString + " % (" + yakuCount + "/" + _playCountWithYaku + ")");
+                count++;
+                
+                if (count == maxCount) {
+                    isEnd = true;
+                    break;
+                }
+            }
+            
+            if (isEnd) {
+                break;
             }
         }
         return yakuStringList;

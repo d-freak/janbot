@@ -22,27 +22,9 @@ final class AnnounceParam {
     /**
      * コンストラクタ
      */
-    public AnnounceParam(final AnnounceFlag flag) {
-        _flagSet = EnumSet.of(flag);
-    }
-    
-    /**
-     * コンストラクタ
-     */
     public AnnounceParam(final AnnounceFlag flag, final int completableTurn) {
         _flagSet = EnumSet.of(flag);
         _completableTurn = completableTurn;
-    }
-    
-    /**
-     * コンストラクタ
-     */
-    public AnnounceParam(final AnnounceFlag flag, final String playerName, final int start, final int end, final int minimumPoint) {
-        _flagSet = EnumSet.of(flag);
-        _playerName = playerName;
-        _start = start;
-        _end = end;
-        _minimumPoint = minimumPoint;
     }
     
     /**
@@ -78,24 +60,10 @@ final class AnnounceParam {
     }
     
     /**
-     * 終了値を取得
-     */
-    public int getEnd() {
-        return _end;
-    }
-    
-    /**
      * 実況フラグを取得
      */
     public EnumSet<AnnounceFlag> getFlagSet() {
         return _flagSet;
-    }
-    
-    /**
-     * 最小点を取得
-     */
-    public int getMinimumPoint() {
-        return _minimumPoint;
     }
     
     /**
@@ -112,13 +80,6 @@ final class AnnounceParam {
         return _playerName;
     }
     
-    /**
-     * 開始値を取得
-     */
-    public int getStart() {
-        return _start;
-    }
-    
     
     
     /**
@@ -127,19 +88,9 @@ final class AnnounceParam {
     private int _completableTurn = 0;
     
     /**
-     * 終了値
-     */
-    private int _end = 0;
-    
-    /**
      * 実況フラグ
      */
     private EnumSet<AnnounceFlag> _flagSet = null;
-    
-    /**
-     * 最小点
-     */
-    private int _minimumPoint = 0;
     
     /**
      * 牌リスト
@@ -151,9 +102,5 @@ final class AnnounceParam {
      */
     private String _playerName = null;
     
-    /**
-     * 開始値
-     */
-    private int _start = 0;
 }
 

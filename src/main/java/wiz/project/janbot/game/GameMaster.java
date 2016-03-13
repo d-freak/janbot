@@ -25,6 +25,8 @@ import wiz.project.jan.Wind;
 import wiz.project.jan.util.JanPaiUtil;
 import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.game.exception.JanException;
+import wiz.project.janbot.statistics.StatisticsParam;
+import wiz.project.janbot.statistics.YakuStatisticsParam;
 
 
 
@@ -720,7 +722,7 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.STATISTICS, name, start, end, 0);
+            final StatisticsParam param = new StatisticsParam(name, start, end);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
@@ -779,9 +781,11 @@ public class GameMaster {
         }
         
         final String rangeReg = "\\d*+-\\d*+";
-        final String minimumReg = "-p\\d*+";
+        final String maxCountReg = "-c\\d*+";
+        final String minimumPointReg = "-p\\d*+";
         int start = 0;
         int end = 0;
+        int maxCount = Integer.MAX_VALUE;
         int minimumPoint = 1;
         String name = "";
         
@@ -800,16 +804,25 @@ public class GameMaster {
                 catch (final NumberFormatException e) {
                     // endを更新せず継続
                 }
-                break;
+                continue;
             }
-            else if (string.matches(minimumReg)) {
+            else if (string.matches(maxCountReg)) {
+                try {
+                    maxCount = Integer.parseInt(string.replaceFirst("-c", ""));
+                }
+                catch (final NumberFormatException e) {
+                    // maxCountを更新せず継続
+                }
+                continue;
+            }
+            else if (string.matches(minimumPointReg)) {
                 try {
                     minimumPoint = Integer.parseInt(string.replaceFirst("-p", ""));
                 }
                 catch (final NumberFormatException e) {
                     // minimumPointを更新せず継続
                 }
-                break;
+                continue;
             }
             name += string;
         }
@@ -820,7 +833,7 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.YAKU_STATISTICS, name, start, end, minimumPoint);
+            final YakuStatisticsParam param = new YakuStatisticsParam(name, start, end, maxCount, minimumPoint);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }

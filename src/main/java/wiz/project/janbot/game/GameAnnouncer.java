@@ -36,6 +36,8 @@ import wiz.project.jan.Wind;
 import wiz.project.jan.yaku.ChmYaku;
 import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.statistics.Statistics;
+import wiz.project.janbot.statistics.StatisticsParam;
+import wiz.project.janbot.statistics.YakuStatisticsParam;
 
 
 
@@ -71,6 +73,12 @@ public class GameAnnouncer implements Observer {
             }
             else if (param instanceof AnnounceParam) {
                 updateOnSolo((JanInfo)target, (AnnounceParam) param);
+            }
+            else if (param instanceof YakuStatisticsParam) {
+                updateOnSolo((JanInfo)target, (YakuStatisticsParam) param);
+            }
+            else if (param instanceof StatisticsParam) {
+                updateOnSolo((JanInfo)target, (StatisticsParam) param);
             }
         }
     }
@@ -120,7 +128,7 @@ public class GameAnnouncer implements Observer {
      * 状況更新時の処理
      * 
      * @param info 麻雀ゲーム情報。
-     * @param flagSet 実況フラグ。
+     * @param param 更新パラメータ。
      */
     protected void updateOnSolo(final JanInfo info, final AnnounceParam param) {
         if (info == null) {
@@ -170,7 +178,7 @@ public class GameAnnouncer implements Observer {
                 switch (_announceMode) {
                 case WATCH:
                     paiList = info.getWatchingJanPaiList();
-                    addOutsString(messageList, getOuts(info, flagSet, paiList));
+                    messageList.addAll(getOutsString(info, flagSet, paiList));
                     break;
                 case SEVENTH:
                     if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
@@ -179,7 +187,7 @@ public class GameAnnouncer implements Observer {
                     else {
                         paiList = info.getSingleJanPaiList(playerWind, false);
                     }
-                    addOutsString(messageList, getOuts(info, flagSet, paiList));
+                    messageList.addAll(getOutsString(info, flagSet, paiList));
                     break;
                 default:
                 }
@@ -190,7 +198,7 @@ public class GameAnnouncer implements Observer {
             messageList.add("監視モードを有効にしました。");
             
             final List<JanPai> paiList = info.getWatchingJanPaiList();
-            addOutsString(messageList, getOuts(info, flagSet, paiList));
+            messageList.addAll(getOutsString(info, flagSet, paiList));
         }
         if (flagSet.contains(AnnounceFlag.WATCHING_END)) {
             if (AnnounceMode.WATCH.equals(_announceMode)) {
@@ -201,7 +209,7 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
             
-            addOutsString(messageList, getOuts(info, flagSet, paiList));
+            messageList.addAll(getOutsString(info, flagSet, paiList));
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
             if (AnnounceMode.SEVENTH.equals(_announceMode)) {
@@ -220,7 +228,7 @@ public class GameAnnouncer implements Observer {
                 else {
                     paiList = info.getSingleJanPaiList(playerWind, true);
                 }
-                addOutsString(messageList, getOuts(info, flagSet, paiList));
+                messageList.addAll(getOutsString(info, flagSet, paiList));
             }
         }
         final int completableTurn = info.getCompletableTurnCount(playerWind);
@@ -244,21 +252,6 @@ public class GameAnnouncer implements Observer {
             _announceMode = AnnounceMode.NORMAL;
         }
         
-        if (flagSet.contains(AnnounceFlag.STATISTICS)) {
-            final String playerName = param.getPlayerName();
-            final int start = param.getStart();
-            final int end = param.getEnd();
-            addStatisticsString(messageList, playerName, start, end);
-        }
-        
-        if (flagSet.contains(AnnounceFlag.YAKU_STATISTICS)) {
-            final String playerName = param.getPlayerName();
-            final int start = param.getStart();
-            final int end = param.getEnd();
-            final int minimumPoint = param.getMinimumPoint();
-            addYakuStatisticsString(messageList, playerName, start, end, minimumPoint);
-        }
-        
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
         }
@@ -275,84 +268,45 @@ public class GameAnnouncer implements Observer {
         }
     }
     
-    
-    
     /**
-     * 残り枚数テーブルを文字列に変換し出力内容に追加
+     * 状況更新時の処理
      * 
-     * @param messageList 出力内容。
-     * @param outs 残り枚数テーブル。
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
      */
-    private void addOutsString(final List<String> messageList, final Map<JanPai, Integer> outs) {
-        final StringBuilder buf = new StringBuilder();
-        Integer total = 0;
-        int count = 1;
-        for (final JanPai pai : outs.keySet()) {
-            final Integer outsCount = outs.get(pai);
-            buf.append(convertJanPaiToString(pai));
-            buf.append("：残り" + outsCount.toString() + "枚, ");
-            total += outsCount;
-            
-            if (count % 9 == 0) {
-                messageList.add(buf.toString());
-                buf.delete(0, buf.length());
-            }
-            count++;
+    protected void updateOnSolo(final JanInfo info, final StatisticsParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
         }
-        buf.append("計：残り" + total.toString() + "枚");
-        messageList.add(buf.toString());
-    }
-    
-    /**
-     * 指定したプレイヤー名のゲーム統計を出力内容に追加
-     * 
-     * @param messageList 出力内容。
-     * @param playerName プレイヤー名。
-     * @param start 開始値。
-     * @param end 終了値。
-     */
-    private void addStatisticsString(final List<String> messageList, final String playerName, final int start, final int end) {
-        Statistics statistics = null;
+        if (param == null) {
+            throw new NullPointerException("Statistics parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getStatisticsString(param));
         
-        try {
-            statistics = new Statistics(playerName, start, end);
-        }
-        catch (DocumentException e) {
-            messageList.add(playerName + "というプレイヤーの記録はありません。");
-            return;
-        }
-        catch (InvalidInputException e) {
-            messageList.add("不正な開始値、終了値が指定されました。");
-            return;
-        }
-        messageList.addAll(statistics.get());
+        IRCBOT.getInstance().println(messageList);
     }
     
     /**
-     * 指定したプレイヤー名の役のゲーム統計を出力内容に追加
+     * 状況更新時の処理
      * 
-     * @param messageList 出力内容。
-     * @param playerName プレイヤー名。
-     * @param start 開始値。
-     * @param end 終了値。
-     * @param minimumPoint 最小点。
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
      */
-    private void addYakuStatisticsString(final List<String> messageList, final String playerName, final int start, final int end, final int minimumPoint) {
-        Statistics statistics = null;
+    protected void updateOnSolo(final JanInfo info, final YakuStatisticsParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("YakuStatistics parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getYakuStatisticsString(param));
         
-        try {
-            statistics = new Statistics(playerName, start, end);
-        }
-        catch (DocumentException e) {
-            messageList.add(playerName + "というプレイヤーの記録はありません。");
-            return;
-        }
-        catch (InvalidInputException e) {
-            messageList.add("不正な開始値、終了値が指定されました。");
-            return;
-        }
-        messageList.addAll(statistics.getYaku(minimumPoint));
+        IRCBOT.getInstance().println(messageList);
     }
+    
+    
     
     /**
      * 副露情報を文字列に変換
@@ -567,20 +521,44 @@ public class GameAnnouncer implements Observer {
     }
     
     /**
-     * プレイヤーの風を取得
+     * 残り枚数テーブルの文字列を取得
      * 
      * @param info ゲーム情報。
-     * @return プレイヤーの風。
+     * @param flagSet 実況フラグ。
+     * @param paiList 牌リスト。
+     * @return 残り枚数テーブルの文字列。
      */
-    private Map<JanPai, Integer> getOuts(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
+    private List<String> getOutsString(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
         final Wind playerWind = getPlayerWind(info);
+        Map<JanPai, Integer> outs = null;
         
         if (flagSet.contains(AnnounceFlag.CONFIRM)) {
-            return info.getOutsOnConfirm(paiList, playerWind);
+            outs = info.getOutsOnConfirm(paiList, playerWind);
         }
         else {
-            return info.getOuts(paiList, playerWind);
+            outs = info.getOuts(paiList, playerWind);
         }
+        final List<String> messageList = new ArrayList<>();
+        final StringBuilder buf = new StringBuilder();
+        int total = 0;
+        int count = 1;
+        
+        for (final JanPai pai : outs.keySet()) {
+            final Integer outsCount = outs.get(pai);
+            buf.append(convertJanPaiToString(pai));
+            buf.append("：残り" + outsCount.toString() + "枚, ");
+            total += outsCount;
+            
+            if (count % 9 == 0) {
+                messageList.add(buf.toString());
+                buf.delete(0, buf.length());
+            }
+            count++;
+        }
+        buf.append("計：残り" + total + "枚");
+        messageList.add(buf.toString());
+        
+        return messageList;
     }
     
     /**
@@ -596,6 +574,65 @@ public class GameAnnouncer implements Observer {
             }
         }
         throw new InternalError();
+    }
+    
+    /**
+     * 指定したプレイヤー名のゲーム統計の文字列を取得
+     * 
+     * @param param 更新パラメータ。
+     * @return 指定したプレイヤー名のゲーム統計の文字列。
+     */
+    private List<String> getStatisticsString(final StatisticsParam param) {
+        final List<String> messageList = new ArrayList<>();
+        final String playerName = param.getPlayerName();
+        final int start = param.getStart();
+        final int end = param.getEnd();
+        Statistics statistics = null;
+        
+        try {
+            statistics = new Statistics(playerName, start, end);
+        }
+        catch (DocumentException e) {
+            messageList.add(playerName + "というプレイヤーの記録はありません。");
+            return messageList;
+        }
+        catch (InvalidInputException e) {
+            messageList.add("不正な開始値、終了値が指定されました。");
+            return messageList;
+        }
+        messageList.addAll(statistics.get());
+        return messageList;
+    }
+    
+    /**
+     * 指定したプレイヤー名の役のゲーム統計の文字列を取得
+     * 
+     * @param param 更新パラメータ。
+     * @return 指定したプレイヤー名の役のゲーム統計の文字列。
+     */
+    private List<String> getYakuStatisticsString(final YakuStatisticsParam param) {
+        final List<String> messageList = new ArrayList<>();
+        final String playerName = param.getPlayerName();
+        final int start = param.getStart();
+        final int end = param.getEnd();
+        Statistics statistics = null;
+        
+        try {
+            statistics = new Statistics(playerName, start, end);
+        }
+        catch (DocumentException e) {
+            messageList.add(playerName + "というプレイヤーの記録はありません。");
+            return messageList;
+        }
+        catch (InvalidInputException e) {
+            messageList.add("不正な開始値、終了値が指定されました。");
+            return messageList;
+        }
+        final int maxCount = param.getMaxCount();
+        final int minimumPoint = param.getMinimumPoint();
+        
+        messageList.addAll(statistics.getYaku(maxCount, minimumPoint));
+        return messageList;
     }
     
     /**
