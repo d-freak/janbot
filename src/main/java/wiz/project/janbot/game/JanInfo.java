@@ -592,6 +592,17 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 被副露牌インデックスを削除
+     * 
+     * @param wind 副露された風。
+     */
+    public void removeCalledIndex(final Wind wind) {
+        if (wind != null) {
+            _riverTable.get(wind).removeCalledIndex();
+        }
+    }
+    
+    /**
      * 直前の捨て牌を設定
      * 
      * @param pai 直前の捨て牌。
@@ -902,7 +913,8 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param wind 和了情報。
      */
     private ChmCompleteInfo getCompleteInfo(final Wind playerWind, final JanPai pai, final boolean isRon) {
-        final int remainCount = getVisibleOuts(pai);
+        // 和了牌の1枚分を事前に引いて判定
+        final int remainCount = getVisibleOuts(pai) - 1;
         final CompleteType completeType = getCompleteType(playerWind, isRon, _callKan);
         final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, completeType);
         final Hand hand = getHand(playerWind);

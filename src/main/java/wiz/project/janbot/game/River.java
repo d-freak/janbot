@@ -87,6 +87,17 @@ public final class River implements Cloneable {
     }
     
     /**
+     * 被副露牌インデックスを削除
+     */
+    public void removeCalledIndex() {
+        final int size = _calledIndexList.size();
+        
+        if (size > 0) {
+            _calledIndexList.remove(size - 1);
+        }
+    }
+    
+    /**
      * 被副露牌インデックスを設定
      */
     public void setCalledIndex() {

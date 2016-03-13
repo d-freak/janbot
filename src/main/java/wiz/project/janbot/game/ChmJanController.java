@@ -153,6 +153,7 @@ class ChmJanController implements JanController {
                     // チョンボ
                     throw new BoneheadException("Not completed.");
                 }
+                _info.setCalledIndex(calledWind);
                 _info.setCompleteInfo(activeWind, true);
                 
                 final int totalPoint = _info.getCompleteInfo().getTotalPoint();
@@ -160,17 +161,17 @@ class ChmJanController implements JanController {
                 if (totalPoint < 8) {
                     // チョンボ
                     _info.notifyObservers(ANNOUNCE_FLAG_NOT_OVER_TIED_POINT);
-                    throw new BoneheadException("Not completed.");
+                    throw new BoneheadException("Not over tied point.");
                 }
-                _info.setCalledIndex(calledWind);
                 // ゲームセット
                 _onGame = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
             }
             catch (final Throwable e) {
-                // 和了しない場合、巡目とアクティブプレイヤーを元に戻す
+                // 和了しない場合、巡目とアクティブプレイヤー、被副露牌インデックスを元に戻す
                 _info.decreaseTurnCount(activeWind);
                 _info.setActiveWind(calledWind);
+                _info.removeCalledIndex(calledWind);
                 throw e;
             }
         }
@@ -200,7 +201,7 @@ class ChmJanController implements JanController {
             if (totalPoint < 8) {
                 // チョンボ
                 _info.notifyObservers(ANNOUNCE_FLAG_NOT_OVER_TIED_POINT);
-                throw new BoneheadException("Not completed.");
+                throw new BoneheadException("Not over tied point.");
             }
             // ゲームセット
             _onGame = false;
@@ -636,7 +637,9 @@ class ChmJanController implements JanController {
         Wind targetWind = activeWind.getNext();
         while (targetWind != activeWind) {
             if (_info.getPlayer(targetWind).getType() != PlayerType.COM) {
+                _info.setCalledIndex(activeWind);
                 setCompletableTurnCount(_info, targetWind);
+                _info.removeCalledIndex(activeWind);
                 // NPCはツモ切り固定
                 final List<CallType> callableList = getCallableList(_info, activeWind, targetWind, target);
                 if (!callableList.isEmpty()) {
