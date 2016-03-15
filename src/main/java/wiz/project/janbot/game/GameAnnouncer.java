@@ -261,6 +261,10 @@ public class GameAnnouncer implements Observer {
             
             messageList.add((8 - totalPoint) + "点足りません");
         }
+        
+        if (flagSet.contains(AnnounceFlag.RANKING)) {
+            messageList.addAll(getRankingString());
+        }
         IRCBOT.getInstance().println(messageList);
         
         if (flagSet.contains(AnnounceFlag.SCORE)) {
@@ -574,6 +578,30 @@ public class GameAnnouncer implements Observer {
             }
         }
         throw new InternalError();
+    }
+    
+    /**
+     * ランキングの文字列を取得
+     * 
+     * @return ランキングの文字列。
+     */
+    private List<String> getRankingString() {
+        final List<String> messageList = new ArrayList<>();
+        Statistics statistics = null;
+        
+        try {
+            statistics = new Statistics("all", 0, 0);
+        }
+        catch (DocumentException e) {
+            messageList.add("プレイヤーの記録がありません。");
+            return messageList;
+        }
+        catch (InvalidInputException e) {
+            messageList.add("不正な開始値、終了値が指定されました。");
+            return messageList;
+        }
+        messageList.addAll(statistics.getRanking());
+        return messageList;
     }
     
     /**

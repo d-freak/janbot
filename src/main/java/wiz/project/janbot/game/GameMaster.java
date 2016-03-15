@@ -428,6 +428,19 @@ public class GameMaster {
     }
     
     /**
+     * ランキングの表示
+     * 
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onRanking() throws JanException {
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            info.addObserver(_announcer);
+            info.notifyObservers(AnnounceFlag.RANKING);
+        }
+    }
+    
+    /**
      * リプレイ処理
      * 
      * @param playerName プレイヤー名。

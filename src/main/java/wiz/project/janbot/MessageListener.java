@@ -114,6 +114,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan tsumo") || message.equals("jan hu")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
+            else if (message.equals("jan sr")) {
+                GameMaster.getInstance().onRanking();
+            }
             else if (message.equals("jan ss")) {
                 GameMaster.getInstance().onStatistics(playerName, "");
             }
@@ -160,7 +163,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 final List<String> messageList =
                     Arrays.asList("ss [X] [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
-                                  "指定したプレイヤーの役のゲーム統計を表示",
+                                  "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
                                   "※ ss, syはXにallと指定すると全員分を表示、その場合範囲指定は無効",
                                   "s：開始   s chm：中国麻雀を開始   e：終了",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
@@ -313,6 +316,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 _confirmMode = false;
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
+            else if (message.equals("jan sr")) {
+                GameMaster.getInstance().onRanking();
+            }
             else if (message.equals("jan ss")) {
                 GameMaster.getInstance().onStatistics(playerName, "");
             }
@@ -335,7 +341,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 final List<String> messageList =
                     Arrays.asList("ss [X] [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
-                                  "指定したプレイヤーの役のゲーム統計を表示",
+                                  "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
                                   "※ ss, syはXにallと指定すると全員分を表示、その場合範囲指定は無効",
                                   "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
                                   "ron, hu：ロン   ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",

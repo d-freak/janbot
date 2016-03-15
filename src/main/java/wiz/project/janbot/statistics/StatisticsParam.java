@@ -62,5 +62,6 @@ public class StatisticsParam {
      * 開始値
      */
     private int _start = 0;
+    
 }
 

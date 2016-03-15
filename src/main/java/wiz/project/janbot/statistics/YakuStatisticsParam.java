@@ -50,5 +50,6 @@ public final class YakuStatisticsParam extends StatisticsParam {
      * 最小点
      */
     private int _minimumPoint = 0;
+    
 }
 

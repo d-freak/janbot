@@ -1,5 +1,5 @@
 /**
- * ChmJanController.java
+ * Statistics.java
  * 
  * @author Masasutzu
  */
@@ -13,10 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 import wiz.project.jan.yaku.ChmYaku;
 import wiz.project.janbot.game.exception.InvalidInputException;
@@ -31,135 +28,14 @@ public final class Statistics {
     /**
      * コンストラクタ
      */
-    public Statistics(final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
-        final List<String> playerNameList = new ArrayList<>();
-        boolean isAll = false;
-        
-        if ("all".equals(playerName)){
-            isAll = true;
-            
-            final File dir = new File(".");
-            final File[] files = dir.listFiles();
-            final String reg = ".*\\.xml$";
-            
-            for (int i = 0; i < files.length; i++) {
-                final String fileName = files[i].getName();
-                
-                if (fileName.matches(reg)) {
-                    playerNameList.add(fileName.replaceFirst("\\.xml$", ""));
-                }
-            }
-        }
-        else {
-            playerNameList.add(playerName);
-        }
+    public Statistics(final String playerName, int start, int end) throws DocumentException, InvalidInputException {
+        final List<String> playerNameList = getPlayerNameList(playerName);
+        final boolean isAll = playerNameList.size() > 1 ? true : false;
+        start = isAll ? 0 : start;
+        end = isAll ? 0 : end;
         
         for (final String player : playerNameList) {
-            final String path = "./" + player + ".xml";
-            final SAXReader reader = new SAXReader();
-            final Document readDocument = reader.read(path);
-            final Element readRoot = readDocument.getRootElement();
-            final int size = readRoot.elements().size();
-            final int countStart = !isAll && start != 0 ? start - 1 : 0;
-            final int countEnd = !isAll && end != 0 ? end : size;
-            
-            if (countStart >= countEnd || countEnd > size) {
-                throw new InvalidInputException("start is greater or equal end");
-            }
-            int count = 0;
-            
-            for (final Object element : readRoot.elements()) {
-                if (count < countStart) {
-                    count++;
-                    continue;
-                }
-                else if (count == countEnd) {
-                    break;
-                }
-                final Element readResult = (Element) element;
-                String completeType = "";
-                
-                for (final Object e : readResult.elements()) {
-                    final Element data = (Element) e;
-                    final String valueString = data.getStringValue();
-                    
-                    if (!valueString.equals("-")) {
-                        final String name = data.getName();
-                        
-                        switch (name) {
-                        case "completableTurn":
-                            final int completableTurn = Integer.parseInt(valueString);
-                            
-                            _completableCount++;
-                            _completableTurnSum += completableTurn;
-                            
-                            if (completableTurn <= 6) {
-                                _until6thTurnCount++;
-                            }
-                            
-                            if (completableTurn <= 9) {
-                                _until9thTurnCount++;
-                            }
-                            
-                            if (completableTurn <= 12) {
-                                _until12thTurnCount++;
-                            }
-                            
-                            if (completableTurn <= 15) {
-                                _until15thTurnCount++;
-                            }
-                            break;
-                        case "completeType":
-                            completeType = valueString;
-                            
-                            if (valueString.equals("tsumo")) {
-                                _tsumoCount++;
-                                _completeCount++;
-                            }
-                            else if (valueString.equals("ron")) {
-                                _completeCount++;
-                            }
-                            break;
-                        case "completeTurn":
-                            _turnSum += Integer.parseInt(valueString);
-                            break;
-                        case "point":
-                            final int point = Integer.parseInt(valueString);
-                            int getPoint = 0;
-                            
-                            _pointSum += point;
-                            
-                            if (completeType.equals("tsumo")) {
-                                getPoint = (point + 8) * 3;
-                            }
-                            else if (completeType.equals("ron")) {
-                                getPoint = point + 8 * 3;
-                            }
-                            _getPointSum += getPoint;
-                            break;
-                        case "yaku":
-                            for (final String string : valueString.split("[\\[, \\]]")) {
-                                if ("".equals(string)) {
-                                    continue;
-                                }
-                                Integer yakuCount = _yakuCountTable.get(string);
-                                
-                                if (yakuCount != null) {
-                                    _yakuCountTable.put(string, ++yakuCount);
-                                }
-                                else {
-                                    _yakuCountTable.put(string, 1);
-                                }
-                            }
-                            _playCountWithYaku++;
-                            break;
-                        default:
-                        }
-                    }
-                }
-                count++;
-            }
-            _playCount += countEnd - countStart;
+            _statisticsTable.put(player, new PersonalStatistics(player, start, end));
         }
     }
     
@@ -170,7 +46,7 @@ public final class Statistics {
      */
     public List<String> get() {
         final List<String> stringList = new ArrayList<>();
-
+        
         stringList.add(until6thTurnRate());
         stringList.add(until9thTurnRate());
         stringList.add(until12thTurnRate());
@@ -182,6 +58,28 @@ public final class Statistics {
         stringList.add(pointAverage());
         stringList.add(getPointAverage());
         stringList.add(tsumoRate());
+        return stringList;
+    }
+    
+    /**
+     * ランキングを取得
+     *
+     * @return ランキング。
+     */
+    public List<String> getRanking() {
+        final List<String> stringList = new ArrayList<>();
+        
+        stringList.add(until6thTurnRateRanking());
+        stringList.add(until9thTurnRateRanking());
+        stringList.add(until12thTurnRateRanking());
+        stringList.add(until15thTurnRateRanking());
+        stringList.add(completableRateRanking());
+        stringList.add(completeRateRanking());
+        stringList.add(completableTurnAverageRanking());
+        stringList.add(turnAverageRanking());
+        stringList.add(pointAverageRanking());
+        stringList.add(getPointAverageRanking());
+        stringList.add(tsumoRateRanking());
         return stringList;
     }
     
@@ -202,52 +100,142 @@ public final class Statistics {
      * 聴牌率
      */
     private String completableRate() {
-        final double completableRate = (double) _completableCount * 100 / (double) _playCount;
+        final int completableCount = getCompleteCount();
+        final int playCount = getPlayCount();
+        final double completableRate = (double) completableCount * 100 / (double) playCount;
         final String completableRateString = String.format("%.2f", completableRate);
         
-        return "聴牌率: " + completableRateString + " % (" + _completableCount + "/" + _playCount + ")";
+        return "聴牌率: " + completableRateString + " % (" + completableCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 聴牌率のランキング
+     */
+    private String completableRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double completableRate = entry.getValue().completableRate();
+            List<String> playerList = rankingTable.get(completableRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(completableRate, playerList);
+        }
+        String message ="聴牌率: ";
+        int count = 0;
+        
+        for (final double completableRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(completableRate);
+            final String completableRateString = String.format("%.2f", completableRate);
+            message += playerList + " (" + completableRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 平均聴牌巡目
      */
     private String completableTurnAverage() {
+        final int completableCount = getCompletableCount();
         String completableTurnAverageString = "-";
         
-        if (_completableCount != 0) {
-            final double completableTurnAverage = (double) _completableTurnSum / (double) _completableCount;
+        if (completableCount != 0) {
+            final int completableTurnSum = getCompletableTurnSum();
+            final double completableTurnAverage = (double) completableTurnSum / (double) completableCount;
             completableTurnAverageString = String.format("%.2f", completableTurnAverage);
         }
         return "平均聴牌巡目: " + completableTurnAverageString + " 巡目";
     }
     
     /**
-     * 和了率
+     * 平均聴牌巡目のランキング
      */
-    private String completeRate() {
-        final double completeRate = (double) _completeCount * 100 / (double) _playCount;
-        final String completeRateString = String.format("%.2f", completeRate);
+    private String completableTurnAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
         
-        return "和了率: " + completeRateString + " % (" + _completeCount + "/" + _playCount + ")";
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double completableTurnAverage = entry.getValue().completableTurnAverage();
+            List<String> playerList = rankingTable.get(completableTurnAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(completableTurnAverage, playerList);
+        }
+        String message ="平均聴牌巡目: ";
+        int count = 0;
+        
+        for (final double completableTurnAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(completableTurnAverage);
+            final String completableTurnAverageString = String.format("%.2f", completableTurnAverage);
+            message += playerList + " (" + completableTurnAverageString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
-     * 平均獲得点数
+     * 和了率
      */
-    private String getPointAverage() {
-        String getPointAverageString = "-";
+    private String completeRate() {
+        final int completeCount = getCompleteCount();
+        final int playCount = getPlayCount();
+        final double completeRate = (double) completeCount * 100 / (double) playCount;
+        final String completeRateString = String.format("%.2f", completeRate);
         
-        if (_completeCount != 0) {
-            final double getPointAverage = (double) _getPointSum / (double) _completeCount;
-            getPointAverageString = String.format("%.2f", getPointAverage);
+        return "和了率: " + completeRateString + " % (" + completeCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 和了率のランキング
+     */
+    private String completeRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double completableRate = entry.getValue().completableRate();
+            List<String> playerList = rankingTable.get(completableRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(completableRate, playerList);
         }
-        return "平均獲得点数: " + getPointAverageString + " 点";
+        String message ="和了率: ";
+        int count = 0;
+        
+        for (final double completableRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(completableRate);
+            final String completableRateString = String.format("%.2f", completableRate);
+            message += playerList + " (" + completableRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 中国麻雀の役の点数を取得
      * 
      * @param name 中国麻雀の役の名前。
+     * @return 中国麻雀の役の点数。
      */
     private int getChmYakuPoint(final String name) {
         for (final ChmYaku yaku : ChmYaku.values()) {
@@ -261,82 +249,590 @@ public final class Statistics {
     }
     
     /**
+     * 聴牌回数を取得
+     * 
+     * @return 聴牌回数。
+     */
+    private int getCompletableCount() {
+        int completableCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            completableCount += statistics.getCompletableCount();
+        }
+        return completableCount;
+    }
+    
+    /**
+     * 聴牌巡目の合計を取得
+     * 
+     * @return 聴牌巡目の合計。
+     */
+    private int getCompletableTurnSum() {
+        int completableTurnSum = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            completableTurnSum += statistics.getCompletableTurnSum();
+        }
+        return completableTurnSum;
+    }
+    
+    /**
+     * 和了回数を取得
+     * 
+     * @return 和了回数。
+     */
+    private int getCompleteCount() {
+        int completeCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            completeCount += statistics.getCompleteCount();
+        }
+        return completeCount;
+    }
+    
+    /**
+     * 獲得点数の合計を取得
+     * 
+     * @return 獲得点数の合計。
+     */
+    private int getGetPointSum() {
+        int getPointSum = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            getPointSum += statistics.getGetPointSum();
+        }
+        return getPointSum;
+    }
+    
+    /**
+     * ゲーム回数を取得
+     * 
+     * @return ゲーム回数。
+     */
+    private int getPlayCount() {
+        int playCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            playCount += statistics.getPlayCount();
+        }
+        return playCount;
+    }
+    
+    /**
+     * 役があるゲーム回数を取得
+     * 
+     * @return 役があるゲーム回数。
+     */
+    private int getPlayCountWithYaku() {
+        int playCountWithYaku = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            playCountWithYaku += statistics.getPlayCountWithYaku();
+        }
+        return playCountWithYaku;
+    }
+    
+    /**
+     * プレイヤーの名前リストを取得。
+     * 
+     * @return プレイヤーの名前リスト。
+     */
+    private List<String> getPlayerNameList(final String playerName) {
+        final List<String> playerNameList = new ArrayList<>();
+        
+        if ("all".equals(playerName)){
+            final File dir = new File(".");
+            final File[] files = dir.listFiles();
+            final String reg = ".*\\.xml$";
+            
+            for (int i = 0; i < files.length; i++) {
+                final String fileName = files[i].getName();
+                
+                if (fileName.matches(reg)) {
+                    playerNameList.add(fileName.replaceFirst("\\.xml$", ""));
+                }
+            }
+        }
+        else {
+            playerNameList.add(playerName);
+        }
+        return playerNameList;
+    }
+    
+    /**
+     * 平均獲得点数
+     */
+    private String getPointAverage() {
+        final int completeCount = getCompleteCount();
+        String getPointAverageString = "-";
+        
+        if (completeCount != 0) {
+            final int getPointSum = getGetPointSum();
+            final double getPointAverage = (double) getPointSum / (double) completeCount;
+            getPointAverageString = String.format("%.2f", getPointAverage);
+        }
+        return "平均獲得点数: " + getPointAverageString + " 点";
+    }
+    
+    /**
+     * 平均獲得点数のランキング
+     */
+    private String getPointAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double getPointAverage = entry.getValue().getPointAverage();
+            List<String> playerList = rankingTable.get(getPointAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(getPointAverage, playerList);
+        }
+        String message ="平均獲得点数: ";
+        int count = 0;
+        
+        for (final double getPointAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(getPointAverage);
+            final String getPointAverageString = String.format("%.2f", getPointAverage);
+            message += playerList + " (" + getPointAverageString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
+     * 点数の合計を取得
+     * 
+     * @return 点数の合計。
+     */
+    private int getPointSum() {
+        int pointSum = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            pointSum += statistics.getPointSum();
+        }
+        return pointSum;
+    }
+    
+    /**
+     * ツモ回数を取得
+     * 
+     * @return ツモ回数。
+     */
+    private int getTsumoCount() {
+        int tsumoCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            tsumoCount += statistics.getTsumoCount();
+        }
+        return tsumoCount;
+    }
+    
+    /**
+     * 和了巡目の合計を取得
+     * 
+     * @return 和了巡目の合計。
+     */
+    private int getTurnSum() {
+        int turnSum = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            turnSum += statistics.getTurnSum();
+        }
+        return turnSum;
+    }
+    
+    /**
+     * 6巡目までに聴牌した回数を取得
+     * 
+     * @return 6巡目までに聴牌した回数。
+     */
+    private int getUntil6thTurnCount() {
+        int until6thTurnCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            until6thTurnCount += statistics.getUntil6thTurnCount();
+        }
+        return until6thTurnCount;
+    }
+    
+    /**
+     * 9巡目までに聴牌した回数を取得
+     * 
+     * @return 9巡目までに聴牌した回数。
+     */
+    private int getUntil9thTurnCount() {
+        int until9thTurnCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            until9thTurnCount += statistics.getUntil9thTurnCount();
+        }
+        return until9thTurnCount;
+    }
+    
+    /**
+     * 12巡目までに聴牌した回数を取得
+     * 
+     * @return 12巡目までに聴牌した回数。
+     */
+    private int getUntil12thTurnCount() {
+        int until12thTurnCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            until12thTurnCount += statistics.getUntil12thTurnCount();
+        }
+        return until12thTurnCount;
+    }
+    
+    /**
+     * 15巡目までに聴牌した回数を取得
+     * 
+     * @return 15巡目までに聴牌した回数。
+     */
+    private int getUntil15thTurnCount() {
+        int until15thTurnCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            until15thTurnCount += statistics.getUntil15thTurnCount();
+        }
+        return until15thTurnCount;
+    }
+    
+    /**
+     * 役カウントテーブルを取得
+     * 
+     * @return 役カウントテーブル。
+     */
+    private Map<String, Integer> getYakuCountTable() {
+        final Map<String, Integer> yakuCountTable = new TreeMap<>();
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+        	yakuCountTable.putAll(statistics.getYakuCountTable());
+        }
+        return yakuCountTable;
+    }
+    
+    /**
      * 平均点数
      */
     private String pointAverage() {
+        final int completeCount = getCompleteCount();
         String pointAverageString = "-";
         
-        if (_completeCount != 0) {
-            final double pointAverage = (double) _pointSum / (double) _completeCount;
+        if (completeCount != 0) {
+            final int pointSum = getPointSum();
+            final double pointAverage = (double) pointSum / (double) completeCount;
             pointAverageString = String.format("%.2f", pointAverage);
         }
         return "平均点数: " + pointAverageString + " 点";
     }
     
     /**
+     * 平均点数のランキング
+     */
+    private String pointAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double pointAverage = entry.getValue().pointAverage();
+            List<String> playerList = rankingTable.get(pointAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(pointAverage, playerList);
+        }
+        String message ="平均点数: ";
+        int count = 0;
+        
+        for (final double pointAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(pointAverage);
+            final String pointAverageString = String.format("%.2f", pointAverage);
+            message += playerList + " (" + pointAverageString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
      * ツモ率
      */
     private String tsumoRate() {
+        final int tsumoCount = getTsumoCount();
+        final int completeCount = getCompleteCount();
         String tsumoRateString = "-";
         
-        if (_completeCount != 0) {
-            final double tsumoRate = (double) _tsumoCount  * 100 / (double) _completeCount;
+        if (completeCount != 0) {
+            final double tsumoRate = (double) tsumoCount  * 100 / (double) completeCount;
             tsumoRateString = String.format("%.2f", tsumoRate);
         }
-        return "ツモ率: " + tsumoRateString + " % (" + _tsumoCount + "/" + _completeCount + ")";
+        return "ツモ率: " + tsumoRateString + " % (" + tsumoCount + "/" + completeCount + ")";
+    }
+    
+    /**
+     * ツモ率のランキング
+     */
+    private String tsumoRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double tsumoRate = entry.getValue().tsumoRate();
+            List<String> playerList = rankingTable.get(tsumoRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(tsumoRate, playerList);
+        }
+        String message ="ツモ率: ";
+        int count = 0;
+        
+        for (final double tsumoRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(tsumoRate);
+            final String tsumoRateString = String.format("%.2f", tsumoRate);
+            message += playerList + " (" + tsumoRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 平均和了巡目
      */
     private String turnAverage() {
+        final int completeCount = getCompleteCount();
         String turnAverageString = "-";
         
-        if (_completeCount != 0) {
-            final double turnAverage = (double) _turnSum / (double) _completeCount;
+        if (completeCount != 0) {
+            final int turnSum = getTurnSum();
+            final double turnAverage = (double) turnSum / (double) completeCount;
             turnAverageString = String.format("%.2f", turnAverage);
         }
         return "平均和了巡目: " + turnAverageString + " 巡目";
     }
     
     /**
+     * 平均和了巡目のランキング
+     */
+    private String turnAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double turnAverage = entry.getValue().turnAverage();
+            List<String> playerList = rankingTable.get(turnAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(turnAverage, playerList);
+        }
+        String message ="平均和了巡目: ";
+        int count = 0;
+        
+        for (final double turnAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(turnAverage);
+            final String turnAverageString = String.format("%.2f", turnAverage);
+            message += playerList + " (" + turnAverageString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
      * 6巡目までの聴牌率
      */
     private String until6thTurnRate() {
-        final double until6thTurnRate = (double) _until6thTurnCount * 100 / (double) _playCount;
+        final int until6thTurnCount = getUntil6thTurnCount();
+        final int playCount = getPlayCount();
+        final double until6thTurnRate = (double) until6thTurnCount * 100 / (double) playCount;
         final String until6thTurnRateString = String.format("%.2f", until6thTurnRate);
         
-        return "6巡目までの聴牌率: " + until6thTurnRateString + " % (" + _until6thTurnCount + "/" + _playCount + ")";
+        return "6巡目までの聴牌率: " + until6thTurnRateString + " % (" + until6thTurnCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 6巡目までの聴牌率のランキング
+     */
+    private String until6thTurnRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double until6thTurnRate = entry.getValue().until6thTurnRate();
+            List<String> playerList = rankingTable.get(until6thTurnRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(until6thTurnRate, playerList);
+        }
+        String message ="6巡目までの聴牌率: ";
+        int count = 0;
+        
+        for (final double until6thTurnRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(until6thTurnRate);
+            final String until6thTurnRateString = String.format("%.2f", until6thTurnRate);
+            message += playerList + " (" + until6thTurnRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 9巡目までの聴牌率
      */
     private String until9thTurnRate() {
-        final double until9thTurnRate = (double) _until9thTurnCount * 100 / (double) _playCount;
+        final int until9thTurnCount = getUntil9thTurnCount();
+        final int playCount = getPlayCount();
+        final double until9thTurnRate = (double) until9thTurnCount * 100 / (double) playCount;
         final String until9thTurnRateString = String.format("%.2f", until9thTurnRate);
         
-        return "9巡目までの聴牌率: " + until9thTurnRateString + " % (" + _until9thTurnCount + "/" + _playCount + ")";
+        return "9巡目までの聴牌率: " + until9thTurnRateString + " % (" + until9thTurnCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 9巡目までの聴牌率のランキング
+     */
+    private String until9thTurnRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double until9thTurnRate = entry.getValue().until9thTurnRate();
+            List<String> playerList = rankingTable.get(until9thTurnRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(until9thTurnRate, playerList);
+        }
+        String message ="9巡目までの聴牌率: ";
+        int count = 0;
+        
+        for (final double until9thTurnRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(until9thTurnRate);
+            final String until9thTurnRateString = String.format("%.2f", until9thTurnRate);
+            message += playerList + " (" + until9thTurnRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 12巡目までの聴牌率
      */
     private String until12thTurnRate() {
-        final double until12thTurnRate = (double) _until12thTurnCount * 100 / (double) _playCount;
+        final int until12thTurnCount = getUntil12thTurnCount();
+        final int playCount = getPlayCount();
+        final double until12thTurnRate = (double) until12thTurnCount * 100 / (double) playCount;
         final String until12thTurnRateString = String.format("%.2f", until12thTurnRate);
         
-        return "12巡目までの聴牌率: " + until12thTurnRateString + " % (" + _until12thTurnCount + "/" + _playCount + ")";
+        return "12巡目までの聴牌率: " + until12thTurnRateString + " % (" + until12thTurnCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 12巡目までの聴牌率のランキング
+     */
+    private String until12thTurnRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double until12thTurnRate = entry.getValue().until12thTurnRate();
+            List<String> playerList = rankingTable.get(until12thTurnRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(until12thTurnRate, playerList);
+        }
+        String message ="12巡目までの聴牌率: ";
+        int count = 0;
+        
+        for (final double until12thTurnRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(until12thTurnRate);
+            final String until12thTurnRateString = String.format("%.2f", until12thTurnRate);
+            message += playerList + " (" + until12thTurnRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
      * 15巡目までの聴牌率
      */
     private String until15thTurnRate() {
-        final double until15thTurnRate = (double) _until15thTurnCount * 100 / (double) _playCount;
+        final int until15thTurnCount = getUntil15thTurnCount();
+        final int playCount = getPlayCount();
+        final double until15thTurnRate = (double) until15thTurnCount * 100 / (double) playCount;
         final String until15thTurnRateString = String.format("%.2f", until15thTurnRate);
         
-        return "15巡目までの聴牌率: " + until15thTurnRateString + " % (" + _until15thTurnCount + "/" + _playCount + ")";
+        return "15巡目までの聴牌率: " + until15thTurnRateString + " % (" + until15thTurnCount + "/" + playCount + ")";
+    }
+    
+    /**
+     * 15巡目までの聴牌率のランキング
+     */
+    private String until15thTurnRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double until15thTurnRate = entry.getValue().until15thTurnRate();
+            List<String> playerList = rankingTable.get(until15thTurnRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey());
+            rankingTable.put(until15thTurnRate, playerList);
+        }
+        String message ="15巡目までの聴牌率: ";
+        int count = 0;
+        
+        for (final double until15thTurnRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(until15thTurnRate);
+            final String until15thTurnRateString = String.format("%.2f", until15thTurnRate);
+            message += playerList + " (" + until15thTurnRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
@@ -347,9 +843,10 @@ public final class Statistics {
      * @return 役のゲーム統計。
      */
     private List<String> yaku(final int maxCount, final int minimumPoint) {
+        final Map<String, Integer> yakuCountTable = getYakuCountTable();
         final TreeMap<Integer, List<String>> countMap = new TreeMap<>();
         
-        for (final Entry<String, Integer> entry : _yakuCountTable.entrySet()) {
+        for (final Entry<String, Integer> entry : yakuCountTable.entrySet()) {
             final int yakuPoint = getChmYakuPoint(entry.getKey());
             
             if (yakuPoint < minimumPoint) {
@@ -364,16 +861,17 @@ public final class Statistics {
             yakuList.add(entry.getKey());
             countMap.put(yakuCount, yakuList);
         }
+        final int playCountWithYaku = getPlayCountWithYaku();
         final List<String> yakuStringList = new ArrayList<>();
         int count = 0;
         
         for (final Integer yakuCount : countMap.descendingKeySet()) {
-            final double yakuRate = (double) yakuCount * 100 / (double) _playCountWithYaku;
+            final double yakuRate = (double) yakuCount * 100 / (double) playCountWithYaku;
             final String yakuRateString = String.format("%.2f", yakuRate);
             boolean isEnd = false;
             
             for (final String yakuString : countMap.get(yakuCount)) {
-                yakuStringList.add(yakuString + ": " + yakuRateString + " % (" + yakuCount + "/" + _playCountWithYaku + ")");
+                yakuStringList.add(yakuString + ": " + yakuRateString + " % (" + yakuCount + "/" + playCountWithYaku + ")");
                 count++;
                 
                 if (count == maxCount) {
@@ -392,74 +890,9 @@ public final class Statistics {
     
     
     /**
-     * 聴牌回数
+     * 個人のゲーム統計リスト
      */
-    private int _completableCount = 0;
-    
-    /**
-     * 聴牌巡目の合計
-     */
-    private int _completableTurnSum = 0;
-    
-    /**
-     * 和了回数
-     */
-    private int _completeCount = 0;
-    
-    /**
-     * 獲得点数の合計
-     */
-    private int _getPointSum = 0;
-    
-    /**
-     * ゲーム回数
-     */
-    private int _playCount = 0;
-    
-    /**
-     * 役があるゲーム回数
-     */
-    private int _playCountWithYaku = 0;
-    
-    /**
-     * 点数の合計
-     */
-    private int _pointSum = 0;
-    
-    /**
-     * ツモ回数
-     */
-    private int _tsumoCount = 0;
-    
-    /**
-     * 和了巡目の合計
-     */
-    private int _turnSum = 0;
-    
-    /**
-     * 6巡目までに聴牌した回数
-     */
-    private int _until6thTurnCount = 0;
-    
-    /**
-     * 9巡目までに聴牌した回数
-     */
-    private int _until9thTurnCount = 0;
-    
-    /**
-     * 12巡目までに聴牌した回数
-     */
-    private int _until12thTurnCount = 0;
-    
-    /**
-     * 15巡目までに聴牌した回数
-     */
-    private int _until15thTurnCount = 0;
-    
-    /**
-     * 役カウントテーブル
-     */
-    private Map<String, Integer> _yakuCountTable = new TreeMap<>();
+    Map<String, PersonalStatistics> _statisticsTable = new TreeMap<>();
     
 }
 
