@@ -467,13 +467,14 @@ class ChmJanController implements JanController {
         if (target == null) {
             throw new NullPointerException("Call target is null.");
         }
+        final Hand hand = _info.getActiveHand();
+        final boolean hasJanPai = hand.getMenZenJanPaiCount(target) != 0;
         final JanPai pai = _info.getActiveTsumo();
         
-        if (target.equals(pai)) {
+        if (!hasJanPai && !target.equals(pai)) {
             // 指定牌を持っていない
             throw new InvalidInputException("Can't kan.");
         }
-        final Hand hand = _info.getActiveHand();
         
         if (!hasPonMenTsu(hand, target)) {
             // 指定牌のポン面子を持っていない
