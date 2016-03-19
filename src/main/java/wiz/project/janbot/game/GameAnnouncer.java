@@ -37,7 +37,7 @@ import wiz.project.jan.yaku.ChmYaku;
 import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.statistics.Statistics;
 import wiz.project.janbot.statistics.StatisticsParam;
-import wiz.project.janbot.statistics.YakuStatisticsParam;
+import wiz.project.janbot.statistics.YakuParam;
 
 
 
@@ -74,8 +74,8 @@ public class GameAnnouncer implements Observer {
             else if (param instanceof AnnounceParam) {
                 updateOnSolo((JanInfo)target, (AnnounceParam) param);
             }
-            else if (param instanceof YakuStatisticsParam) {
-                updateOnSolo((JanInfo)target, (YakuStatisticsParam) param);
+            else if (param instanceof YakuParam) {
+                updateOnSolo((JanInfo)target, (YakuParam) param);
             }
             else if (param instanceof StatisticsParam) {
                 updateOnSolo((JanInfo)target, (StatisticsParam) param);
@@ -297,7 +297,7 @@ public class GameAnnouncer implements Observer {
      * @param info 麻雀ゲーム情報。
      * @param param 更新パラメータ。
      */
-    protected void updateOnSolo(final JanInfo info, final YakuStatisticsParam param) {
+    protected void updateOnSolo(final JanInfo info, final YakuParam param) {
         if (info == null) {
             throw new NullPointerException("Game information is null.");
         }
@@ -638,7 +638,7 @@ public class GameAnnouncer implements Observer {
      * @param param 更新パラメータ。
      * @return 指定したプレイヤー名の役のゲーム統計の文字列。
      */
-    private List<String> getYakuStatisticsString(final YakuStatisticsParam param) {
+    private List<String> getYakuStatisticsString(final YakuParam param) {
         final List<String> messageList = new ArrayList<>();
         final String playerName = param.getPlayerName();
         final int start = param.getStart();

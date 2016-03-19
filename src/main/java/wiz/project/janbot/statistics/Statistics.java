@@ -121,7 +121,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(completableRate, playerList);
         }
         String message ="聴牌率: ";
@@ -168,7 +168,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(completableTurnAverage, playerList);
         }
         String message ="平均聴牌巡目: ";
@@ -177,7 +177,7 @@ public final class Statistics {
         for (final double completableTurnAverage : rankingTable.descendingKeySet()) {
             final List<String> playerList = rankingTable.get(completableTurnAverage);
             final String completableTurnAverageString = String.format("%.2f", completableTurnAverage);
-            message += playerList + " (" + completableTurnAverageString + "%)";
+            message += playerList + " (" + completableTurnAverageString + "巡目)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -212,7 +212,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(completableRate, playerList);
         }
         String message ="和了率: ";
@@ -387,7 +387,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(getPointAverage, playerList);
         }
         String message ="平均獲得点数: ";
@@ -396,7 +396,7 @@ public final class Statistics {
         for (final double getPointAverage : rankingTable.descendingKeySet()) {
             final List<String> playerList = rankingTable.get(getPointAverage);
             final String getPointAverageString = String.format("%.2f", getPointAverage);
-            message += playerList + " (" + getPointAverageString + "%)";
+            message += playerList + " (" + getPointAverageString + "点)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -546,7 +546,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(pointAverage, playerList);
         }
         String message ="平均点数: ";
@@ -555,7 +555,7 @@ public final class Statistics {
         for (final double pointAverage : rankingTable.descendingKeySet()) {
             final List<String> playerList = rankingTable.get(pointAverage);
             final String pointAverageString = String.format("%.2f", pointAverage);
-            message += playerList + " (" + pointAverageString + "%)";
+            message += playerList + " (" + pointAverageString + "点)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -593,7 +593,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(tsumoRate, playerList);
         }
         String message ="ツモ率: ";
@@ -640,7 +640,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(turnAverage, playerList);
         }
         String message ="平均和了巡目: ";
@@ -649,7 +649,7 @@ public final class Statistics {
         for (final double turnAverage : rankingTable.descendingKeySet()) {
             final List<String> playerList = rankingTable.get(turnAverage);
             final String turnAverageString = String.format("%.2f", turnAverage);
-            message += playerList + " (" + turnAverageString + "%)";
+            message += playerList + " (" + turnAverageString + "巡目)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -684,7 +684,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(until6thTurnRate, playerList);
         }
         String message ="6巡目までの聴牌率: ";
@@ -728,7 +728,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(until9thTurnRate, playerList);
         }
         String message ="9巡目までの聴牌率: ";
@@ -772,7 +772,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(until12thTurnRate, playerList);
         }
         String message ="12巡目までの聴牌率: ";
@@ -816,7 +816,7 @@ public final class Statistics {
             if (playerList == null) {
             	playerList = new ArrayList<>();
             }
-            playerList.add(entry.getKey());
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
             rankingTable.put(until15thTurnRate, playerList);
         }
         String message ="15巡目までの聴牌率: ";

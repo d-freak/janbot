@@ -117,13 +117,13 @@ public class TestMessageListener<T extends PircBotX> extends MessageListener<T> 
                 TestGameMaster.getInstance().onStatistics(playerName, "");
             }
             else if (message.equals("jan sy")) {
-                TestGameMaster.getInstance().onYakuStatistics(playerName, "");
+                TestGameMaster.getInstance().onYaku(playerName, "");
             }
             else if (message.startsWith("jan ss ")) {
                 TestGameMaster.getInstance().onStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan sy ")) {
-                TestGameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onYaku(playerName, message.substring(7));
             }
             else if (message.startsWith("jan o ")) {
                 TestGameMaster.getInstance().onOuts(message.substring(6));
@@ -318,13 +318,13 @@ public class TestMessageListener<T extends PircBotX> extends MessageListener<T> 
                 TestGameMaster.getInstance().onStatistics(playerName, "");
             }
             else if (message.equals("jan sy")) {
-                TestGameMaster.getInstance().onYakuStatistics(playerName, "");
+                TestGameMaster.getInstance().onYaku(playerName, "");
             }
             else if (message.startsWith("jan ss ")) {
                 TestGameMaster.getInstance().onStatistics(playerName, message.substring(7));
             }
             else if (message.startsWith("jan sy ")) {
-                TestGameMaster.getInstance().onYakuStatistics(playerName, message.substring(7));
+                TestGameMaster.getInstance().onYaku(playerName, message.substring(7));
             }
             else if (message.startsWith("jan w ")) {
                 TestGameMaster.getInstance().onWatch(message.substring(6));

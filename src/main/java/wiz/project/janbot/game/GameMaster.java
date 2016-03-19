@@ -26,7 +26,7 @@ import wiz.project.jan.util.JanPaiUtil;
 import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.game.exception.JanException;
 import wiz.project.janbot.statistics.StatisticsParam;
-import wiz.project.janbot.statistics.YakuStatisticsParam;
+import wiz.project.janbot.statistics.YakuParam;
 
 
 
@@ -695,47 +695,18 @@ public class GameMaster {
     /**
      * ゲーム統計の表示
      * 
-     * @param playerName プレイヤー名。
+     * @param name プレイヤー名。
      * @param option オプション。
      * @throws JanException ゲーム処理エラー。
      */
-    public void onStatistics(final String playerName, final String option) throws JanException {
+    public void onStatistics(final String name, final String option) throws JanException {
         if (option == null) {
             throw new NullPointerException("Statistics target is null.");
         }
         
-        final String reg = "\\d*+-\\d*+";
-        int start = 0;
-        int end = 0;
-        String name = "";
-        
-        for (final String string : option.split(" ")) {
-            if (string.matches(reg)) {
-                try {
-                    start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // startを更新せず継続
-                }
-                
-                try {
-                    end = Integer.parseInt(string.replaceFirst("\\d*+-", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // endを更新せず継続
-                }
-                break;
-            }
-            name += string;
-        }
-        
-        if ("".equals(name)) {
-            name = playerName;
-        }
-        
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final StatisticsParam param = new StatisticsParam(name, start, end);
+            final StatisticsParam param = new StatisticsParam(name, option);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
@@ -784,69 +755,18 @@ public class GameMaster {
     /**
      * 役のゲーム統計を表示
      * 
-     * @param playerName プレイヤー名。
+     * @param name プレイヤー名。
      * @param option オプション。
      * @throws JanException ゲーム処理エラー。
      */
-    public void onYakuStatistics(final String playerName, final String option) throws JanException {
+    public void onYaku(final String name, final String option) throws JanException {
         if (option == null) {
             throw new NullPointerException("Statistics target is null.");
         }
         
-        final String rangeReg = "\\d*+-\\d*+";
-        final String maxCountReg = "-c\\d*+";
-        final String minimumPointReg = "-p\\d*+";
-        int start = 0;
-        int end = 0;
-        int maxCount = Integer.MAX_VALUE;
-        int minimumPoint = 1;
-        String name = "";
-        
-        for (final String string : option.split(" ")) {
-            if (string.matches(rangeReg)) {
-                try {
-                    start = Integer.parseInt(string.replaceFirst("-\\d*+", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // startを更新せず継続
-                }
-                
-                try {
-                    end = Integer.parseInt(string.replaceFirst("\\d*+-", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // endを更新せず継続
-                }
-                continue;
-            }
-            else if (string.matches(maxCountReg)) {
-                try {
-                    maxCount = Integer.parseInt(string.replaceFirst("-c", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // maxCountを更新せず継続
-                }
-                continue;
-            }
-            else if (string.matches(minimumPointReg)) {
-                try {
-                    minimumPoint = Integer.parseInt(string.replaceFirst("-p", ""));
-                }
-                catch (final NumberFormatException e) {
-                    // minimumPointを更新せず継続
-                }
-                continue;
-            }
-            name += string;
-        }
-        
-        if ("".equals(name)) {
-            name = playerName;
-        }
-        
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final YakuStatisticsParam param = new YakuStatisticsParam(name, start, end, maxCount, minimumPoint);
+            final YakuParam param = new YakuParam(name, option);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
