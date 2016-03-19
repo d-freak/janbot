@@ -481,6 +481,11 @@ class ChmJanController implements JanController {
             throw new InvalidInputException("Can't kan.");
         }
         
+        if (_info.getAfterCall()) {
+            // ポン、チー直後
+            throw new InvalidInputException("Can't kan.");
+        }
+        
         // 直前のツモ牌を手牌に加える
         hand.addJanPai(pai);
         
