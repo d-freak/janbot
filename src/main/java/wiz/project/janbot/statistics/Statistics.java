@@ -100,7 +100,7 @@ public final class Statistics {
      * 聴牌率
      */
     private String completableRate() {
-        final int completableCount = getCompleteCount();
+        final int completableCount = getCompletableCount();
         final int playCount = getPlayCount();
         final double completableRate = (double) completableCount * 100 / (double) playCount;
         final String completableRateString = String.format("%.2f", completableRate);
