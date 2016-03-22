@@ -159,7 +159,7 @@ public final class Statistics {
      * 平均聴牌巡目のランキング
      */
     private String completableTurnAverageRanking() {
-        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        final Map<Double, List<String>> rankingTable = new TreeMap<>();
         
         for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
             final double completableTurnAverage = entry.getValue().completableTurnAverage();
@@ -174,7 +174,7 @@ public final class Statistics {
         String message ="平均聴牌巡目: ";
         int count = 0;
         
-        for (final double completableTurnAverage : rankingTable.descendingKeySet()) {
+        for (final double completableTurnAverage : rankingTable.keySet()) {
             final List<String> playerList = rankingTable.get(completableTurnAverage);
             final String completableTurnAverageString = String.format("%.2f", completableTurnAverage);
             message += playerList + " (" + completableTurnAverageString + "巡目)";
@@ -631,7 +631,7 @@ public final class Statistics {
      * 平均和了巡目のランキング
      */
     private String turnAverageRanking() {
-        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        final Map<Double, List<String>> rankingTable = new TreeMap<>();
         
         for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
             final double turnAverage = entry.getValue().turnAverage();
@@ -646,7 +646,7 @@ public final class Statistics {
         String message ="平均和了巡目: ";
         int count = 0;
         
-        for (final double turnAverage : rankingTable.descendingKeySet()) {
+        for (final double turnAverage : rankingTable.keySet()) {
             final List<String> playerList = rankingTable.get(turnAverage);
             final String turnAverageString = String.format("%.2f", turnAverage);
             message += playerList + " (" + turnAverageString + "巡目)";
