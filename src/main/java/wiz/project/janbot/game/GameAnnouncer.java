@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -254,6 +255,10 @@ public class GameAnnouncer implements Observer {
         
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
+            
+            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
+            
+            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
         }
         
         if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
@@ -629,6 +634,25 @@ public class GameAnnouncer implements Observer {
             return messageList;
         }
         messageList.addAll(statistics.get());
+        return messageList;
+    }
+    
+    /**
+     * 待ち牌の残り枚数テーブルの文字列を取得
+     * 
+     * @param info ゲーム情報。
+     * @param flagSet 実況フラグ。
+     * @param paiList 牌リスト。
+     * @return 待ち牌の残り枚数テーブルの文字列。
+     */
+    private List<String> getWaitingOutsString(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
+        final LinkedList<String> messageList = new LinkedList<>();
+        messageList.addAll(getOutsString(info, flagSet, paiList));
+        
+        String firstMessage = messageList.pollFirst();
+        firstMessage = firstMessage.replaceFirst("^", "待ち牌：$0");
+        messageList.addFirst(firstMessage);
+        
         return messageList;
     }
     

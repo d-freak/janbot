@@ -39,6 +39,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _completableJanPaiTable.put(wind, new ArrayList<JanPai>());
             _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
         }
@@ -71,6 +72,9 @@ public final class JanInfo extends Observable implements Cloneable {
             }
             for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
                 _riverTable.put(entry.getKey(), entry.getValue().clone());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._completableJanPaiTable.entrySet()) {
+            	_completableJanPaiTable.put(entry.getKey(), entry.getValue());
             }
             for (final Entry<Wind, Integer> entry : source._completableTurnTable.entrySet()) {
             	_completableTurnTable.put(entry.getKey(), entry.getValue());
@@ -119,6 +123,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _playerTable.put(wind, new Player());
             _handTable.put(wind, new Hand());
             _riverTable.put(wind, new River());
+            _completableJanPaiTable.put(wind, new ArrayList<JanPai>());
             _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
         }
@@ -217,6 +222,16 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public boolean getAfterCall() {
         return _afterCall;
+    }
+    
+    /**
+     * 指定した風の和了可能牌を取得
+     * 
+     * @param wind 風。
+     * @return 指定した風の和了可能牌。
+     */
+    public List<JanPai> getCompletableJanPaiList(final Wind wind) {
+        return _completableJanPaiTable.get(wind);
     }
     
     /**
@@ -702,16 +717,16 @@ public final class JanInfo extends Observable implements Cloneable {
         if (completableTurn != 0) {
             return;
         }
-        final boolean isOverTiedPoint = isOverTiedPoint(wind, completableJanPaiList);
+        final List<JanPai> paiList = getOverTiedPointJanPaiList(wind, completableJanPaiList);
         
-        if (!isOverTiedPoint) {
+        if (paiList.isEmpty()) {
             return;
         }
         final int turnCount = _turnTable.get(wind);
         _completableTurnTable.put(wind, turnCount);
+        _completableJanPaiTable.put(wind, paiList);
         
-        final AnnounceParam param = new AnnounceParam(AnnounceFlag.OVER_TIED_POINT, turnCount);
-        notifyObservers(param);
+        notifyObservers(AnnounceFlag.OVER_TIED_POINT);
     }
     
     /**
@@ -984,27 +999,28 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 8点縛り超えか
+     * 8点縛りを超えた待ち牌を取得
      * 
      * @param wind 風。
      * @param completableJanPaiList 待ち牌リスト。
-     * @return 判定結果。
+     * @return 8点縛りを超えた待ち牌。
      */
-    private boolean isOverTiedPoint(final Wind wind, final List<JanPai> completableJanPaiList) {
+    private List<JanPai> getOverTiedPointJanPaiList(final Wind wind, final List<JanPai> completableJanPaiList) {
+        final List<JanPai> paiList = new ArrayList<>();
+        
         for (final JanPai pai : completableJanPaiList) {
             final ChmCompleteInfo completeInfo = getCompleteInfo(wind, pai, true);
             final int totalPoint = completeInfo.getTotalPoint();
-            
-            if (totalPoint >= 7) {
-                return true;
-            }
             final boolean isMenZen = getHand(wind).isMenZen();
             
-            if (isMenZen && totalPoint >= 6) {
-                return true;
+            if (totalPoint >= 7) {
+                paiList.add(pai);
+            }
+            else if (isMenZen && totalPoint >= 6) {
+                paiList.add(pai);
             }
         }
-        return false;
+        return paiList;
     }
     
     /**
@@ -1096,6 +1112,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 捨て牌テーブル
      */
     private Map<Wind, River> _riverTable = new TreeMap<>();
+    
+    /**
+     * 和了可能牌テーブル
+     */
+    private Map<Wind, List<JanPai>> _completableJanPaiTable = new TreeMap<>();
     
     /**
      * 和了可能巡目テーブル
