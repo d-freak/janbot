@@ -8,12 +8,10 @@ package wiz.project.janbot.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
-import java.util.TreeMap;
 
 import wiz.project.jan.Hand;
 import wiz.project.jan.JanPai;
@@ -271,7 +269,7 @@ class ChmJanController implements JanController {
             _info.setHand(activeWind, hand);
             
             // 手変わりがあったので待ち判定更新
-            updateWaitList(_info, activeWind);
+            _info.updateWaitList(activeWind);
             
             discardCore(target);
             
@@ -354,15 +352,9 @@ class ChmJanController implements JanController {
             
             // 待ち判定
             for (final Wind wind : Wind.values()) {
-                if (playerTable.get(wind).getType() == PlayerType.COM) {
-                    // NPCはツモ切り固定
-                    _completeWait.put(wind, new ArrayList<JanPai>());
-                    _chiWait.put(wind, new ArrayList<JanPai>());
-                    _ponWait.put(wind, new ArrayList<JanPai>());
-                }
-                else {
-                    updateWaitList(_info, wind);
-                    setCompletableTurnCount(_info, wind);
+                if (playerTable.get(wind).getType() == PlayerType.HUMAN) {
+                    _info.updateWaitList(wind);
+                    _info.setCompletableTurnCount(wind);
                 }
             }
             
@@ -650,83 +642,16 @@ class ChmJanController implements JanController {
         while (targetWind != activeWind) {
             if (_info.getPlayer(targetWind).getType() != PlayerType.COM) {
                 _info.setCalledIndex(activeWind);
-                setCompletableTurnCount(_info, targetWind);
+                _info.setCompletableTurnCount(targetWind);
                 _info.removeCalledIndex(activeWind);
                 // NPCはツモ切り固定
-                final List<CallType> callableList = getCallableList(_info, activeWind, targetWind, target);
+                final List<CallType> callableList = _info.getCallableList(activeWind, targetWind, target);
                 if (!callableList.isEmpty()) {
                     throw new CallableException(callableList);
                 }
             }
             targetWind = targetWind.getNext();
         }
-    }
-    
-    /**
-     * 可能な副露リストを取得
-     * 
-     * @param info ゲーム情報。
-     * @param activeWind 打牌中の風。
-     * @param targetWind 判定対象の風。
-     * @param discard 捨て牌。
-     * @return 可能な副露リスト。
-     */
-    private List<CallType> getCallableList(final JanInfo info, final Wind activeWind, final Wind targetWind, final JanPai discard) {
-        final List<CallType> callTypeList = new ArrayList<>();
-        // ロン可能か
-        if (_completeWait.get(targetWind).contains(discard)) {
-            callTypeList.add(CallType.RON);
-        }
-        
-        if (info.getRemainCount() == 0) {
-            // 残り0枚なら副露不可
-            return callTypeList;
-        }
-        
-        // チー可能か
-        if (activeWind.getNext() == targetWind) {
-            if (_chiWait.get(targetWind).contains(discard)) {
-                callTypeList.add(CallType.CHI);
-            }
-        }
-        
-        // ポン可能か
-        if (_ponWait.get(targetWind).contains(discard)) {
-            callTypeList.add(CallType.PON);
-            if (info.getHand(targetWind).getMenZenJanPaiCount(discard) == 3) {
-                callTypeList.add(CallType.KAN_LIGHT);
-            }
-        }
-        return callTypeList;
-    }
-    
-    /**
-     * チーの待ち牌リストを取得
-     * 
-     * @param hand クリーン済みの手牌マップ。
-     * @return チーの待ち牌リスト。
-     */
-    private List<JanPai> getChiWaitList(final Map<JanPai, Integer> hand) {
-        final List<JanPai> resultList = new ArrayList<>();
-        for (final JanPai pai : JanPai.values()) {
-            if (isCallableChi(hand, pai)) {
-                resultList.add(pai);
-            }
-        }
-        return resultList;
-    }
-    
-    /**
-     * プレイヤーの手牌マップを取得
-     * 
-     * @param info ゲーム情報。
-     * @param wind プレイヤーの風。
-     * @return プレイヤーの手牌マップ。
-     */
-    private Map<JanPai, Integer> getHandMap(final JanInfo info, final Wind wind) {
-        final Map<JanPai, Integer> hand = info.getHand(wind).getMenZenMap();
-        JanPaiUtil.cleanJanPaiMap(hand);
-        return hand;
     }
     
     /**
@@ -767,22 +692,6 @@ class ChmJanController implements JanController {
     }
     
     /**
-     * ポンの待ち牌リストを取得
-     * 
-     * @param hand クリーン済みの手牌マップ。
-     * @return ポンの待ち牌リスト。
-     */
-    private List<JanPai> getPonWaitList(final Map<JanPai, Integer> hand) {
-        final List<JanPai> resultList = new ArrayList<>();
-        for (final Map.Entry<JanPai, Integer> entry : hand.entrySet()) {
-            if (entry.getValue() >= 2) {
-                resultList.add(entry.getKey());
-            }
-        }
-        return resultList;
-    }
-    
-    /**
      * 指定牌のポン面子を持っているか
      * 
      * @param sourceHand 確認元手牌。
@@ -798,44 +707,6 @@ class ChmJanController implements JanController {
             }
         }
         return false;
-    }
-    
-    /**
-     * チー可能か
-     * 
-     * @param hand クリーン済みの手牌マップ。
-     * @param discard 捨て牌。
-     * @return 判定結果。
-     */
-    private boolean isCallableChi(final Map<JanPai, Integer> hand, final JanPai discard) {
-        if (discard.isJi()) {
-            return false;
-        }
-        
-        switch (discard) {
-        case MAN_1:
-        case PIN_1:
-        case SOU_1:
-            return hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext());
-        case MAN_2:
-        case PIN_2:
-        case SOU_2:
-            return (hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext())) ||
-                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext()));
-        case MAN_8:
-        case PIN_8:
-        case SOU_8:
-            return (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext())) ||
-                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev()));
-        case MAN_9:
-        case PIN_9:
-        case SOU_9:
-            return hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev());
-        default:
-            return (hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext())) ||
-                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext())) ||
-                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev()));
-        }
     }
     
     /**
@@ -894,32 +765,7 @@ class ChmJanController implements JanController {
         _info.setCallKan(true);
         
         // 手変わりがあったので待ち判定更新
-        updateWaitList(_info, activeWind);
-    }
-    
-    /**
-     * 指定した風の和了可能巡目を設定
-     * 
-     * @param info ゲーム情報。
-     * @param targetWind 設定対象の風。
-     */
-    private void setCompletableTurnCount(final JanInfo info, final Wind targetWind) {
-        final List<JanPai> completableJanPaiList = _completeWait.get(targetWind);
-        info.setCompletableTurnCount(targetWind, completableJanPaiList);
-    }
-    
-    /**
-     * 待ち判定を更新
-     * 
-     * @param info ゲーム情報。
-     * @param targetWind 更新対象の風。
-     */
-    private void updateWaitList(final JanInfo info, final Wind targetWind) {
-        final Map<JanPai, Integer> hand = getHandMap(info, targetWind);
-        final List<JanPai> completableJanPaiList = ChmHandCheckUtil.getCompletableJanPaiList(hand);
-        _completeWait.put(targetWind, completableJanPaiList);
-        _chiWait.put(targetWind, getChiWaitList(hand));
-        _ponWait.put(targetWind, getPonWaitList(hand));
+        _info.updateWaitList(activeWind);
     }
     
     
@@ -967,21 +813,6 @@ class ChmJanController implements JanController {
      * 初巡フラグ
      */
     private volatile boolean _firstPhase = true;
-    
-    /**
-     * 和了の待ち
-     */
-    private Map<Wind, List<JanPai>> _completeWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
-    
-    /**
-     * チーの待ち
-     */
-    private Map<Wind, List<JanPai>> _chiWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
-    
-    /**
-     * ポンの待ち
-     */
-    private Map<Wind, List<JanPai>> _ponWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
     
 }
 

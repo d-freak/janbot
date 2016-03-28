@@ -8,6 +8,7 @@ package wiz.project.janbot.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,6 +43,9 @@ public final class JanInfo extends Observable implements Cloneable {
             _completableJanPaiTable.put(wind, new ArrayList<JanPai>());
             _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
+            _completeWait.put(wind, new ArrayList<JanPai>());
+            _chiWait.put(wind, new ArrayList<JanPai>());
+            _ponWait.put(wind, new ArrayList<JanPai>());
         }
     }
     
@@ -81,6 +85,15 @@ public final class JanInfo extends Observable implements Cloneable {
             }
             for (final Entry<Wind, Integer> entry : source._turnTable.entrySet()) {
                 _turnTable.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._completeWait.entrySet()) {
+            	_completeWait.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._chiWait.entrySet()) {
+            	_chiWait.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._ponWait.entrySet()) {
+            	_ponWait.put(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -126,6 +139,9 @@ public final class JanInfo extends Observable implements Cloneable {
             _completableJanPaiTable.put(wind, new ArrayList<JanPai>());
             _completableTurnTable.put(wind, 0);
             _turnTable.put(wind, 0);
+            _completeWait.put(wind, new ArrayList<JanPai>());
+            _chiWait.put(wind, new ArrayList<JanPai>());
+            _ponWait.put(wind, new ArrayList<JanPai>());
         }
     }
     
@@ -222,6 +238,43 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public boolean getAfterCall() {
         return _afterCall;
+    }
+    
+    /**
+     * 可能な副露リストを取得
+     * 
+     * @param activeWind 打牌中の風。
+     * @param targetWind 判定対象の風。
+     * @param discard 捨て牌。
+     * @return 可能な副露リスト。
+     */
+    public List<CallType> getCallableList(final Wind activeWind, final Wind targetWind, final JanPai discard) {
+        final List<CallType> callTypeList = new ArrayList<>();
+        // ロン可能か
+        if (_completeWait.get(targetWind).contains(discard)) {
+            callTypeList.add(CallType.RON);
+        }
+        
+        if (getRemainCount() == 0) {
+            // 残り0枚なら副露不可
+            return callTypeList;
+        }
+        
+        // チー可能か
+        if (activeWind.getNext() == targetWind) {
+            if (_chiWait.get(targetWind).contains(discard)) {
+                callTypeList.add(CallType.CHI);
+            }
+        }
+        
+        // ポン可能か
+        if (_ponWait.get(targetWind).contains(discard)) {
+            callTypeList.add(CallType.PON);
+            if (getHand(targetWind).getMenZenJanPaiCount(discard) == 3) {
+                callTypeList.add(CallType.KAN_LIGHT);
+            }
+        }
+        return callTypeList;
     }
     
     /**
@@ -709,9 +762,9 @@ public final class JanInfo extends Observable implements Cloneable {
      * 指定した風の和了可能巡目を設定
      * 
      * @param wind 風。
-     * @param completableJanPaiList 待ち牌リスト。
      */
-    public void setCompletableTurnCount(final Wind wind, final List<JanPai> completableJanPaiList) {
+    public void setCompletableTurnCount(final Wind wind) {
+        final List<JanPai> completableJanPaiList = _completeWait.get(wind);
         final int completableTurn = _completableTurnTable.get(wind);
         
         if (completableTurn != 0) {
@@ -897,6 +950,20 @@ public final class JanInfo extends Observable implements Cloneable {
         }
     }
     
+    /**
+     * 待ち判定を更新
+     * 
+     * @param info ゲーム情報。
+     * @param targetWind 更新対象の風。
+     */
+    public void updateWaitList(final Wind targetWind) {
+        final Map<JanPai, Integer> hand = getHandMap(targetWind);
+        final List<JanPai> completableJanPaiList = ChmHandCheckUtil.getCompletableJanPaiList(hand);
+        _completeWait.put(targetWind, completableJanPaiList);
+        _chiWait.put(targetWind, getChiWaitList(hand));
+        _ponWait.put(targetWind, getPonWaitList(hand));
+    }
+    
     
     
     /**
@@ -917,6 +984,22 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     private <S, T> Map<S, T> deepCopyMap(final Map<S, T> source) {
         return new TreeMap<>(source);
+    }
+    
+    /**
+     * チーの待ち牌リストを取得
+     * 
+     * @param hand クリーン済みの手牌マップ。
+     * @return チーの待ち牌リスト。
+     */
+    private List<JanPai> getChiWaitList(final Map<JanPai, Integer> hand) {
+        final List<JanPai> resultList = new ArrayList<>();
+        for (final JanPai pai : JanPai.values()) {
+            if (isCallableChi(hand, pai)) {
+                resultList.add(pai);
+            }
+        }
+        return resultList;
     }
     
     /**
@@ -999,6 +1082,18 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * プレイヤーの手牌マップを取得
+     * 
+     * @param wind プレイヤーの風。
+     * @return プレイヤーの手牌マップ。
+     */
+    private Map<JanPai, Integer> getHandMap(final Wind wind) {
+        final Map<JanPai, Integer> hand = getHand(wind).getMenZenMap();
+        JanPaiUtil.cleanJanPaiMap(hand);
+        return hand;
+    }
+    
+    /**
      * 8点縛りを超えた待ち牌を取得
      * 
      * @param wind 風。
@@ -1021,6 +1116,60 @@ public final class JanInfo extends Observable implements Cloneable {
             }
         }
         return paiList;
+    }
+    
+    /**
+     * ポンの待ち牌リストを取得
+     * 
+     * @param hand クリーン済みの手牌マップ。
+     * @return ポンの待ち牌リスト。
+     */
+    private List<JanPai> getPonWaitList(final Map<JanPai, Integer> hand) {
+        final List<JanPai> resultList = new ArrayList<>();
+        for (final Map.Entry<JanPai, Integer> entry : hand.entrySet()) {
+            if (entry.getValue() >= 2) {
+                resultList.add(entry.getKey());
+            }
+        }
+        return resultList;
+    }
+    
+    /**
+     * チー可能か
+     * 
+     * @param hand クリーン済みの手牌マップ。
+     * @param discard 捨て牌。
+     * @return 判定結果。
+     */
+    private boolean isCallableChi(final Map<JanPai, Integer> hand, final JanPai discard) {
+        if (discard.isJi()) {
+            return false;
+        }
+        
+        switch (discard) {
+        case MAN_1:
+        case PIN_1:
+        case SOU_1:
+            return hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext());
+        case MAN_2:
+        case PIN_2:
+        case SOU_2:
+            return (hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext())) ||
+                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext()));
+        case MAN_8:
+        case PIN_8:
+        case SOU_8:
+            return (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext())) ||
+                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev()));
+        case MAN_9:
+        case PIN_9:
+        case SOU_9:
+            return hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev());
+        default:
+            return (hand.containsKey(discard.getNext()) && hand.containsKey(discard.getNext().getNext())) ||
+                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getNext())) ||
+                   (hand.containsKey(discard.getPrev()) && hand.containsKey(discard.getPrev().getPrev()));
+        }
     }
     
     /**
@@ -1157,6 +1306,21 @@ public final class JanInfo extends Observable implements Cloneable {
      * カンフラグ
      */
     private volatile boolean _callKan = false;
+    
+    /**
+     * 和了の待ち
+     */
+    private Map<Wind, List<JanPai>> _completeWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
+    
+    /**
+     * チーの待ち
+     */
+    private Map<Wind, List<JanPai>> _chiWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
+    
+    /**
+     * ポンの待ち
+     */
+    private Map<Wind, List<JanPai>> _ponWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
     
 }
 
