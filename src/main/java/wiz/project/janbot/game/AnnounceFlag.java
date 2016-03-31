@@ -141,7 +141,12 @@ public enum AnnounceFlag {
     /**
      * 8点縛り超えず
      */
-    NOT_OVER_TIED_POINT;
+    NOT_OVER_TIED_POINT,
+    
+    /**
+     * 待ち牌変更
+     */
+    CHANGE_WAIT;
     
     
     

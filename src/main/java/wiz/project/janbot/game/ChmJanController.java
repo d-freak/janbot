@@ -354,7 +354,7 @@ class ChmJanController implements JanController {
             for (final Wind wind : Wind.values()) {
                 if (playerTable.get(wind).getType() == PlayerType.HUMAN) {
                     _info.updateWaitList(wind);
-                    _info.setCompletableTurnCount(wind);
+                    _info.updateCompletableInfo(wind);
                 }
             }
             
@@ -642,7 +642,7 @@ class ChmJanController implements JanController {
         while (targetWind != activeWind) {
             if (_info.getPlayer(targetWind).getType() != PlayerType.COM) {
                 _info.setCalledIndex(activeWind);
-                _info.setCompletableTurnCount(targetWind);
+                _info.updateCompletableInfo(targetWind);
                 _info.removeCalledIndex(activeWind);
                 // NPCはツモ切り固定
                 final List<CallType> callableList = _info.getCallableList(activeWind, targetWind, target);

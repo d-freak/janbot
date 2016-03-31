@@ -759,30 +759,6 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 指定した風の和了可能巡目を設定
-     * 
-     * @param wind 風。
-     */
-    public void setCompletableTurnCount(final Wind wind) {
-        final List<JanPai> completableJanPaiList = _completeWait.get(wind);
-        final int completableTurn = _completableTurnTable.get(wind);
-        
-        if (completableTurn != 0) {
-            return;
-        }
-        final List<JanPai> paiList = getOverTiedPointJanPaiList(wind, completableJanPaiList);
-        
-        if (paiList.isEmpty()) {
-            return;
-        }
-        final int turnCount = _turnTable.get(wind);
-        _completableTurnTable.put(wind, turnCount);
-        _completableJanPaiTable.put(wind, paiList);
-        
-        notifyObservers(AnnounceFlag.OVER_TIED_POINT);
-    }
-    
-    /**
      * 和了情報を設定
      * 
      * @param playerWind プレイヤーの風。
@@ -951,6 +927,22 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 指定した風の和了可能情報を更新
+     * 
+     * @param wind 風。
+     */
+    public void updateCompletableInfo(final Wind wind) {
+        final List<JanPai> paiList = getOverTiedPointJanPaiList(wind);
+        final boolean isEmpty = paiList.isEmpty();
+        
+        if (isEmpty) {
+            return;
+        }
+        setCompletableJanPaiList(wind, paiList);
+        setCompletableTurnCount(wind);
+    }
+    
+    /**
      * 待ち判定を更新
      * 
      * @param info ゲーム情報。
@@ -1097,13 +1089,13 @@ public final class JanInfo extends Observable implements Cloneable {
      * 8点縛りを超えた待ち牌を取得
      * 
      * @param wind 風。
-     * @param completableJanPaiList 待ち牌リスト。
      * @return 8点縛りを超えた待ち牌。
      */
-    private List<JanPai> getOverTiedPointJanPaiList(final Wind wind, final List<JanPai> completableJanPaiList) {
+    private List<JanPai> getOverTiedPointJanPaiList(final Wind wind) {
+        final List<JanPai> completeWaitJanPaiList = _completeWait.get(wind);
         final List<JanPai> paiList = new ArrayList<>();
         
-        for (final JanPai pai : completableJanPaiList) {
+        for (final JanPai pai : completeWaitJanPaiList) {
             final ChmCompleteInfo completeInfo = getCompleteInfo(wind, pai, true);
             final int totalPoint = completeInfo.getTotalPoint();
             final boolean isMenZen = getHand(wind).isMenZen();
@@ -1207,6 +1199,40 @@ public final class JanInfo extends Observable implements Cloneable {
         }
         else {
             return false;
+        }
+    }
+    
+    /**
+     * 指定した風の和了可能牌リストを設定
+     * 
+     * @param wind 風。
+     * @param completableJanPaiList 待ち牌リスト。
+     */
+    private void setCompletableJanPaiList(final Wind wind, final List<JanPai> completableJanPaiList) {
+        final List<JanPai> oldCompletableJanPaiList = _completableJanPaiTable.get(wind);
+        final boolean isEmpty = oldCompletableJanPaiList.isEmpty();
+        final boolean isEquals = completableJanPaiList.equals(oldCompletableJanPaiList);
+        
+        _completableJanPaiTable.put(wind, completableJanPaiList);
+        
+        if (!isEmpty && !isEquals) {
+            notifyObservers(AnnounceFlag.CHANGE_WAIT);
+        }
+    }
+    
+    /**
+     * 指定した風の和了可能巡目を設定
+     * 
+     * @param wind 風。
+     */
+    private void setCompletableTurnCount(final Wind wind) {
+        final int completableTurn = _completableTurnTable.get(wind);
+        
+        if (completableTurn == 0) {
+            final int turnCount = _turnTable.get(wind);
+            
+            _completableTurnTable.put(wind, turnCount);
+            notifyObservers(AnnounceFlag.OVER_TIED_POINT);
         }
     }
     

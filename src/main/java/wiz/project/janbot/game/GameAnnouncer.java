@@ -267,6 +267,14 @@ public class GameAnnouncer implements Observer {
             messageList.add((8 - totalPoint) + "点足りません");
         }
         
+        if (flagSet.contains(AnnounceFlag.CHANGE_WAIT)) {
+            messageList.add("待ちが変わりました。");
+            
+            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
+            
+            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
+        }
+        
         if (flagSet.contains(AnnounceFlag.RANKING)) {
             messageList.addAll(getRankingString());
         }
