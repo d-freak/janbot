@@ -37,15 +37,17 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發][中]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發] [8m]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_KAN_3S);
         
         assertTrue(out.toString().equals(""));
@@ -66,13 +68,14 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
         
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發][中]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_KAN_3S);
         
         assertTrue(out.toString().equals(""));
@@ -93,8 +96,10 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發][中]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
@@ -119,7 +124,7 @@ public final class ChmJanControllerTest {
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發] [3s]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_KAN_3S);
         
         assertTrue(!out.toString().equals(""));
@@ -140,12 +145,16 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發][中]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發] [9s]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4P);
+        // 手牌：[5p][7p][2s][4s][5s][9s][9s][東][發][發] [9s]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5P);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
@@ -155,12 +164,13 @@ public final class ChmJanControllerTest {
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[7p][2s][4s][5s][9s][東][發][發]  [9s][9s][9s] [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_TON);
         
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[7p][2s][4s][5s][9s][發][發] [4m]  [9s][9s][9s] [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_KAN_9S);
         
         assertTrue(!out.toString().equals(""));
@@ -181,21 +191,27 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_TON);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][7p][2s][3s][3s][4s][5s][9s][中]  [發][發][發]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][7p][7p][2s][3s][3s][4s][5s][9s] [1s]  [發][發][發]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_9S);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][7p][7p][1s][2s][3s][3s][4s][5s] [5m]  [發][發][發]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4P);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[5m][5p][7p][7p][1s][2s][3s][3s][4s][5s] [6m]  [發][發][發]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5P);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[5m][6m][7p][7p][1s][2s][3s][3s][4s][5s] [6s]  [發][發][發]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD_3S);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
@@ -209,7 +225,7 @@ public final class ChmJanControllerTest {
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[5m][6m][7p][7p][1s][2s][3s][4s][5s][6s] [4m]  [發][發][發] ※ 和了済み
         callOnMessage(pircBotX, listener, MESSAGE_HU);
         
         assertTrue(out.toString().equals("PRIVMSG #test-channel :(  ´∀｀) ＜ Game is not started." + System.lineSeparator()));
@@ -234,7 +250,7 @@ public final class ChmJanControllerTest {
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_OUTS_7P);
         
         assertTrue(out.toString().equals("PRIVMSG #test-channel :12[7p]：残り2枚, 計：残り2枚" + System.lineSeparator()));
@@ -255,6 +271,7 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         
         final PrintStream printStream = System.out;
@@ -281,16 +298,73 @@ public final class ChmJanControllerTest {
         final TestMessageListener<PircBotX> listener = createMessageListener();
         
         callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
         callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
         callOnMessage(pircBotX, listener, MESSAGE_PON);
         
         final PrintStream printStream = System.out;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         System.setOut(new PrintStream(out));
-        
+        // 手牌：[4p][5p][7p][2s][4s][5s][9s][東][發][發][中]  [3s][3s][3s]
         callOnMessage(pircBotX, listener, MESSAGE_OUTS_3S);
         
         assertTrue(out.toString().equals("PRIVMSG #test-channel :03[3s]：残り1枚, 計：残り1枚" + System.lineSeparator()));
+        
+        System.setOut(printStream);
+        callOnMessage(pircBotX, listener, MESSAGE_END);
+    }
+    
+    /**
+     * 和了可能牌リストの更新のテスト
+     */
+    @Test
+    public void testUpdateCompletableJanPaiList() throws Exception {
+        MockBOT.initialize();
+        MockBOT.connect();
+        
+        final PircBotX pircBotX = new PircBotX();
+        final TestMessageListener<PircBotX> listener = createMessageListener();
+        
+        callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][中]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_7P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][2s][3s][3s][4s][5s][9s][東][中] [1s]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4P);
+        callOnMessage(pircBotX, listener, MESSAGE_CHI_1S);
+        // 手牌：[5p][2s][3s][4s][5s][9s][東][中]  [1s][2s][3s] [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[2s][3s][4s][5s][9s][東][中] [7s]  [1s][2s][3s] [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_TON);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[2s][3s][4s][5s][7s][9s][中] [3s]  [1s][2s][3s] [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
+        
+        final PrintStream printStream = System.out;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
+        // 手牌：[2s][3s][3s][4s][5s][7s][9s] [4s]  [1s][2s][3s] [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_9S);
+        
+        assertTrue(out.toString().contains("PRIVMSG #test-channel :待ち牌：03[7s]：残り2枚, 計：残り2枚" + System.lineSeparator()));
         
         System.setOut(printStream);
         callOnMessage(pircBotX, listener, MESSAGE_END);
@@ -324,11 +398,13 @@ public final class ChmJanControllerTest {
     /**
      * テスト用メッセージ
      */
+    private static final String MESSAGE_CHI_1S       = "jan chi 1s";
     private static final String MESSAGE_DISCARD      = "jan d";
     private static final String MESSAGE_DISCARD_CHUN = "jan d ch";
     private static final String MESSAGE_DISCARD_TON  = "jan d ton";
     private static final String MESSAGE_DISCARD_4P   = "jan d 4p";
     private static final String MESSAGE_DISCARD_5P   = "jan d 5p";
+    private static final String MESSAGE_DISCARD_7P   = "jan d 7p";
     private static final String MESSAGE_DISCARD_3S   = "jan d 3s";
     private static final String MESSAGE_DISCARD_9S   = "jan d 9s";
     private static final String MESSAGE_END          = "jan e";

@@ -270,6 +270,7 @@ class ChmJanController implements JanController {
             
             // 手変わりがあったので待ち判定更新
             _info.updateWaitList(activeWind);
+            _info.updateCompletableInfo(activeWind);
             
             discardCore(target);
             
@@ -766,6 +767,7 @@ class ChmJanController implements JanController {
         
         // 手変わりがあったので待ち判定更新
         _info.updateWaitList(activeWind);
+        _info.updateCompletableInfo(activeWind);
     }
     
     
