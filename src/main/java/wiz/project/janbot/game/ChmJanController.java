@@ -270,7 +270,6 @@ class ChmJanController implements JanController {
             
             // 手変わりがあったので待ち判定更新
             _info.updateWaitList(activeWind);
-            _info.updateCompletableInfo(activeWind);
             
             discardCore(target);
             
@@ -300,6 +299,7 @@ class ChmJanController implements JanController {
         _firstPhase = false;
         
         synchronized (_GAME_INFO_LOCK) {
+            _info.updateCompletableInfo();
             _info.setActiveWindToNext();
             onPhase();
         }
@@ -355,7 +355,6 @@ class ChmJanController implements JanController {
             for (final Wind wind : Wind.values()) {
                 if (playerTable.get(wind).getType() == PlayerType.HUMAN) {
                     _info.updateWaitList(wind);
-                    _info.updateCompletableInfo(wind);
                 }
             }
             
@@ -638,20 +637,15 @@ class ChmJanController implements JanController {
         _info.setActiveDiscard(target);
         _info.setCallKan(false);
         
+        final Wind humanWind = _info.getHumanWind();
         // 他家の待ち判定
-        Wind targetWind = activeWind.getNext();
-        while (targetWind != activeWind) {
-            if (_info.getPlayer(targetWind).getType() != PlayerType.COM) {
-                _info.setCalledIndex(activeWind);
-                _info.updateCompletableInfo(targetWind);
-                _info.removeCalledIndex(activeWind);
-                // NPCはツモ切り固定
-                final List<CallType> callableList = _info.getCallableList(activeWind, targetWind, target);
-                if (!callableList.isEmpty()) {
-                    throw new CallableException(callableList);
-                }
+        if (activeWind != humanWind) {
+            // NPCはツモ切り固定
+            final List<CallType> callableList = _info.getCallableList(activeWind, humanWind, target);
+            
+            if (!callableList.isEmpty()) {
+                throw new CallableException(callableList);
             }
-            targetWind = targetWind.getNext();
         }
     }
     
@@ -767,7 +761,6 @@ class ChmJanController implements JanController {
         
         // 手変わりがあったので待ち判定更新
         _info.updateWaitList(activeWind);
-        _info.updateCompletableInfo(activeWind);
     }
     
     

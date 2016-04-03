@@ -349,6 +349,22 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 人間の風を取得
+     * 
+     * @return 人間の風。
+     */
+    public Wind getHumanWind() {
+        for (final Entry<Wind, Player> entry : _playerTable.entrySet()) {
+            final boolean isHuman = entry.getValue().getType() == PlayerType.HUMAN;
+            
+            if (isHuman) {
+                return entry.getKey();
+            }
+        }
+        return Wind.TON;
+    }
+    
+    /**
      * 牌山から牌を取得
      * 
      * @return インデックスの指す牌。
@@ -927,19 +943,18 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 指定した風の和了可能情報を更新
+     * 和了可能情報を更新
      * 
-     * @param wind 風。
      */
-    public void updateCompletableInfo(final Wind wind) {
-        final List<JanPai> paiList = getOverTiedPointJanPaiList(wind);
-        final boolean isEmpty = paiList.isEmpty();
+    public void updateCompletableInfo() {
+        final Wind humanWind = getHumanWind();
+        final JanPai activeTsumo = getActiveTsumo();
+        final boolean contains = _completeWait.get(humanWind).contains(activeTsumo);
         
-        if (isEmpty) {
+        if (!contains) {
             return;
         }
-        setCompletableJanPaiList(wind, paiList);
-        setCompletableTurnCount(wind);
+        updateCompletableInfo(humanWind);
     }
     
     /**
@@ -954,6 +969,8 @@ public final class JanInfo extends Observable implements Cloneable {
         _completeWait.put(targetWind, completableJanPaiList);
         _chiWait.put(targetWind, getChiWaitList(hand));
         _ponWait.put(targetWind, getPonWaitList(hand));
+        
+        updateCompletableInfo(targetWind);
     }
     
     
@@ -1234,6 +1251,22 @@ public final class JanInfo extends Observable implements Cloneable {
             _completableTurnTable.put(wind, turnCount);
             notifyObservers(AnnounceFlag.OVER_TIED_POINT);
         }
+    }
+    
+    /**
+     * 指定した風の和了可能情報を更新
+     * 
+     * @param wind 風。
+     */
+    private void updateCompletableInfo(final Wind wind) {
+        final List<JanPai> paiList = getOverTiedPointJanPaiList(wind);
+        final boolean isEmpty = paiList.isEmpty();
+        
+        if (isEmpty) {
+            return;
+        }
+        setCompletableJanPaiList(wind, paiList);
+        setCompletableTurnCount(wind);
     }
     
     
