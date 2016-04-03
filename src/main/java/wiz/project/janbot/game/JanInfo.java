@@ -1113,14 +1113,15 @@ public final class JanInfo extends Observable implements Cloneable {
         final List<JanPai> paiList = new ArrayList<>();
         
         for (final JanPai pai : completeWaitJanPaiList) {
-            final ChmCompleteInfo completeInfo = getCompleteInfo(wind, pai, true);
-            final int totalPoint = completeInfo.getTotalPoint();
-            final boolean isMenZen = getHand(wind).isMenZen();
+            final int ronPoint = getCompleteInfo(wind, pai, true).getTotalPoint();
             
-            if (totalPoint >= 7) {
+            if (ronPoint >= 8) {
                 paiList.add(pai);
+                continue;
             }
-            else if (isMenZen && totalPoint >= 6) {
+            final int tsumoPoint = getCompleteInfo(wind, pai, false).getTotalPoint();
+            
+            if (tsumoPoint >= 8) {
                 paiList.add(pai);
             }
         }
