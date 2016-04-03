@@ -170,6 +170,8 @@ public class GameAnnouncer implements Observer {
             IRCBOT.getInstance().println("北" + convertRiverToString(info.getRiver(Wind.PEI)));
             messageList.clear();
         }
+        final boolean isConfirm = flagSet.contains(AnnounceFlag.CONFIRM);
+        
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
             
@@ -179,7 +181,7 @@ public class GameAnnouncer implements Observer {
                 switch (_announceMode) {
                 case WATCH:
                     paiList = info.getWatchingJanPaiList();
-                    messageList.addAll(getOutsString(info, flagSet, paiList));
+                    messageList.addAll(getOutsString(info, isConfirm, paiList));
                     break;
                 case SEVENTH:
                     if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
@@ -188,7 +190,7 @@ public class GameAnnouncer implements Observer {
                     else {
                         paiList = info.getSingleJanPaiList(playerWind, false);
                     }
-                    messageList.addAll(getOutsString(info, flagSet, paiList));
+                    messageList.addAll(getOutsString(info, isConfirm, paiList));
                     break;
                 default:
                 }
@@ -199,7 +201,7 @@ public class GameAnnouncer implements Observer {
             messageList.add("監視モードを有効にしました。");
             
             final List<JanPai> paiList = info.getWatchingJanPaiList();
-            messageList.addAll(getOutsString(info, flagSet, paiList));
+            messageList.addAll(getOutsString(info, isConfirm, paiList));
         }
         if (flagSet.contains(AnnounceFlag.WATCHING_END)) {
             if (AnnounceMode.WATCH.equals(_announceMode)) {
@@ -210,7 +212,7 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
             
-            messageList.addAll(getOutsString(info, flagSet, paiList));
+            messageList.addAll(getOutsString(info, isConfirm, paiList));
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
             if (AnnounceMode.SEVENTH.equals(_announceMode)) {
@@ -223,13 +225,13 @@ public class GameAnnouncer implements Observer {
                 
                 List<JanPai> paiList = new ArrayList<>();
                 
-                if (flagSet.contains(AnnounceFlag.CONFIRM)) {
+                if (isConfirm) {
                     paiList = info.getSingleJanPaiList(playerWind, false);
                 }
                 else {
                     paiList = info.getSingleJanPaiList(playerWind, true);
                 }
-                messageList.addAll(getOutsString(info, flagSet, paiList));
+                messageList.addAll(getOutsString(info, isConfirm, paiList));
             }
         }
         final int completableTurn = info.getCompletableTurnCount(playerWind);
@@ -545,11 +547,11 @@ public class GameAnnouncer implements Observer {
      * @param paiList 牌リスト。
      * @return 残り枚数テーブルの文字列。
      */
-    private List<String> getOutsString(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
+    private List<String> getOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
         final Wind playerWind = getPlayerWind(info);
         Map<JanPai, Integer> outs = null;
         
-        if (flagSet.contains(AnnounceFlag.CONFIRM)) {
+        if (isConfirm) {
             outs = info.getOutsOnConfirm(paiList, playerWind);
         }
         else {
@@ -655,7 +657,7 @@ public class GameAnnouncer implements Observer {
      */
     private List<String> getWaitingOutsString(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
         final LinkedList<String> messageList = new LinkedList<>();
-        messageList.addAll(getOutsString(info, flagSet, paiList));
+        messageList.addAll(getOutsString(info, true, paiList));
         
         String firstMessage = messageList.pollFirst();
         firstMessage = firstMessage.replaceFirst("^", "待ち牌：$0");
