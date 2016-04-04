@@ -224,6 +224,7 @@ class ChmJanController implements JanController {
         synchronized (_GAME_INFO_LOCK) {
             discardCore(_info.getActiveTsumo());
             
+            _info.updateCompletableInfo();
             // 次の打牌へ
             _info.setActiveWindToNext();
             onPhase();
@@ -269,10 +270,8 @@ class ChmJanController implements JanController {
             _info.setHand(activeWind, hand);
             
             discardCore(target);
-            
             // 手変わりがあったので待ち判定更新
             _info.updateWaitList(activeWind);
-            
             // 次の打牌へ
             _info.setActiveWindToNext();
             onPhase();

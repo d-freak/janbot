@@ -341,6 +341,60 @@ public final class ChmJanControllerTest {
     }
     
     /**
+     * 待ち牌変更表示のテスト(ツモ切り牌が待ち牌)
+     */
+    @Test
+    public void testChangeWaitingOuts3() throws Exception {
+        MockBOT.initialize();
+        MockBOT.connect();
+        
+        final PircBotX pircBotX = new PircBotX();
+        final TestMessageListener<PircBotX> listener = createMessageListener();
+        
+        callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_TON);
+        callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][7p][2s][4s][5s][9s][發][發][中]  [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][7p][7p][2s][4s][5s][9s][發][發] [8m]  [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_2S);
+        // 手牌：[8m][4p][5p][7p][7p][4s][5s][9s][發][發] [9s]  [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4P);
+        // 手牌：[8m][5p][7p][7p][4s][5s][9s][9s][發][發] [9s]  [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[8m][7p][7p][4s][5s][9s][發][發]  [9s][9s][9s] [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4S);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[8m][7p][7p][5s][9s]  [發][發][發] [9s][9s][9s] [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5S);
+        // 手牌：[8m][7p][7p][9s] [7m]  [發][發][發] [9s][9s][9s] [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_KAN_9S);
+        
+        final PrintStream printStream = System.out;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
+        // 手牌：[7m][8m][7p][7p] [9m]  [發][發][發] [9s][9s][9s][9s] [3s][3s][3s]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_9M);
+        
+        assertTrue(out.toString().contains("PRIVMSG #test-channel :待ち牌：04[9m]：残り1枚, 計：残り1枚" + System.lineSeparator()));
+        
+        System.setOut(printStream);
+        callOnMessage(pircBotX, listener, MESSAGE_END);
+    }
+    
+    /**
      * 8点縛り超え終了のテスト
      */
     @Test
@@ -662,6 +716,7 @@ public final class ChmJanControllerTest {
     private static final String MESSAGE_DISCARD_CHUN = "jan d ch";
     private static final String MESSAGE_DISCARD_TON  = "jan d ton";
     private static final String MESSAGE_DISCARD_7M   = "jan d 7m";
+    private static final String MESSAGE_DISCARD_9M   = "jan d 9m";
     private static final String MESSAGE_DISCARD_4P   = "jan d 4p";
     private static final String MESSAGE_DISCARD_5P   = "jan d 5p";
     private static final String MESSAGE_DISCARD_7P   = "jan d 7p";
