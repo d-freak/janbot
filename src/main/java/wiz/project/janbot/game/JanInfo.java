@@ -976,6 +976,33 @@ public final class JanInfo extends Observable implements Cloneable {
     
     
     /**
+     * 指定した風の和了可能牌リストを消去
+     * 
+     * @param wind 風。
+     */
+    private void clearCompletableJanPaiList(final Wind wind) {
+        final boolean isEmpty = _completableJanPaiTable.get(wind).isEmpty();
+        
+        if (!isEmpty) {
+            _completableJanPaiTable.put(wind, new ArrayList<JanPai>());
+        }
+    }
+    
+    /**
+     * 指定した風の和了可能巡目を消去
+     * 
+     * @param wind 風。
+     */
+    private void clearCompletableTurnCount(final Wind wind) {
+        final int completableTurn = _completableTurnTable.get(wind);
+        
+        if (completableTurn != 0) {
+            _completableTurnTable.put(wind, 0);
+            notifyObservers(AnnounceFlag.END_OVER_TIED_POINT);
+        }
+    }
+    
+    /**
      * リストをディープコピー
      * 
      * @param sourceList 複製元。
@@ -1264,6 +1291,8 @@ public final class JanInfo extends Observable implements Cloneable {
         final boolean isEmpty = paiList.isEmpty();
         
         if (isEmpty) {
+            clearCompletableJanPaiList(wind);
+            clearCompletableTurnCount(wind);
             return;
         }
         setCompletableJanPaiList(wind, paiList);
