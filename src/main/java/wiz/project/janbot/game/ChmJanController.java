@@ -268,10 +268,10 @@ class ChmJanController implements JanController {
             final Wind activeWind = _info.getActiveWind();
             _info.setHand(activeWind, hand);
             
+            discardCore(target);
+            
             // 手変わりがあったので待ち判定更新
             _info.updateWaitList(activeWind);
-            
-            discardCore(target);
             
             // 次の打牌へ
             _info.setActiveWindToNext();
