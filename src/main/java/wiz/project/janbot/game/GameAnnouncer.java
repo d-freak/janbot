@@ -263,6 +263,10 @@ public class GameAnnouncer implements Observer {
             messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
         }
         
+        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT_AND_NO_OUTS)) {
+            messageList.add("8点縛りを超えましたが、和了牌がありません。");
+        }
+        
         if (flagSet.contains(AnnounceFlag.END_OVER_TIED_POINT)) {
             messageList.add("8点縛り超えが終了しました。");
         }

@@ -139,6 +139,11 @@ public enum AnnounceFlag {
     OVER_TIED_POINT,
     
     /**
+     * 8点縛り超え、待ち牌の残り枚数0枚
+     */
+    OVER_TIED_POINT_AND_NO_OUTS,
+    
+    /**
      * 8点縛り超え終了
      */
     END_OVER_TIED_POINT,

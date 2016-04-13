@@ -1295,6 +1295,22 @@ public final class JanInfo extends Observable implements Cloneable {
             clearCompletableTurnCount(wind);
             return;
         }
+        final Map<JanPai, Integer> outsMap = getOutsOnConfirm(paiList, wind);
+        boolean noOuts = true;
+        
+        for (final int outs : outsMap.values()) {
+            if (outs != 0) {
+                noOuts = false;
+                break;
+            }
+        }
+        
+        if (noOuts) {
+            notifyObservers(AnnounceFlag.OVER_TIED_POINT_AND_NO_OUTS);
+            clearCompletableJanPaiList(wind);
+            clearCompletableTurnCount(wind);
+            return;
+        }
         setCompletableJanPaiList(wind, paiList);
         setCompletableTurnCount(wind);
     }
