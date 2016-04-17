@@ -6,6 +6,7 @@
 
 package wiz.project.janbot;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -144,21 +145,33 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.startsWith("jan replay ")) {
                 GameMaster.getInstance().onReplay(playerName, message.substring(11));
             }
-//            else if (message.equals("jan download")) {
-//            上手く動かないので封印
-//                new Thread() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            IRCBOT.getInstance().println("---- 牌山を" + playerName + "に送信中 ----");
-//                            event.getBot().dccSendFile(new File("./deck.bin"), event.getUser(), 180000);
-//                        }
-//                        catch (final Throwable e) {
-//                            // 何もしない
-//                        }
-//                    }
-//                }.start();
-//            }
+            else if (message.equals("jan download")) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            IRCBOT.getInstance().println("---- 牌山を" + playerName + "に送信 ----");
+                            event.getBot().dccSendFile(new File("./deck.bin"), event.getUser(), 180000);
+                        }
+                        catch (final Throwable e) {
+                            // 何もしない
+                        }
+                    }
+                }.start();
+                
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            IRCBOT.getInstance().println("---- プレイヤーテーブルを" + playerName + "に送信 ----");
+                            event.getBot().dccSendFile(new File("./player_table.bin"), event.getUser(), 180000);
+                        }
+                        catch (final Throwable e) {
+                            // 何もしない
+                        }
+                    }
+                }.start();
+            }
             else if (message.equals("jan help")) {
                 final List<String> messageList =
                     Arrays.asList("ss [X] [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
