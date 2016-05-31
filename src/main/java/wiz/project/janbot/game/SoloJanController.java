@@ -82,22 +82,24 @@ class SoloJanController implements JanController {
             }
             
             // 打牌したプレイヤーの風を記録
+            final Wind calledWind = _info.getActiveWind();
+            // 副露宣言したプレイヤーをアクティブ化して判定
+            _info.setActivePlayer(playerName);
             final Wind activeWind = _info.getActiveWind();
+            _info.increaseTurnCount(activeWind);
             try {
-                // 副露宣言したプレイヤーをアクティブ化して判定
-                _info.setActivePlayer(playerName);
                 switch (type) {
                 case CHI:
-                    if (activeWind.getNext() != _info.getActiveWind()) {
+                    if (calledWind.getNext() != _info.getActiveWind()) {
                         throw new InvalidInputException("Can't chi.");
                     }
-                    callChi(target, activeWind);
+                    callChi(target, calledWind);
                     break;
                 case PON:
-                    callPon(activeWind);
+                    callPon(calledWind);
                     break;
                 case KAN_LIGHT:
-                    callKanLight(target, activeWind);
+                    callKanLight(target, calledWind);
                     break;
                 case KAN_ADD:
                     callKanAdd(target);
@@ -110,8 +112,9 @@ class SoloJanController implements JanController {
                 }
             }
             catch (final Throwable e) {
-                // 副露しない場合、アクティブプレイヤーを元に戻す
-                _info.setActiveWind(activeWind);
+                // 副露しない場合、巡目とアクティブプレイヤーを元に戻す
+                _info.decreaseTurnCount(activeWind);
+                _info.setActiveWind(calledWind);
                 throw e;
             }
         }
@@ -137,10 +140,12 @@ class SoloJanController implements JanController {
             }
             
             // 打牌したプレイヤーの風を記録
+            final Wind calledWind = _info.getActiveWind();
+            // ロン宣言したプレイヤーをアクティブ化して判定
+            _info.setActivePlayer(playerName);
             final Wind activeWind = _info.getActiveWind();
+            _info.increaseTurnCount(activeWind);
             try {
-                // ロン宣言したプレイヤーをアクティブ化して判定
-                _info.setActivePlayer(playerName);
                 final JanPai discard = _info.getActiveDiscard();
                 final Map<JanPai, Integer> handWithDiscard = getHandMap(_info, _info.getActiveWind(), discard);
                 if (!HandCheckUtil.isComplete(handWithDiscard)) {
@@ -151,14 +156,15 @@ class SoloJanController implements JanController {
                     // フリテン
                     throw new BoneheadException("Furiten.");
                 }
-                _info.setCalledIndex(activeWind);
+                _info.setCalledIndex(calledWind);
                 
                 _onGame = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
             }
             catch (final Throwable e) {
-                // 和了しない場合、アクティブプレイヤーを元に戻す
-                _info.setActiveWind(activeWind);
+                // 和了しない場合、巡目とアクティブプレイヤーを元に戻す
+                _info.decreaseTurnCount(activeWind);
+                _info.setActiveWind(calledWind);
                 throw e;
             }
         }
@@ -816,6 +822,8 @@ class SoloJanController implements JanController {
         
         // 打牌
         final Player activePlayer = _info.getActivePlayer();
+        final Wind activeWind = _info.getActiveWind();
+        _info.increaseTurnCount(activeWind);
         switch (activePlayer.getType()) {
         case COM:
             // ツモ切り

@@ -119,7 +119,7 @@ public final class SoloJanControllerTest {
                 fail();
             }
             catch (final NullPointerException e) {
-                assertEquals("Player name is null.", e.getMessage());
+                assertEquals("Call type is null.", e.getMessage());
             }
         }
     }
