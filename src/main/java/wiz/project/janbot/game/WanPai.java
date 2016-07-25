@@ -33,7 +33,7 @@ public final class WanPai implements Cloneable {
         if (sourceList == null) {
             throw new NullPointerException("Source list is null.");
         }
-        if (sourceList.size() != 14) {
+        if (sourceList.size() != 14 && sourceList.size() != 16) {
             throw new IllegalArgumentException("Invalid source list size - " + sourceList.size());
         }
         

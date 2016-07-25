@@ -75,6 +75,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan s chm") || message.equals("jan start chm") || message.equals("chm s") || message.equals("chm start")) {
                 GameMaster.getInstance().onStartChmSolo(playerName);
             }
+            else if (message.equals("jan s twm") || message.equals("jan start twm") || message.equals("twm s") || message.equals("twm start")) {
+                GameMaster.getInstance().onStartTwmSolo(playerName);
+            }
             else if (message.equals("jan e") || message.equals("jan end")) {
                 GameMaster.getInstance().onEnd();
             }
@@ -142,6 +145,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan replay chm") || message.equals("chm replay")) {
                 GameMaster.getInstance().onReplayChm(playerName);
             }
+            else if (message.equals("jan replay twm") || message.equals("twm replay")) {
+                GameMaster.getInstance().onReplayTwm(playerName);
+            }
             else if (message.startsWith("jan replay ")) {
                 GameMaster.getInstance().onReplay(playerName, message.substring(11));
             }
@@ -178,8 +184,8 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
                                   "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
                                   "※ ss, syはXにa llと指定すると全員分を表示、その場合範囲指定は無効",
-                                  "s：開始   s chm：中国麻雀を開始   e：終了",
-                                  "replay：リプレイ   replay chm：中国麻雀でリプレイ",
+                                  "s：開始   s chm：中国麻雀を開始   s twm：台湾麻雀を開始   e：終了",
+                                  "replay：リプレイ   replay chm：中国麻雀でリプレイ   replay twm：台湾麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
@@ -191,6 +197,11 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("chm help")) {
                 final List<String> messageList =
                     Arrays.asList("chm s：中国麻雀を開始   chm replay：中国麻雀でリプレイ");
+                IRCBOT.getInstance().println(messageList);
+            }
+            else if (message.equals("twm help")) {
+                final List<String> messageList =
+                    Arrays.asList("twm s：台湾麻雀を開始   twm replay：台湾麻雀でリプレイ");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.startsWith("ri-chi!") || message.startsWith("りち！") || message.startsWith("りぃち！") || message.startsWith("りーち！") || message.startsWith("リーチ！")) {
