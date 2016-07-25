@@ -7,6 +7,7 @@ package wiz.project.janbot.game;
 import static org.junit.Assert.*;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = "不正なプレイヤー名";
             final CallType type = CallType.PON;
@@ -71,7 +72,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = "";
             final CallType type = CallType.PON;
@@ -90,7 +91,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = null;
             final CallType type = CallType.PON;
@@ -110,7 +111,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final CallType type = null;
             final JanPai target = null;
@@ -135,7 +136,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = "不正なプレイヤー名";
             try {
@@ -164,7 +165,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = "";
             try {
@@ -181,7 +182,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             
             final String playerName = null;
             try {
@@ -223,7 +224,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             final JanInfo sourceInfo = controller.getGameInfo();
             final Map<JanPai, Integer> sourceHand = sourceInfo.getHand(playerWind).getMenZenMap();
             
@@ -238,7 +239,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             final JanInfo sourceInfo = controller.getGameInfo();
             final Map<JanPai, Integer> sourceHand = sourceInfo.getHand(playerWind).getMenZenMap();
             final JanPai activeTsumo = sourceInfo.getActiveTsumo();
@@ -256,7 +257,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             final JanInfo sourceInfo = controller.getGameInfo();
             final Map<JanPai, Integer> sourceHand = sourceInfo.getHand(playerWind).getMenZenMap();
             final JanPai activeTsumo = sourceInfo.getActiveTsumo();
@@ -273,7 +274,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(createDeck(), playerTable);
+                controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
                 final JanInfo sourceInfo = controller.getGameInfo();
                 final Map<JanPai, Integer> sourceHand = sourceInfo.getHand(playerWind).getMenZenMap();
                 for (final JanPai discardTarget : JanPai.values()) {
@@ -316,7 +317,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(createDeck(), playerTable);
+                controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
                 controller.discard(null);
                 fail();
             }
@@ -350,7 +351,7 @@ public final class SoloJanControllerTest {
             final Map<Wind, Player> playerTable = createPlayerTable(TEST_PLAYER_NAME, playerWind);
             
             final JanController controller = createJanController();
-            controller.start(createDeck(), playerTable);
+            controller.start(createDeck(), new ArrayList<Integer>(), playerTable);
             final JanInfo sourceInfo = controller.getGameInfo();
             
             controller.next();
@@ -383,7 +384,7 @@ public final class SoloJanControllerTest {
             final List<JanPai> deck = createDeck();
             
             final JanController controller = createJanController();
-            controller.start(deck, playerTable);
+            controller.start(deck, new ArrayList<Integer>(), playerTable);
             
             final JanInfo info = controller.getGameInfo();
             assertEquals(deck, info.getDeck());
@@ -397,10 +398,10 @@ public final class SoloJanControllerTest {
             final List<JanPai> deck = createDeck();
             
             final JanController controller = createJanController();
-            controller.start(deck, playerTable);
+            controller.start(deck, new ArrayList<Integer>(), playerTable);
             
             try {
-                controller.start(deck, playerTable);
+                controller.start(deck, new ArrayList<Integer>(), playerTable);
                 fail();
             }
             catch (final JanException e) {
@@ -417,7 +418,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(deck, playerTable);
+                controller.start(deck, new ArrayList<Integer>(), playerTable);
                 fail();
             }
             catch (final IllegalArgumentException e) {
@@ -434,7 +435,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(deck, playerTable);
+                controller.start(deck, new ArrayList<Integer>(), playerTable);
                 fail();
             }
             catch (final IllegalArgumentException e) {
@@ -450,7 +451,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(deck, playerTable);
+                controller.start(deck, new ArrayList<Integer>(), playerTable);
                 fail();
             }
             catch (final NullPointerException e) {
@@ -464,7 +465,7 @@ public final class SoloJanControllerTest {
             
             try {
                 final JanController controller = createJanController();
-                controller.start(deck, playerTable);
+                controller.start(deck, new ArrayList<Integer>(), playerTable);
                 fail();
             }
             catch (final NullPointerException e) {

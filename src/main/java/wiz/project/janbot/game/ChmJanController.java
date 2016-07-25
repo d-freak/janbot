@@ -314,7 +314,7 @@ class ChmJanController implements JanController {
     /**
      * 開始
      */
-    public void start(final List<JanPai> deck, final Map<Wind, Player> playerTable) throws JanException {
+    public void start(final List<JanPai> deck, final List<Integer> akaUIndexList, final Map<Wind, Player> playerTable) throws JanException {
         if (deck == null) {
             throw new NullPointerException("Deck is null.");
         }

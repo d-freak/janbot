@@ -57,6 +57,7 @@ public final class JanInfo extends Observable implements Cloneable {
     public JanInfo(final JanInfo source) {
         if (source != null) {
             _playerTable = deepCopyMap(source._playerTable);
+            _akaIndexList = deepCopyList(source._akaIndexList);
             _deck = deepCopyList(source._deck);
             _deckIndex = source._deckIndex;
             _deckWallIndex = source._deckWallIndex;
@@ -118,6 +119,7 @@ public final class JanInfo extends Observable implements Cloneable {
      * フィールドを全消去
      */
     public void clear() {
+        _akaIndexList.clear();
         _deck.clear();
         _deckIndex = 0;
         _deckWallIndex = 0;
@@ -520,18 +522,6 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 河の残り枚数を取得
-     * 
-     * @param pai 牌。
-     * @return 河の残り枚数。
-     */
-    public int getVisibleOuts(final JanPai pai) {
-        final List<JanPai> paiList = Arrays.asList(pai);
-        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
-        return outs.get(pai);
-    }
-    
-    /**
      * 河の残り枚数テーブルを取得
      * 
      * @param paiList 牌リスト。
@@ -798,6 +788,8 @@ public final class JanInfo extends Observable implements Cloneable {
     public void setDeck(final List<JanPai> deck) {
         if (deck != null) {
             _deck = deepCopyList(deck);
+            
+            
         }
         else {
             _deck.clear();
@@ -1048,7 +1040,8 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     private ChmCompleteInfo getCompleteInfo(final Wind playerWind, final JanPai pai, final boolean isRon) {
         // 和了牌の1枚分を事前に引いて判定
-        final int remainCount = getVisibleOuts(pai) - 1;
+        final int visibleOuts = getVisibleOuts(pai);
+        final int remainCount = visibleOuts > 0 ? visibleOuts - 1 : 0;
         final CompleteType completeType = getCompleteType(playerWind, isRon, _callKan);
         final CompleteJanPai completePai = new CompleteJanPai(pai, remainCount, completeType);
         final Hand hand = getHand(playerWind);
@@ -1169,6 +1162,18 @@ public final class JanInfo extends Observable implements Cloneable {
             }
         }
         return resultList;
+    }
+    
+    /**
+     * 河の残り枚数を取得
+     * 
+     * @param pai 牌。
+     * @return 河の残り枚数。
+     */
+    private int getVisibleOuts(final JanPai pai) {
+        final List<JanPai> paiList = Arrays.asList(pai);
+        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
+        return outs.get(pai);
     }
     
     /**
@@ -1326,6 +1331,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * 牌山
      */
     private List<JanPai> _deck = new ArrayList<>();
+    
+    /**
+     * 赤牌インデックスリスト
+     */
+    private List<Integer> _akaIndexList = new ArrayList<>();
     
     /**
      * 牌山インデックス

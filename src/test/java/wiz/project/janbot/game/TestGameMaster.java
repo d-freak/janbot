@@ -9,6 +9,7 @@ package wiz.project.janbot.game;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,7 +87,7 @@ public final class TestGameMaster extends GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createChmJanController(true);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, new ArrayList<Integer>(), playerTable);
         }
     }
     

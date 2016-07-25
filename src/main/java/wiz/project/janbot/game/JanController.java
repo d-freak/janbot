@@ -85,10 +85,11 @@ interface JanController {
      * 開始
      * 
      * @param deck 牌山。
+     * @param akaUIndexList 赤牌インデックスリスト。
      * @param playerTable プレイヤーテーブル。
      * @throws JanException 例外イベント。
      */
-    public void start(final List<JanPai> deck, final Map<Wind, Player> playerTable) throws JanException;
+    public void start(final List<JanPai> deck, final List<Integer> akaUIndexList, final Map<Wind, Player> playerTable) throws JanException;
     
     /**
      * 監視

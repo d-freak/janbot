@@ -466,6 +466,7 @@ public class GameMaster {
         }
         
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
+            !Files.exists(Paths.get(AKA_U_INDEX_LIST_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
             IRCBOT.getInstance().println("--- Replay data is not found ---");
             return;
@@ -473,6 +474,7 @@ public class GameMaster {
         
         // 牌山と席順をロード
         final List<JanPai> deck = (List<JanPai>)Serializer.read(DECK_SAVE_PATH);
+        final List<Integer> akaUIndexList = (List<Integer>)Serializer.read(AKA_U_INDEX_LIST_SAVE_PATH);
         final Map<Wind, Player> playerTable = (Map<Wind, Player>)Serializer.read(PLAYER_TABLE_SAVE_PATH);
         
         // プレイヤー名を差し替え
@@ -482,7 +484,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createJanController(true);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, akaUIndexList, playerTable);
         }
     }
     
@@ -528,7 +530,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createChmJanController(true);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, new ArrayList<Integer>(), playerTable);
         }
     }
     
@@ -606,16 +608,18 @@ public class GameMaster {
         
         // 牌山生成と席決め
         final List<JanPai> deck = createDeck();
+        final List<Integer> akaUIndexList = JanPaiUtil.createAkaUIndexList(deck);
         final Map<Wind, Player> playerTable = createPlayerTable(Arrays.asList(playerName));
         
         // 保存 (リプレイ用)
         Serializer.writeOverwrite(deck, DECK_SAVE_PATH);
+        Serializer.writeOverwrite(deck, AKA_U_INDEX_LIST_SAVE_PATH);
         Serializer.writeOverwrite(playerTable, PLAYER_TABLE_SAVE_PATH);
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createJanController(true);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, akaUIndexList, playerTable);
         }
     }
     
@@ -654,7 +658,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createChmJanController(true);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, new ArrayList<Integer>(), playerTable);
         }
     }
     
@@ -688,7 +692,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _controller = createJanController(false);
-            _controller.start(deck, playerTable);
+            _controller.start(deck, new ArrayList<Integer>(), playerTable);
         }
     }
     
@@ -996,8 +1000,9 @@ public class GameMaster {
     /**
      * 保存パス
      */
-    private static final String DECK_SAVE_PATH         = "./deck.bin";
-    private static final String PLAYER_TABLE_SAVE_PATH = "./player_table.bin";
+    private static final String DECK_SAVE_PATH             = "./deck.bin";
+    private static final String AKA_U_INDEX_LIST_SAVE_PATH = "./aka_u_index_list.bin";
+    private static final String PLAYER_TABLE_SAVE_PATH     = "./player_table.bin";
     
     /**
      * NPCリスト
