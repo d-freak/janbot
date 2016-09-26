@@ -576,6 +576,56 @@ public final class ChmJanControllerTest {
     }
     
     /**
+     * 8点縛り超え、残り枚数0枚の待ち牌を表示しないテスト
+     */
+    @Test
+    public void testOverTiedPointWithNoOuts() throws Exception {
+        MockBOT.initialize();
+        MockBOT.connect();
+        
+        final PircBotX pircBotX = new PircBotX();
+        final TestMessageListener<PircBotX> listener = createMessageListener();
+        
+        callOnMessage(pircBotX, listener, MESSAGE_TEST);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_PON);
+        // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][中]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_7P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[4p][5p][2s][3s][3s][4s][5s][9s][東][中] [1s]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_4P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[5p][1s][2s][3s][3s][4s][5s][9s][東][中] [6s]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_5P);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        // 手牌：[1s][2s][3s][3s][4s][5s][6s][9s][東][中] [2s]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_TON);
+        // 手牌：[1s][2s][2s][3s][3s][4s][5s][6s][9s][中] [白]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_CHUN);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD);
+        
+        final PrintStream printStream = System.out;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(out));
+        // 手牌：[1s][2s][2s][3s][3s][4s][5s][6s][9s][白] [白]  [發][發][發]
+        callOnMessage(pircBotX, listener, MESSAGE_DISCARD_9S);
+        
+        System.setOut(printStream);
+        callOnMessage(pircBotX, listener, MESSAGE_END);
+        
+        assertTrue(out.toString().contains("PRIVMSG #test-channel :待ち牌：03[4s]：残り3枚, 03[7s]：残り3枚, 計：残り6枚" + System.lineSeparator()));
+    }
+    
+    /**
      * 和了可能牌リストの更新のテスト
      */
     @Test

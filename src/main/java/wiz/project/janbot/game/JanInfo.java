@@ -405,6 +405,19 @@ public final class JanInfo extends Observable implements Cloneable {
     
     /**
      * 残り枚数テーブルを取得(確認メッセージ用)
+     *
+     * @param pai 牌。
+     * @param wind 風。
+     * @return 残り枚数。
+     */
+    public int getOutsOnConfirm(final JanPai pai, final Wind wind) {
+        final List<JanPai> paiList = Arrays.asList(pai);
+        final Map<JanPai, Integer> outs = getOutsOnConfirm(paiList, wind);
+        return outs.get(pai);
+    }
+    
+    /**
+     * 残り枚数テーブルを取得(確認メッセージ用)
      * 
      * @param paiList 牌リスト。
      * @param wind 風。
@@ -517,66 +530,6 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public Integer getTurnCount(final Wind wind) {
         return _turnTable.get(wind);
-    }
-    
-    /**
-     * 河の残り枚数を取得
-     * 
-     * @param pai 牌。
-     * @return 河の残り枚数。
-     */
-    public int getVisibleOuts(final JanPai pai) {
-        final List<JanPai> paiList = Arrays.asList(pai);
-        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
-        return outs.get(pai);
-    }
-    
-    /**
-     * 河の残り枚数テーブルを取得
-     * 
-     * @param paiList 牌リスト。
-     * @return 河の残り枚数テーブル。
-     */
-    public Map<JanPai, Integer> getVisibleOuts(final List<JanPai> paiList) {
-        final Map<JanPai, Integer> outs = new TreeMap<>();
-        
-        for (final JanPai pai : paiList) {
-            int visibleCount = 0;
-            
-            for (final Wind wind : Wind.values()) {
-                final List<JanPai> river = getRiver(wind).get();
-                final List<Integer> calledIndexList = getRiver(wind).getCalledIndexList();
-                
-                for (int count = 0; count < river.size(); count++) {
-                    boolean isCalledIndex = false;
-                    
-                    for (final Integer index : calledIndexList) {
-                        if (count == index) {
-                            isCalledIndex = true;
-                        }
-                    }
-                    
-                    if (isCalledIndex) {
-                        continue;
-                    }
-                    
-                    if (pai.equals(river.get(count))) {
-                        visibleCount++;
-                    }
-                }
-                final List<MenTsu> fixedMenTsuList = getHand(wind).getFixedMenTsuList();
-                
-                for (final MenTsu fixedMenTsu : fixedMenTsuList) {
-                    final boolean isCalled = fixedMenTsu.getMenTsuType().isCalled();
-                    
-                    if (isCalled) {
-                        visibleCount += fixedMenTsu.getJanPaiCount(pai);
-                    }
-                }
-            }
-            outs.put(pai, 4 - visibleCount);
-        }
-        return outs;
     }
     
     /**
@@ -1172,6 +1125,66 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 河の残り枚数を取得
+     * 
+     * @param pai 牌。
+     * @return 河の残り枚数。
+     */
+    private int getVisibleOuts(final JanPai pai) {
+        final List<JanPai> paiList = Arrays.asList(pai);
+        final Map<JanPai, Integer> outs = getVisibleOuts(paiList);
+        return outs.get(pai);
+    }
+    
+    /**
+     * 河の残り枚数テーブルを取得
+     * 
+     * @param paiList 牌リスト。
+     * @return 河の残り枚数テーブル。
+     */
+    private Map<JanPai, Integer> getVisibleOuts(final List<JanPai> paiList) {
+        final Map<JanPai, Integer> outs = new TreeMap<>();
+        
+        for (final JanPai pai : paiList) {
+            int visibleCount = 0;
+            
+            for (final Wind wind : Wind.values()) {
+                final List<JanPai> river = getRiver(wind).get();
+                final List<Integer> calledIndexList = getRiver(wind).getCalledIndexList();
+                
+                for (int count = 0; count < river.size(); count++) {
+                    boolean isCalledIndex = false;
+                    
+                    for (final Integer index : calledIndexList) {
+                        if (count == index) {
+                            isCalledIndex = true;
+                        }
+                    }
+                    
+                    if (isCalledIndex) {
+                        continue;
+                    }
+                    
+                    if (pai.equals(river.get(count))) {
+                        visibleCount++;
+                    }
+                }
+                final List<MenTsu> fixedMenTsuList = getHand(wind).getFixedMenTsuList();
+                
+                for (final MenTsu fixedMenTsu : fixedMenTsuList) {
+                    final boolean isCalled = fixedMenTsu.getMenTsuType().isCalled();
+                    
+                    if (isCalled) {
+                        visibleCount += fixedMenTsu.getJanPaiCount(pai);
+                    }
+                }
+            }
+            outs.put(pai, 4 - visibleCount);
+        }
+        return outs;
+    }
+    
+    /**
      * チー可能か
      * 
      * @param hand クリーン済みの手牌マップ。
@@ -1255,6 +1268,20 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     private void setCompletableJanPaiList(final Wind wind, final List<JanPai> completableJanPaiList) {
         final List<JanPai> oldCompletableJanPaiList = _completableJanPaiTable.get(wind);
+        final boolean isContainsAll = completableJanPaiList.containsAll(oldCompletableJanPaiList);
+        
+        if (isContainsAll) {
+            final List<JanPai> addJanPaiList = deepCopyList(completableJanPaiList);
+            addJanPaiList.removeAll(oldCompletableJanPaiList);
+            
+            for (final JanPai pai : addJanPaiList) {
+                final int outs = getOutsOnConfirm(pai, wind);
+                
+                if (outs == 0) {
+                    completableJanPaiList.remove(pai);
+                }
+            }
+        }
         final boolean isEmpty = oldCompletableJanPaiList.isEmpty();
         final boolean isEquals = completableJanPaiList.equals(oldCompletableJanPaiList);
         
