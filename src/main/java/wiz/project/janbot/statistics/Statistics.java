@@ -52,12 +52,19 @@ public final class Statistics {
         stringList.add(until12thTurnRate());
         stringList.add(until15thTurnRate());
         stringList.add(completableRate());
-        stringList.add(completeRate());
         stringList.add(completableTurnAverage());
+        stringList.add(waitCountAverage());
+        stringList.add(waitPaiCountAverage());
+        stringList.add(completeRate());
         stringList.add(turnAverage());
         stringList.add(pointAverage());
         stringList.add(getPointAverage());
         stringList.add(tsumoRate());
+        stringList.add(calledRate());
+        stringList.add(oneCalledRate());
+        stringList.add(twoCalledRate());
+        stringList.add(threeCalledRate());
+        stringList.add(fourCalledRate());
         return stringList;
     }
     
@@ -74,12 +81,19 @@ public final class Statistics {
         stringList.add(until12thTurnRateRanking());
         stringList.add(until15thTurnRateRanking());
         stringList.add(completableRateRanking());
-        stringList.add(completeRateRanking());
         stringList.add(completableTurnAverageRanking());
+        stringList.add(waitCountAverageRanking());
+        stringList.add(waitPaiCountAverageRanking());
+        stringList.add(completeRateRanking());
         stringList.add(turnAverageRanking());
         stringList.add(pointAverageRanking());
         stringList.add(getPointAverageRanking());
         stringList.add(tsumoRateRanking());
+        stringList.add(calledRateRanking());
+        stringList.add(oneCalledRateRanking());
+        stringList.add(twoCalledRateRanking());
+        stringList.add(threeCalledRateRanking());
+        stringList.add(fourCalledRateRanking());
         return stringList;
     }
     
@@ -95,6 +109,50 @@ public final class Statistics {
     }
     
     
+    
+    /**
+     * 副露率
+     */
+    private String calledRate() {
+        final int calledCount = getOneCalledCount() + getTwoCalledCount() + getThreeCalledCount() + getFourCalledCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double calledRate = (double) calledCount * 100 / (double) playCountWithWaitCount;
+        final String calledRateString = String.format("%.2f", calledRate);
+        
+        return "副露率: " + calledRateString + " % (" + calledCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 副露率のランキング
+     */
+    private String calledRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double calledRate = entry.getValue().calledRate();
+            List<String> playerList = rankingTable.get(calledRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(calledRate, playerList);
+        }
+        String message ="副露率: ";
+        int count = 0;
+        
+        for (final double calledRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(calledRate);
+            final String calledRateString = String.format("%.2f", calledRate);
+            message += playerList + " (" + calledRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
     
     /**
      * 聴牌率
@@ -232,6 +290,50 @@ public final class Statistics {
     }
     
     /**
+     * 4回鳴いた確率
+     */
+    private String fourCalledRate() {
+        final int fourCalledCount = getFourCalledCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double fourCalledRate = (double) fourCalledCount * 100 / (double) playCountWithWaitCount;
+        final String fourCalledRateString = String.format("%.2f", fourCalledRate);
+        
+        return "4回鳴いた確率: " + fourCalledRateString + " % (" + fourCalledCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 4回鳴いた確率のランキング
+     */
+    private String fourCalledRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double fourCalledRate = entry.getValue().fourCalledRate();
+            List<String> playerList = rankingTable.get(fourCalledRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(fourCalledRate, playerList);
+        }
+        String message ="4回鳴いた確率: ";
+        int count = 0;
+        
+        for (final double fourCalledRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(fourCalledRate);
+            final String fourCalledRateString = String.format("%.2f", fourCalledRate);
+            message += playerList + " (" + fourCalledRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
      * 中国麻雀の役の点数を取得
      * 
      * @param name 中国麻雀の役の名前。
@@ -291,6 +393,20 @@ public final class Statistics {
     }
     
     /**
+     * 4回鳴いたゲーム回数を取得
+     * 
+     * @return 4回鳴いたゲーム回数。
+     */
+    private int getFourCalledCount() {
+        int fourCalledCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            fourCalledCount += statistics.getFourCalledCount();
+        }
+        return fourCalledCount;
+    }
+    
+    /**
      * 獲得点数の合計を取得
      * 
      * @return 獲得点数の合計。
@@ -305,6 +421,20 @@ public final class Statistics {
     }
     
     /**
+     * 1回鳴いたゲーム回数を取得
+     * 
+     * @return 1回鳴いたゲーム回数。
+     */
+    private int getOneCalledCount() {
+        int oneCalledCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            oneCalledCount += statistics.getOneCalledCount();
+        }
+        return oneCalledCount;
+    }
+    
+    /**
      * ゲーム回数を取得
      * 
      * @return ゲーム回数。
@@ -316,6 +446,20 @@ public final class Statistics {
             playCount += statistics.getPlayCount();
         }
         return playCount;
+    }
+    
+    /**
+     * 待ち数があるゲーム回数を取得
+     * 
+     * @return 待ち数があるゲーム回数。
+     */
+    private int getPlayCountWithWaitCount() {
+        int playCountWithWaitCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            playCountWithWaitCount += statistics.getPlayCountWithWaitCount();
+        }
+        return playCountWithWaitCount;
     }
     
     /**
@@ -421,6 +565,20 @@ public final class Statistics {
     }
     
     /**
+     * 3回鳴いたゲーム回数を取得
+     * 
+     * @return 3回鳴いたゲーム回数。
+     */
+    private int getThreeCalledCount() {
+        int threeCalledCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            threeCalledCount += statistics.getThreeCalledCount();
+        }
+        return threeCalledCount;
+    }
+    
+    /**
      * ツモ回数を取得
      * 
      * @return ツモ回数。
@@ -446,6 +604,20 @@ public final class Statistics {
             turnSum += statistics.getTurnSum();
         }
         return turnSum;
+    }
+    
+    /**
+     * 2回鳴いたゲーム回数を取得
+     * 
+     * @return 2回鳴いたゲーム回数。
+     */
+    private int getTwoCalledCount() {
+        int twoCalledCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            twoCalledCount += statistics.getTwoCalledCount();
+        }
+        return twoCalledCount;
     }
     
     /**
@@ -505,6 +677,34 @@ public final class Statistics {
     }
     
     /**
+     * 待ち数を取得
+     * 
+     * @return 待ち数。
+     */
+    private int getWaitCount() {
+        int waitCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+        	waitCount += statistics.getWaitCount();
+        }
+        return waitCount;
+    }
+    
+    /**
+     * 待ち枚数を取得
+     * 
+     * @return 待ち枚数。
+     */
+    private int getWaitPaiCount() {
+        int waitPaiCount = 0;
+        
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+        	waitPaiCount += statistics.getWaitPaiCount();
+        }
+        return waitPaiCount;
+    }
+    
+    /**
      * 役カウントテーブルを取得
      * 
      * @return 役カウントテーブル。
@@ -516,6 +716,50 @@ public final class Statistics {
         	yakuCountTable.putAll(statistics.getYakuCountTable());
         }
         return yakuCountTable;
+    }
+    
+    /**
+     * 1回鳴いた確率
+     */
+    private String oneCalledRate() {
+        final int oneCalledCount = getOneCalledCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double oneCalledRate = (double) oneCalledCount * 100 / (double) playCountWithWaitCount;
+        final String oneCalledRateString = String.format("%.2f", oneCalledRate);
+        
+        return "1回鳴いた確率: " + oneCalledRateString + " % (" + oneCalledCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 1回鳴いた確率のランキング
+     */
+    private String oneCalledRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double oneCalledRate = entry.getValue().fourCalledRate();
+            List<String> playerList = rankingTable.get(oneCalledRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(oneCalledRate, playerList);
+        }
+        String message ="1回鳴いた確率: ";
+        int count = 0;
+        
+        for (final double oneCalledRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(oneCalledRate);
+            final String oneCalledRateString = String.format("%.2f", oneCalledRate);
+            message += playerList + " (" + oneCalledRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
     }
     
     /**
@@ -556,6 +800,50 @@ public final class Statistics {
             final List<String> playerList = rankingTable.get(pointAverage);
             final String pointAverageString = String.format("%.2f", pointAverage);
             message += playerList + " (" + pointAverageString + "点)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
+     * 3回鳴いた確率
+     */
+    private String threeCalledRate() {
+        final int threeCalledCount = getThreeCalledCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double threeCalledRate = (double) threeCalledCount * 100 / (double) playCountWithWaitCount;
+        final String threeCalledRateString = String.format("%.2f", threeCalledRate);
+        
+        return "3回鳴いた確率: " + threeCalledRateString + " % (" + threeCalledCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 3回鳴いた確率のランキング
+     */
+    private String threeCalledRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double threeCalledRate = entry.getValue().threeCalledRate();
+            List<String> playerList = rankingTable.get(threeCalledRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(threeCalledRate, playerList);
+        }
+        String message ="3回鳴いた確率: ";
+        int count = 0;
+        
+        for (final double threeCalledRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(threeCalledRate);
+            final String threeCalledRateString = String.format("%.2f", threeCalledRate);
+            message += playerList + " (" + threeCalledRateString + "%)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -650,6 +938,50 @@ public final class Statistics {
             final List<String> playerList = rankingTable.get(turnAverage);
             final String turnAverageString = String.format("%.2f", turnAverage);
             message += playerList + " (" + turnAverageString + "巡目)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
+     * 2回鳴いた確率
+     */
+    private String twoCalledRate() {
+        final int twoCalledCount = getTwoCalledCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double twoCalledRate = (double) twoCalledCount * 100 / (double) playCountWithWaitCount;
+        final String twoCalledRateString = String.format("%.2f", twoCalledRate);
+        
+        return "2回鳴いた確率: " + twoCalledRateString + " % (" + twoCalledCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 2回鳴いた確率のランキング
+     */
+    private String twoCalledRateRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double twoCalledRate = entry.getValue().twoCalledRate();
+            List<String> playerList = rankingTable.get(twoCalledRate);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(twoCalledRate, playerList);
+        }
+        String message ="2回鳴いた確率: ";
+        int count = 0;
+        
+        for (final double twoCalledRate : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(twoCalledRate);
+            final String twoCalledRateString = String.format("%.2f", twoCalledRate);
+            message += playerList + " (" + twoCalledRateString + "%)";
             count++;
             
             if (count != rankingTable.size()) {
@@ -826,6 +1158,94 @@ public final class Statistics {
             final List<String> playerList = rankingTable.get(until15thTurnRate);
             final String until15thTurnRateString = String.format("%.2f", until15thTurnRate);
             message += playerList + " (" + until15thTurnRateString + "%)";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
+     * 平均待ち数
+     */
+    private String waitCountAverage() {
+        final int waitCount = getWaitCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double waitCountAverage = (double) waitCount / (double) playCountWithWaitCount;
+        final String waitCountAverageString = String.format("%.2f", waitCountAverage);
+        
+        return "平均待ち数: " + waitCountAverageString + " (" + waitCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 平均待ち数のランキング
+     */
+    private String waitCountAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double waitCountAverage = entry.getValue().waitCountAverage();
+            List<String> playerList = rankingTable.get(waitCountAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(waitCountAverage, playerList);
+        }
+        String message ="平均待ち数: ";
+        int count = 0;
+        
+        for (final double waitCountAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(waitCountAverage);
+            final String waitCountAverageString = String.format("%.2f", waitCountAverage);
+            message += playerList + " (" + waitCountAverageString + ")";
+            count++;
+            
+            if (count != rankingTable.size()) {
+                message += " > ";
+            }
+        }
+        return message.replaceAll("[\\[\\]]", "");
+    }
+    
+    /**
+     * 平均待ち枚数
+     */
+    private String waitPaiCountAverage() {
+        final int waitPaiCount = getWaitPaiCount();
+        final int playCountWithWaitCount = getPlayCountWithWaitCount();
+        final double waitCountAverage = (double) waitPaiCount / (double) playCountWithWaitCount;
+        final String waitCountAverageString = String.format("%.2f", waitCountAverage);
+        
+        return "平均待ち枚数: " + waitCountAverageString + " 枚 (" + waitPaiCount + "/" + playCountWithWaitCount + ")";
+    }
+    
+    /**
+     * 平均待ち枚数のランキング
+     */
+    private String waitPaiCountAverageRanking() {
+        final TreeMap<Double, List<String>> rankingTable = new TreeMap<>();
+        
+        for (final Entry<String, PersonalStatistics> entry : _statisticsTable.entrySet()) {
+            final double waitPaiCountAverage = entry.getValue().waitPaiCountAverage();
+            List<String> playerList = rankingTable.get(waitPaiCountAverage);
+            
+            if (playerList == null) {
+            	playerList = new ArrayList<>();
+            }
+            playerList.add(entry.getKey().replaceFirst("[aeiou]", "$0 "));
+            rankingTable.put(waitPaiCountAverage, playerList);
+        }
+        String message ="平均待ち枚数: ";
+        int count = 0;
+        
+        for (final double waitPaiCountAverage : rankingTable.descendingKeySet()) {
+            final List<String> playerList = rankingTable.get(waitPaiCountAverage);
+            final String waitPaiCountAverageString = String.format("%.2f", waitPaiCountAverage);
+            message += playerList + " (" + waitPaiCountAverageString + ")";
             count++;
             
             if (count != rankingTable.size()) {

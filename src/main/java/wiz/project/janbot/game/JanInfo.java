@@ -1345,9 +1345,44 @@ public final class JanInfo extends Observable implements Cloneable {
     
     
     /**
-     * プレイヤーテーブル
+     * 直前の捨て牌
      */
-    private Map<Wind, Player> _playerTable = new TreeMap<>();
+    private JanPai _activeDiscard = JanPai.HAKU;
+    
+    /**
+     * 直前のツモ牌
+     */
+    private JanPai _activeTsumo = JanPai.HAKU;
+    
+    /**
+     * アクティブな風
+     */
+    private Wind _activeWind = Wind.TON;
+    
+    /**
+     * チーの待ち
+     */
+    private Map<Wind, List<JanPai>> _chiWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
+    
+    /**
+     * 和了情報
+     */
+    private ChmCompleteInfo _completeInfo = null;
+    
+    /**
+     * 和了可能牌テーブル
+     */
+    private Map<Wind, List<JanPai>> _completableJanPaiTable = new TreeMap<>();
+    
+    /**
+     * 和了可能巡目テーブル
+     */
+    private Map<Wind, Integer> _completableTurnTable = new TreeMap<>();
+    
+    /**
+     * 和了の待ち
+     */
+    private Map<Wind, List<JanPai>> _completeWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
     
     /**
      * 牌山
@@ -1365,24 +1400,9 @@ public final class JanInfo extends Observable implements Cloneable {
     private int _deckWallIndex = 0;
     
     /**
-     * 王牌
-     */
-    private WanPai _wanPai = new WanPai();
-    
-    /**
      * 場風
      */
     private Wind _fieldWind = Wind.TON;
-    
-    /**
-     * アクティブな風
-     */
-    private Wind _activeWind = Wind.TON;
-    
-    /**
-     * 残り枚数
-     */
-    private int _remainCount = 0;
     
     /**
      * 手牌テーブル
@@ -1390,19 +1410,24 @@ public final class JanInfo extends Observable implements Cloneable {
     private Map<Wind, Hand> _handTable = new TreeMap<>();
     
     /**
+     * プレイヤーテーブル
+     */
+    private Map<Wind, Player> _playerTable = new TreeMap<>();
+    
+    /**
+     * ポンの待ち
+     */
+    private Map<Wind, List<JanPai>> _ponWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
+    
+    /**
+     * 残り枚数
+     */
+    private int _remainCount = 0;
+    
+    /**
      * 捨て牌テーブル
      */
     private Map<Wind, River> _riverTable = new TreeMap<>();
-    
-    /**
-     * 和了可能牌テーブル
-     */
-    private Map<Wind, List<JanPai>> _completableJanPaiTable = new TreeMap<>();
-    
-    /**
-     * 和了可能巡目テーブル
-     */
-    private Map<Wind, Integer> _completableTurnTable = new TreeMap<>();
     
     /**
      * 巡目テーブル
@@ -1410,24 +1435,16 @@ public final class JanInfo extends Observable implements Cloneable {
     private Map<Wind, Integer> _turnTable = new TreeMap<>();
     
     /**
-     * 直前のツモ牌
+     * 王牌
      */
-    private JanPai _activeTsumo = JanPai.HAKU;
-    
-    /**
-     * 直前の捨て牌
-     */
-    private JanPai _activeDiscard = JanPai.HAKU;
+    private WanPai _wanPai = new WanPai();
     
     /**
      * 監視牌のリスト
      */
     private List<JanPai> _watchingJanPaiList = new ArrayList<>();
     
-    /**
-     * 和了情報
-     */
-    private ChmCompleteInfo _completeInfo = null;
+    
     
     /**
      * 副露後の打牌フラグ
@@ -1438,21 +1455,6 @@ public final class JanInfo extends Observable implements Cloneable {
      * カンフラグ
      */
     private volatile boolean _callKan = false;
-    
-    /**
-     * 和了の待ち
-     */
-    private Map<Wind, List<JanPai>> _completeWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
-    
-    /**
-     * チーの待ち
-     */
-    private Map<Wind, List<JanPai>> _chiWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
-    
-    /**
-     * ポンの待ち
-     */
-    private Map<Wind, List<JanPai>> _ponWait = Collections.synchronizedMap(new TreeMap<Wind, List<JanPai>>());
     
 }
 

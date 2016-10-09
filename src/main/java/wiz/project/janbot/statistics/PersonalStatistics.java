@@ -14,7 +14,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import wiz.project.jan.yaku.ChmYaku;
 import wiz.project.janbot.game.exception.InvalidInputException;
 
 
@@ -60,6 +59,25 @@ public final class PersonalStatistics {
                     final String name = data.getName();
                     
                     switch (name) {
+                    case "calledMenTsuCount":
+                        final int calledMenTsuCount = Integer.parseInt(valueString);
+                        
+                        if (calledMenTsuCount == 1) {
+                            _oneCalledCount++;
+                        }
+                        
+                        if (calledMenTsuCount == 2) {
+                        	_twoCalledCount++;
+                        }
+                        
+                        if (calledMenTsuCount == 3) {
+                        	_threeCalledCount++;
+                        }
+                        
+                        if (calledMenTsuCount == 4) {
+                        	_fourCalledCount++;
+                        }
+                        break;
                     case "completableTurn":
                         final int completableTurn = Integer.parseInt(valueString);
                         
@@ -126,6 +144,13 @@ public final class PersonalStatistics {
                         }
                         _playCountWithYaku++;
                         break;
+                    case "waitCount":
+                        _waitCountSum += Integer.parseInt(valueString);
+                        _playCountWithWaitCount++;
+                        break;
+                    case "waitPaiCount":
+                        _waitPaiCountSum += Integer.parseInt(valueString);
+                        break;
                     default:
                     }
                 }
@@ -136,6 +161,18 @@ public final class PersonalStatistics {
     }
     
     
+    
+    /**
+     * 副露率
+     */
+    public double calledRate() {
+        double calledRate = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+        	calledRate = (double) (_oneCalledCount + _twoCalledCount + _threeCalledCount + _fourCalledCount) * 100 / (double) _playCountWithWaitCount;
+        }
+        return calledRate;
+    }
     
     /**
      * 聴牌率
@@ -164,19 +201,15 @@ public final class PersonalStatistics {
     }
     
     /**
-     * 中国麻雀の役の点数を取得
-     * 
-     * @param name 中国麻雀の役の名前。
+     * 4回鳴いた確率
      */
-    public int getChmYakuPoint(final String name) {
-        for (final ChmYaku yaku : ChmYaku.values()) {
-            final String yakuName = yaku.toString();
-            
-            if (name.equals(yakuName)) {
-                return yaku.getPoint();
-            }
+    public double fourCalledRate() {
+        double fourCalledRate = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+        	fourCalledRate = (double) _fourCalledCount * 100 / (double) _playCountWithWaitCount;
         }
-        return 0;
+        return fourCalledRate;
     }
     
     /**
@@ -207,12 +240,30 @@ public final class PersonalStatistics {
     }
     
     /**
+     * 4回鳴いたゲーム回数を取得
+     * 
+     * @return 4回鳴いたゲーム回数。
+     */
+    public int getFourCalledCount() {
+        return _fourCalledCount;
+    }
+    
+    /**
      * 獲得点数の合計を取得
      * 
      * @return 獲得点数の合計。
      */
     public int getGetPointSum() {
         return _getPointSum;
+    }
+    
+    /**
+     * 1回鳴いたゲーム回数を取得
+     * 
+     * @return 1回鳴いたゲーム回数。
+     */
+    public int getOneCalledCount() {
+        return _oneCalledCount;
     }
     
     /**
@@ -231,6 +282,15 @@ public final class PersonalStatistics {
      */
     public int getPlayCountWithYaku() {
         return _playCountWithYaku;
+    }
+    
+    /**
+     * 待ち数があるゲーム回数を取得
+     * 
+     * @return 待ち数があるゲーム回数。
+     */
+    public int getPlayCountWithWaitCount() {
+        return _playCountWithWaitCount;
     }
     
     /**
@@ -255,6 +315,15 @@ public final class PersonalStatistics {
     }
     
     /**
+     * 3回鳴いたゲーム回数を取得
+     * 
+     * @return 3回鳴いたゲーム回数。
+     */
+    public int getThreeCalledCount() {
+        return _threeCalledCount;
+    }
+    
+    /**
      * ツモ回数を取得
      * 
      * @return ツモ回数。
@@ -270,6 +339,15 @@ public final class PersonalStatistics {
      */
     public int getTurnSum() {
         return _turnSum;
+    }
+    
+    /**
+     * 2回鳴いたゲーム回数を取得
+     * 
+     * @return 2回鳴いたゲーム回数。
+     */
+    public int getTwoCalledCount() {
+        return _twoCalledCount;
     }
     
     /**
@@ -309,12 +387,42 @@ public final class PersonalStatistics {
     }
     
     /**
+     * 待ち数を取得
+     * 
+     * @return 待ち数。
+     */
+    public int getWaitCount() {
+        return _waitCountSum;
+    }
+    
+    /**
+     * 待ち牌枚数を取得
+     * 
+     * @return 待ち牌枚数。
+     */
+    public int getWaitPaiCount() {
+        return _waitPaiCountSum;
+    }
+    
+    /**
      * 役カウントテーブルを取得
      * 
      * @return 役カウントテーブル。
      */
     public Map<String, Integer> getYakuCountTable() {
         return _yakuCountTable;
+    }
+    
+    /**
+     * 1回鳴いた確率
+     */
+    public double oneCalledRate() {
+        double oneCalledRate = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+        	oneCalledRate = (double) _oneCalledCount * 100 / (double) _playCountWithWaitCount;
+        }
+        return oneCalledRate;
     }
     
     /**
@@ -327,6 +435,18 @@ public final class PersonalStatistics {
             pointAverage = (double) _pointSum / (double) _completeCount;
         }
         return pointAverage;
+    }
+    
+    /**
+     * 3回鳴いた確率
+     */
+    public double threeCalledRate() {
+        double threeCalledRate = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+        	threeCalledRate = (double) _threeCalledCount * 100 / (double) _playCountWithWaitCount;
+        }
+        return threeCalledRate;
     }
     
     /**
@@ -351,6 +471,18 @@ public final class PersonalStatistics {
             turnAverage = (double) _turnSum / (double) _completeCount;
         }
         return turnAverage;
+    }
+    
+    /**
+     * 2回鳴いた確率
+     */
+    public double twoCalledRate() {
+        double twoCalledRate = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+        	twoCalledRate = (double) _twoCalledCount * 100 / (double) _playCountWithWaitCount;
+        }
+        return twoCalledRate;
     }
     
     /**
@@ -381,6 +513,30 @@ public final class PersonalStatistics {
         return (double) _until15thTurnCount * 100 / (double) _playCount;
     }
     
+    /**
+     * 平均待ち数
+     */
+    public double waitCountAverage() {
+        double waitCountAverage = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+            waitCountAverage = (double) _waitCountSum / (double) _playCountWithWaitCount;
+        }
+        return waitCountAverage;
+    }
+    
+    /**
+     * 平均待ち枚数
+     */
+    public double waitPaiCountAverage() {
+        double waitPaiCountAverage = 0.0;
+        
+        if (_playCountWithWaitCount != 0) {
+            waitPaiCountAverage = (double) _waitPaiCountSum / (double) _playCountWithWaitCount;
+        }
+        return waitPaiCountAverage;
+    }
+    
     
     
     /**
@@ -399,14 +555,29 @@ public final class PersonalStatistics {
     private int _completeCount = 0;
     
     /**
+     * 4回鳴いたゲーム回数
+     */
+    private int _fourCalledCount = 0;
+    
+    /**
      * 獲得点数の合計
      */
     private int _getPointSum = 0;
     
     /**
+     * 1回鳴いたゲーム回数
+     */
+    private int _oneCalledCount = 0;
+    
+    /**
      * ゲーム回数
      */
     private int _playCount = 0;
+    
+    /**
+     * 待ち数があるゲーム回数
+     */
+    private int _playCountWithWaitCount = 0;
     
     /**
      * 役があるゲーム回数
@@ -419,6 +590,11 @@ public final class PersonalStatistics {
     private int _pointSum = 0;
     
     /**
+     * 3回鳴いたゲーム回数
+     */
+    private int _threeCalledCount = 0;
+    
+    /**
      * ツモ回数
      */
     private int _tsumoCount = 0;
@@ -427,6 +603,11 @@ public final class PersonalStatistics {
      * 和了巡目の合計
      */
     private int _turnSum = 0;
+    
+    /**
+     * 2回鳴いたゲーム回数
+     */
+    private int _twoCalledCount = 0;
     
     /**
      * 6巡目までに聴牌した回数
@@ -447,6 +628,16 @@ public final class PersonalStatistics {
      * 15巡目までに聴牌した回数
      */
     private int _until15thTurnCount = 0;
+    
+    /**
+     * 待ち数の合計
+     */
+    private int _waitCountSum = 0;
+    
+    /**
+     * 待ち牌枚数の合計
+     */
+    private int _waitPaiCountSum = 0;
     
     /**
      * 役カウントテーブル

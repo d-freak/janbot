@@ -142,7 +142,6 @@ public class GameAnnouncer implements Observer {
         final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
         final Wind playerWind = getPlayerWind(info);
         final List<String> messageList = new ArrayList<>();
-        final Player player = info.getPlayer(playerWind);
         final int turnCount = info.getTurnCount(playerWind);
         if (isCallable(flagSet)) {
             messageList.add(convertCallInfoToString(info.getActiveDiscard(), flagSet));
@@ -234,20 +233,17 @@ public class GameAnnouncer implements Observer {
                 messageList.addAll(getOutsString(info, isConfirm, paiList));
             }
         }
-        final int completableTurn = info.getCompletableTurnCount(playerWind);
-        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
-
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
             messageList.add("---- ロン和了(" + turnCount + "巡目) ----");
-            recordResultXml(player, turnCount, completableTurn, completeInfo);
+            recordResultXml(info);
         }
         else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
             messageList.add("---- ツモ和了(" + turnCount + "巡目) ----");
-            recordResultXml(player, turnCount, completableTurn, completeInfo);
+            recordResultXml(info);
         }
         else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
             messageList.add("---- 流局 ----");
-            recordResultXml(player, turnCount, completableTurn, completeInfo);
+            recordResultXml(info);
         }
 
         if (flagSet.contains(AnnounceFlag.GAME_END)) {
@@ -256,10 +252,12 @@ public class GameAnnouncer implements Observer {
         }
 
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
+            final int completableTurn = info.getCompletableTurnCount(playerWind);
+            
             messageList.add(completableTurn + "巡目で8点縛りを超えました。");
-
+            
             final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
-
+            
             messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
         }
 
@@ -272,7 +270,7 @@ public class GameAnnouncer implements Observer {
         }
 
         if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
-            final int totalPoint = completeInfo.getTotalPoint();
+            final int totalPoint = info.getCompleteInfo().getTotalPoint();
 
             messageList.add((8 - totalPoint) + "点足りません");
         }
@@ -288,9 +286,11 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.RANKING)) {
             messageList.addAll(getRankingString());
         }
-        IRCBOT.getInstance().println(messageList);
+        printMessage(messageList);
 
         if (flagSet.contains(AnnounceFlag.SCORE)) {
+            final ChmCompleteInfo completeInfo = info.getCompleteInfo();
+            
             printCompleteInfo(completeInfo);
         }
     }
@@ -311,7 +311,7 @@ public class GameAnnouncer implements Observer {
         final List<String> messageList = new ArrayList<>();
         messageList.addAll(getStatisticsString(param));
 
-        IRCBOT.getInstance().println(messageList);
+        printMessage(messageList);
     }
 
     /**
@@ -330,7 +330,7 @@ public class GameAnnouncer implements Observer {
         final List<String> messageList = new ArrayList<>();
         messageList.addAll(getYakuStatisticsString(param));
 
-        IRCBOT.getInstance().println(messageList);
+        printMessage(messageList);
     }
 
 
@@ -756,17 +756,32 @@ public class GameAnnouncer implements Observer {
             return;
         }
         for (final ChmYaku yaku : completeInfo.getYakuList()) {
-        	IRCBOT.getInstance().println(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
+            IRCBOT.getInstance().println(yaku.toString() + " : " + yaku.toStringUS() + String.valueOf(yaku.getPoint()) + "点");
         }
         final boolean isRon = completeInfo.getCompleteType().isRon();
         final Integer total = completeInfo.getTotalPoint();
 
         if (isRon) {
-        	IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
+            IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
         }
         else {
-        	IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
+            IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
         }
+    }
+
+    /**
+     * メッセージを出力
+     *
+     * @param messageList メッセージリスト。
+     */
+    private void printMessage(final List<String> messageList) {
+        final int maxLineCount = 6;
+        int lineCount = 0;
+
+        for (; messageList.size() - lineCount > maxLineCount; lineCount += maxLineCount) {
+            IRCBOT.getInstance().println(messageList.subList(lineCount, lineCount + maxLineCount));
+        }
+        IRCBOT.getInstance().println(messageList.subList(lineCount, messageList.size()));
     }
 
     /**
@@ -777,24 +792,41 @@ public class GameAnnouncer implements Observer {
      * @param completableTurnCount 和了可能巡目。
      * @param completeInfo 和了情報。
      */
-    private void recordResultXml(final Player player, final int turnCount, final int completableTurnCount, final ChmCompleteInfo completeInfo) {
+    private void recordResultXml(final JanInfo info) {
         if (!_isChm) {
             return;
         }
+        final Wind wind = getPlayerWind(info);
+        final int completableTurnCount = info.getCompletableTurnCount(wind);
         String addCompletableTurn;
+        String addWaitCount;
+        String addWaitPaiCount;
         if (completableTurnCount != 0) {
             addCompletableTurn = String.valueOf(completableTurnCount);
+            final List<JanPai> completableJanPaiList = info.getCompletableJanPaiList(wind);
+            addWaitCount = String.valueOf(completableJanPaiList.size());
+            int waitPaiCount = 0;
+            
+            for (final Integer count : info.getOutsOnConfirm(completableJanPaiList, wind).values()) {
+                waitPaiCount += count;
+            }
+            addWaitPaiCount = String.valueOf(waitPaiCount);
         }
         else {
             addCompletableTurn = "-";
+            addWaitCount = "-";
+            addWaitPaiCount = "-";
         }
+        final int calledMenTsuCount = info.getHand(wind).getCalledMenTsuCount();
+        final String addCalledMenTsuCount = String.valueOf(calledMenTsuCount);
+        final ChmCompleteInfo completeInfo = info.getCompleteInfo();
         String addCompleteType;
         String addCompleteTurn;
         String addPoint;
         String addYaku;
         if (completeInfo == null) {
-            addCompleteType = "-";
             addCompleteTurn = "-";
+            addCompleteType = "-";
             addPoint = "-";
             addYaku = "-";
         }
@@ -807,6 +839,7 @@ public class GameAnnouncer implements Observer {
             else {
                 addCompleteType = "tsumo";
             }
+            final int turnCount = info.getTurnCount(wind);
             addCompleteTurn = String.valueOf(turnCount);
             addPoint = String.valueOf(completeInfo.getTotalPoint());
             addYaku = String.valueOf(completeInfo.getYakuList());
@@ -814,7 +847,8 @@ public class GameAnnouncer implements Observer {
 
         final Document writeDocument = DocumentHelper.createDocument();
         final Element writeRoot = writeDocument.addElement("results");
-        final String path = "./" + player.getName() + ".xml";
+        final String playerName = info.getPlayer(wind).getName();
+        final String path = "./" + playerName + ".xml";
         try {
             final SAXReader reader = new SAXReader();
             final Document readDocument = reader.read(path);
@@ -828,17 +862,26 @@ public class GameAnnouncer implements Observer {
                     final String name = data.getName();
 
                     switch (name) {
+                    case "calledMenTsuCount":
+                        writeResult.addElement("calledMenTsuCount").setText(data.getStringValue());
+                        break;
                     case "completableTurn":
                         writeResult.addElement("completableTurn").setText(data.getStringValue());
-                        break;
-                    case "completeType":
-                        writeResult.addElement("completeType").setText(data.getStringValue());
                         break;
                     case "completeTurn":
                         writeResult.addElement("completeTurn").setText(data.getStringValue());
                         break;
+                    case "completeType":
+                        writeResult.addElement("completeType").setText(data.getStringValue());
+                        break;
                     case "point":
                         writeResult.addElement("point").setText(data.getStringValue());
+                        break;
+                    case "waitCount":
+                        writeResult.addElement("waitCount").setText(data.getStringValue());
+                        break;
+                    case "waitPaiCount":
+                        writeResult.addElement("waitPaiCount").setText(data.getStringValue());
                         break;
                     case "yaku":
                         writeResult.addElement("yaku").setText(data.getStringValue());
@@ -850,10 +893,13 @@ public class GameAnnouncer implements Observer {
         } catch (DocumentException e) {
         }
         final Element result = writeRoot.addElement("result");
+        result.addElement("calledMenTsuCount").setText(addCalledMenTsuCount);
         result.addElement("completableTurn").setText(addCompletableTurn);
-        result.addElement("completeType").setText(addCompleteType);
         result.addElement("completeTurn").setText(addCompleteTurn);
+        result.addElement("completeType").setText(addCompleteType);
         result.addElement("point").setText(addPoint);
+        result.addElement("waitCount").setText(addWaitCount);
+        result.addElement("waitPaiCount").setText(addWaitPaiCount);
         result.addElement("yaku").setText(addYaku);
 
         XMLWriter writer = null;
