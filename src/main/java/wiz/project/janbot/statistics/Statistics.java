@@ -294,11 +294,11 @@ public final class Statistics {
      */
     private String fourCalledRate() {
         final int fourCalledCount = getFourCalledCount();
-        final int playCountWithWaitCount = getPlayCountWithWaitCount();
-        final double fourCalledRate = (double) fourCalledCount * 100 / (double) playCountWithWaitCount;
+        final int playCountWithCalledCount = getPlayCountWithCalledCount();
+        final double fourCalledRate = (double) fourCalledCount * 100 / (double) playCountWithCalledCount;
         final String fourCalledRateString = String.format("%.2f", fourCalledRate);
 
-        return "4副露率: " + fourCalledRateString + " % (" + fourCalledCount + "/" + playCountWithWaitCount + ")";
+        return "4副露率: " + fourCalledRateString + " % (" + fourCalledCount + "/" + playCountWithCalledCount + ")";
     }
 
     /**
@@ -446,6 +446,20 @@ public final class Statistics {
             playCount += statistics.getPlayCount();
         }
         return playCount;
+    }
+
+    /**
+     * 副露回数があるゲーム回数を取得
+     *
+     * @return 副露回数があるゲーム回数。
+     */
+    private int getPlayCountWithCalledCount() {
+        int playCountWithCalledCount = 0;
+
+        for (final PersonalStatistics statistics : _statisticsTable.values()) {
+            playCountWithCalledCount += statistics.getPlayCountWithCalledCount();
+        }
+        return playCountWithCalledCount;
     }
 
     /**
@@ -723,11 +737,11 @@ public final class Statistics {
      */
     private String oneCalledRate() {
         final int oneCalledCount = getOneCalledCount();
-        final int playCountWithWaitCount = getPlayCountWithWaitCount();
-        final double oneCalledRate = (double) oneCalledCount * 100 / (double) playCountWithWaitCount;
+        final int playCountWithCalledCount = getPlayCountWithCalledCount();
+        final double oneCalledRate = (double) oneCalledCount * 100 / (double) playCountWithCalledCount;
         final String oneCalledRateString = String.format("%.2f", oneCalledRate);
 
-        return "1副露率: " + oneCalledRateString + " % (" + oneCalledCount + "/" + playCountWithWaitCount + ")";
+        return "1副露率: " + oneCalledRateString + " % (" + oneCalledCount + "/" + playCountWithCalledCount + ")";
     }
 
     /**
@@ -814,11 +828,11 @@ public final class Statistics {
      */
     private String threeCalledRate() {
         final int threeCalledCount = getThreeCalledCount();
-        final int playCountWithWaitCount = getPlayCountWithWaitCount();
-        final double threeCalledRate = (double) threeCalledCount * 100 / (double) playCountWithWaitCount;
+        final int playCountWithCalledCount = getPlayCountWithCalledCount();
+        final double threeCalledRate = (double) threeCalledCount * 100 / (double) playCountWithCalledCount;
         final String threeCalledRateString = String.format("%.2f", threeCalledRate);
 
-        return "3副露率: " + threeCalledRateString + " % (" + threeCalledCount + "/" + playCountWithWaitCount + ")";
+        return "3副露率: " + threeCalledRateString + " % (" + threeCalledCount + "/" + playCountWithCalledCount + ")";
     }
 
     /**
@@ -952,11 +966,11 @@ public final class Statistics {
      */
     private String twoCalledRate() {
         final int twoCalledCount = getTwoCalledCount();
-        final int playCountWithWaitCount = getPlayCountWithWaitCount();
-        final double twoCalledRate = (double) twoCalledCount * 100 / (double) playCountWithWaitCount;
+        final int playCountWithCalledCount = getPlayCountWithCalledCount();
+        final double twoCalledRate = (double) twoCalledCount * 100 / (double) playCountWithCalledCount;
         final String twoCalledRateString = String.format("%.2f", twoCalledRate);
 
-        return "2副露率: " + twoCalledRateString + " % (" + twoCalledCount + "/" + playCountWithWaitCount + ")";
+        return "2副露率: " + twoCalledRateString + " % (" + twoCalledCount + "/" + playCountWithCalledCount + ")";
     }
 
     /**

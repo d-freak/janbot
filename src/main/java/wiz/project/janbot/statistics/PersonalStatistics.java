@@ -144,6 +144,7 @@ public final class PersonalStatistics {
                         break;
                     case "waitCount":
                         _waitCountSum += Integer.parseInt(valueString);
+                        _playCountWithWaitCount++;
                         break;
                     case "waitPaiCount":
                         _waitPaiCountSum += Integer.parseInt(valueString);
@@ -273,12 +274,12 @@ public final class PersonalStatistics {
     }
 
     /**
-     * 役があるゲーム回数を取得
+     * 副露回数があるゲーム回数を取得
      *
-     * @return 役があるゲーム回数。
+     * @return 副露回数があるゲーム回数。
      */
-    public int getPlayCountWithYaku() {
-        return _playCountWithYaku;
+    public int getPlayCountWithCalledCount() {
+        return _playCountWithCalledCount;
     }
 
     /**
@@ -287,7 +288,16 @@ public final class PersonalStatistics {
      * @return 待ち数があるゲーム回数。
      */
     public int getPlayCountWithWaitCount() {
-        return _playCountWithCalledCount;
+        return _playCountWithWaitCount;
+    }
+
+    /**
+     * 役があるゲーム回数を取得
+     *
+     * @return 役があるゲーム回数。
+     */
+    public int getPlayCountWithYaku() {
+        return _playCountWithYaku;
     }
 
     /**
@@ -516,8 +526,8 @@ public final class PersonalStatistics {
     public double waitCountAverage() {
         double waitCountAverage = 0.0;
 
-        if (_playCountWithCalledCount != 0) {
-            waitCountAverage = (double) _waitCountSum / (double) _completableCount;
+        if (_playCountWithWaitCount != 0) {
+            waitCountAverage = (double) _waitCountSum / (double) _playCountWithWaitCount;
         }
         return waitCountAverage;
     }
@@ -528,8 +538,8 @@ public final class PersonalStatistics {
     public double waitPaiCountAverage() {
         double waitPaiCountAverage = 0.0;
 
-        if (_playCountWithCalledCount != 0) {
-            waitPaiCountAverage = (double) _waitPaiCountSum / (double) _completableCount;
+        if (_playCountWithWaitCount != 0) {
+            waitPaiCountAverage = (double) _waitPaiCountSum / (double) _playCountWithWaitCount;
         }
         return waitPaiCountAverage;
     }
@@ -575,6 +585,11 @@ public final class PersonalStatistics {
      * 副露回数があるゲーム回数
      */
     private int _playCountWithCalledCount = 0;
+
+    /**
+     * 待ち数があるゲーム回数
+     */
+    private int _playCountWithWaitCount = 0;
 
     /**
      * 役があるゲーム回数
