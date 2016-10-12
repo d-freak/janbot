@@ -189,7 +189,7 @@ public class GameAnnouncer implements Observer {
                     else {
                         paiList = info.getSingleJanPaiList(playerWind, false);
                     }
-                    messageList.addAll(getOutsString(info, isConfirm, paiList));
+                    messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
                     break;
                 default:
                 }
@@ -230,7 +230,7 @@ public class GameAnnouncer implements Observer {
                 else {
                     paiList = info.getSingleJanPaiList(playerWind, true);
                 }
-                messageList.addAll(getOutsString(info, isConfirm, paiList));
+                messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
             }
         }
         if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
@@ -629,6 +629,60 @@ public class GameAnnouncer implements Observer {
             return messageList;
         }
         messageList.addAll(statistics.getRanking());
+        return messageList;
+    }
+
+    /**
+     * 七対モードの残り枚数テーブルの文字列を取得
+     * ※ 残り枚数が3枚の場合は表示しない
+     *
+     * @param info ゲーム情報。
+     * @param flagSet 実況フラグ。
+     * @param paiList 牌リスト。
+     * @return 残り枚数テーブルの文字列。
+     */
+    private List<String> getSeventhOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
+    	final List<String> messageList = new ArrayList<>();
+        final boolean isEmpty = paiList.isEmpty();
+
+        if (isEmpty) {
+        	return messageList;
+        }
+        final Wind playerWind = getPlayerWind(info);
+        Map<JanPai, Integer> outs = null;
+
+        if (isConfirm) {
+            outs = info.getOutsOnConfirm(paiList, playerWind);
+        }
+        else {
+            outs = info.getOuts(paiList, playerWind);
+        }
+        final StringBuilder buf = new StringBuilder();
+        int total = 0;
+        int count = 1;
+
+        for (final JanPai pai : outs.keySet()) {
+            final Integer outsCount = outs.get(pai);
+            
+            if (outsCount == 3) {
+                continue;
+            }
+            buf.append(convertJanPaiToString(pai));
+            buf.append("：残り" + outsCount.toString() + "枚, ");
+            total += outsCount;
+
+            if (count % 9 == 0) {
+                messageList.add(buf.toString());
+                buf.delete(0, buf.length());
+            }
+            count++;
+        }
+        final int length = buf.length();
+        
+        if (length != 0) {
+            buf.append("計：残り" + total + "枚");
+            messageList.add(buf.toString());
+        }
         return messageList;
     }
 
