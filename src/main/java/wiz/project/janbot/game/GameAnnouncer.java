@@ -184,10 +184,10 @@ public class GameAnnouncer implements Observer {
                     break;
                 case SEVENTH:
                     if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-                        paiList = info.getSingleJanPaiList(playerWind, true);
+                        paiList = info.getOddJanPaiList(playerWind, true);
                     }
                     else {
-                        paiList = info.getSingleJanPaiList(playerWind, false);
+                        paiList = info.getOddJanPaiList(playerWind, false);
                     }
                     messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
                     break;
@@ -225,10 +225,10 @@ public class GameAnnouncer implements Observer {
                 List<JanPai> paiList = new ArrayList<>();
 
                 if (isConfirm) {
-                    paiList = info.getSingleJanPaiList(playerWind, false);
+                    paiList = info.getOddJanPaiList(playerWind, false);
                 }
                 else {
-                    paiList = info.getSingleJanPaiList(playerWind, true);
+                    paiList = info.getOddJanPaiList(playerWind, true);
                 }
                 messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
             }
@@ -556,12 +556,6 @@ public class GameAnnouncer implements Observer {
      * @return 残り枚数テーブルの文字列。
      */
     private List<String> getOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
-    	final List<String> messageList = new ArrayList<>();
-        final boolean isEmpty = paiList.isEmpty();
-
-        if (isEmpty) {
-        	return messageList;
-        }
         final Wind playerWind = getPlayerWind(info);
         Map<JanPai, Integer> outs = null;
 
@@ -571,15 +565,21 @@ public class GameAnnouncer implements Observer {
         else {
             outs = info.getOuts(paiList, playerWind);
         }
+        final List<String> messageList = new ArrayList<>();
         final StringBuilder buf = new StringBuilder();
         int total = 0;
         int count = 1;
+        boolean isEmptyBuf = true;
 
         for (final JanPai pai : outs.keySet()) {
             final Integer outsCount = outs.get(pai);
             buf.append(convertJanPaiToString(pai));
             buf.append("：残り" + outsCount.toString() + "枚, ");
             total += outsCount;
+            
+            if (isEmptyBuf) {
+                isEmptyBuf = false;
+            }
 
             if (count % 9 == 0) {
                 messageList.add(buf.toString());
@@ -587,9 +587,11 @@ public class GameAnnouncer implements Observer {
             }
             count++;
         }
-        buf.append("計：残り" + total + "枚");
-        messageList.add(buf.toString());
-
+        
+        if (!isEmptyBuf) {
+            buf.append("計：残り" + total + "枚");
+            messageList.add(buf.toString());
+        }
         return messageList;
     }
 
@@ -642,12 +644,6 @@ public class GameAnnouncer implements Observer {
      * @return 残り枚数テーブルの文字列。
      */
     private List<String> getSeventhOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
-    	final List<String> messageList = new ArrayList<>();
-        final boolean isEmpty = paiList.isEmpty();
-
-        if (isEmpty) {
-        	return messageList;
-        }
         final Wind playerWind = getPlayerWind(info);
         Map<JanPai, Integer> outs = null;
 
@@ -657,9 +653,11 @@ public class GameAnnouncer implements Observer {
         else {
             outs = info.getOuts(paiList, playerWind);
         }
+        final List<String> messageList = new ArrayList<>();
         final StringBuilder buf = new StringBuilder();
         int total = 0;
         int count = 1;
+        boolean isEmptyBuf = true;
 
         for (final JanPai pai : outs.keySet()) {
             final Integer outsCount = outs.get(pai);
@@ -670,6 +668,10 @@ public class GameAnnouncer implements Observer {
             buf.append(convertJanPaiToString(pai));
             buf.append("：残り" + outsCount.toString() + "枚, ");
             total += outsCount;
+            
+            if (isEmptyBuf) {
+                isEmptyBuf = false;
+            }
 
             if (count % 9 == 0) {
                 messageList.add(buf.toString());
@@ -677,9 +679,8 @@ public class GameAnnouncer implements Observer {
             }
             count++;
         }
-        final int length = buf.length();
         
-        if (length != 0) {
+        if (!isEmptyBuf) {
             buf.append("計：残り" + total + "枚");
             messageList.add(buf.toString());
         }

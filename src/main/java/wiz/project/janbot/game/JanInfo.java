@@ -493,13 +493,13 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
-     * 手牌で1枚だけの牌リストを取得
+     * 手牌で奇数枚だけの牌リストを取得
      * 
      * @param wind 風。
      * @param isTsumo ツモっているか。
-     * @return 手牌で1枚だけの牌リスト。
+     * @return 手牌で奇数枚だけの牌リスト。
      */
-    public List<JanPai> getSingleJanPaiList(final Wind wind, final boolean isTsumo) {
+    public List<JanPai> getOddJanPaiList(final Wind wind, final boolean isTsumo) {
         final List<JanPai> paiList = new ArrayList<>();
         Map<JanPai, Integer> paiMap = new TreeMap<JanPai, Integer>();
         final int usableSize = getHand(wind).getUsableSize();
@@ -515,7 +515,7 @@ public final class JanInfo extends Observable implements Cloneable {
         for (final JanPai pai : paiMap.keySet()) {
             final int paiCount = paiMap.get(pai);
             
-            if (paiCount == 1) {
+            if (paiCount % 2 == 1) {
                 paiList.add(pai);
             }
         }
