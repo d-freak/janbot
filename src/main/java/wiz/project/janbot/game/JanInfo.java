@@ -1267,21 +1267,16 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param completableJanPaiList 待ち牌リスト。
      */
     private void setCompletableJanPaiList(final Wind wind, final List<JanPai> completableJanPaiList) {
-        final List<JanPai> oldCompletableJanPaiList = _completableJanPaiTable.get(wind);
-        final boolean isContainsAll = completableJanPaiList.containsAll(oldCompletableJanPaiList);
+        final List<JanPai> addJanPaiList = deepCopyList(completableJanPaiList);
         
-        if (isContainsAll) {
-            final List<JanPai> addJanPaiList = deepCopyList(completableJanPaiList);
-            addJanPaiList.removeAll(oldCompletableJanPaiList);
+        for (final JanPai pai : addJanPaiList) {
+            final int outs = getOutsOnConfirm(pai, wind);
             
-            for (final JanPai pai : addJanPaiList) {
-                final int outs = getOutsOnConfirm(pai, wind);
-                
-                if (outs == 0) {
-                    completableJanPaiList.remove(pai);
-                }
+            if (outs == 0) {
+                completableJanPaiList.remove(pai);
             }
         }
+        final List<JanPai> oldCompletableJanPaiList = _completableJanPaiTable.get(wind);
         final boolean isEmpty = oldCompletableJanPaiList.isEmpty();
         final boolean isEquals = completableJanPaiList.equals(oldCompletableJanPaiList);
         
