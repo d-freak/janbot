@@ -115,11 +115,11 @@ public final class Statistics {
      */
     private String calledRate() {
         final int calledCount = getOneCalledCount() + getTwoCalledCount() + getThreeCalledCount() + getFourCalledCount();
-        final int playCountWithWaitCount = getPlayCountWithWaitCount();
-        final double calledRate = (double) calledCount * 100 / (double) playCountWithWaitCount;
+        final int playCountWithCalledCount = getPlayCountWithCalledCount();
+        final double calledRate = (double) calledCount * 100 / (double) playCountWithCalledCount;
         final String calledRateString = String.format("%.2f", calledRate);
 
-        return "副露率: " + calledRateString + " % (" + calledCount + "/" + playCountWithWaitCount + ")";
+        return "副露率: " + calledRateString + " % (" + calledCount + "/" + playCountWithCalledCount + ")";
     }
 
     /**
