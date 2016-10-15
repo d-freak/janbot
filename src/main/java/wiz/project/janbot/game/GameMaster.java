@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,6 +24,7 @@ import wiz.project.ircbot.IRCBOT;
 import wiz.project.jan.JanPai;
 import wiz.project.jan.Wind;
 import wiz.project.jan.util.JanPaiUtil;
+import wiz.project.janbot.game.exception.CallableException;
 import wiz.project.janbot.game.exception.InvalidInputException;
 import wiz.project.janbot.game.exception.JanException;
 import wiz.project.janbot.statistics.StatisticsParam;
@@ -93,7 +95,15 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _controller.call(playerName, CallType.CHI, convertStringToJanPai(target));
+                _historyList.push(new CommandHistory(HistoryType.CHI, _controller.getGameInfo(), target));
+                
+                try {
+                    _controller.call(playerName, CallType.CHI, convertStringToJanPai(target));
+                }
+                catch (final JanException e) {
+                    _historyList.pop();
+                    throw e;
+                }
             }
         }
     }
@@ -129,16 +139,40 @@ public class GameMaster {
             final JanInfo info = _controller.getGameInfo();
             if (!info.isActivePlayer(playerName)) {
                 // 大明カン
-                _controller.call(playerName, CallType.KAN_LIGHT, targetPai);
+                _historyList.push(new CommandHistory(HistoryType.KAN_LIGHT, _controller.getGameInfo(), target));
+                
+                try {
+                    _controller.call(playerName, CallType.KAN_LIGHT, targetPai);
+                }
+                catch (final JanException e) {
+                    _historyList.pop();
+                    throw e;
+                }
             }
             else {
                 if (info.getActiveHand().getMenZenMap().get(targetPai) < 3) {
                     // 加カン
-                    _controller.call(playerName, CallType.KAN_ADD, targetPai);
+                    _historyList.push(new CommandHistory(HistoryType.KAN_ADD, _controller.getGameInfo(), target));
+                    
+                    try {
+                        _controller.call(playerName, CallType.KAN_ADD, targetPai);
+                    }
+                    catch (final JanException e) {
+                        _historyList.pop();
+                        throw e;
+                    }
                 }
                 else {
                     // 暗カン
-                    _controller.call(playerName, CallType.KAN_DARK, targetPai);
+                    _historyList.push(new CommandHistory(HistoryType.KAN_DARK, _controller.getGameInfo(), target));
+                    
+                    try {
+                        _controller.call(playerName, CallType.KAN_DARK, targetPai);
+                    }
+                    catch (final JanException e) {
+                        _historyList.pop();
+                        throw e;
+                    }
                 }
             }
         }
@@ -168,7 +202,15 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _controller.call(playerName, CallType.PON, null);
+                _historyList.push(new CommandHistory(HistoryType.PON, _controller.getGameInfo()));
+                
+                try {
+                    _controller.call(playerName, CallType.PON, null);
+                }
+                catch (final JanException e) {
+                    _historyList.pop();
+                    throw e;
+                }
             }
         }
     }
@@ -197,7 +239,15 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _controller.completeRon(playerName);
+                _historyList.push(new CommandHistory(HistoryType.RON, _controller.getGameInfo()));
+                
+                try {
+                    _controller.completeRon(playerName);
+                }
+                catch (final JanException e) {
+                    _historyList.pop();
+                    throw e;
+                }
             }
         }
     }
@@ -226,7 +276,15 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (_controller.getGameInfo().isActivePlayer(playerName)) {
-                _controller.completeTsumo();
+                _historyList.push(new CommandHistory(HistoryType.TSUMO, _controller.getGameInfo()));
+                
+                try {
+                    _controller.completeTsumo();
+                }
+                catch (final JanException e) {
+                    _historyList.pop();
+                    throw e;
+                }
             }
         }
     }
@@ -290,12 +348,23 @@ public class GameMaster {
         }
         
         synchronized (_CONTROLLER_LOCK) {
-            _controller.next();
+            _historyList.push(new CommandHistory(HistoryType.CONTINUE, _controller.getGameInfo()));
+            
+            try {
+                _controller.next();
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
     /**
-     * 打牌処理
+     * 打牌処理 (ツモ切り)
      * 
      * @throws JanException ゲーム処理エラー。
      */
@@ -309,12 +378,23 @@ public class GameMaster {
         }
         
         synchronized (_CONTROLLER_LOCK) {
-            _controller.discard();
+            _historyList.push(new CommandHistory(HistoryType.DISCARD_TSUMO, _controller.getGameInfo()));
+            
+            try {
+                _controller.discard();
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
     /**
-     * 打牌処理
+     * 打牌処理 (手出し)
      * 
      * @param target 捨て牌。
      * @throws JanException ゲーム処理エラー。
@@ -337,7 +417,18 @@ public class GameMaster {
         }
         final JanPai targetPai = convertStringToJanPai(target);
         synchronized (_CONTROLLER_LOCK) {
-            _controller.discard(targetPai);
+            _historyList.push(new CommandHistory(HistoryType.DISCARD, _controller.getGameInfo(), target));
+            
+            try {
+                _controller.discard(targetPai);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -481,8 +572,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -527,8 +630,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createChmJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -573,8 +688,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createTwmJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -660,8 +787,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -699,8 +838,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createChmJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -738,8 +889,20 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createTwmJanController(true);
-            _controller.start(deck, playerTable);
+            _historyList.push(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
+            
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+                throw e;
+            }
+            catch (final JanException e) {
+                _historyList.pop();
+                throw e;
+            }
         }
     }
     
@@ -772,6 +935,7 @@ public class GameMaster {
         
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
+            _historyList.clear();
             _controller = createJanController(false);
             _controller.start(deck, playerTable);
         }
@@ -794,6 +958,19 @@ public class GameMaster {
             final StatisticsParam param = new StatisticsParam(name, option);
             info.addObserver(_announcer);
             info.notifyObservers(param);
+        }
+    }
+    
+    /**
+     * 取り消し
+     * 
+     * @param name プレイヤー名。
+     * @throws JanException ゲーム処理エラー。
+     * @throws IOException ファイル入出力に失敗。
+     */
+    public void onUndo(final String name) throws JanException, IOException {
+        synchronized (_CONTROLLER_LOCK) {
+            undo(name);
         }
     }
     
@@ -1062,6 +1239,78 @@ public class GameMaster {
         return playerTable;
     }
     
+    /**
+     * 取り消し
+     * 
+     * @param name プレイヤー名。
+     * @throws JanException ゲーム処理エラー。
+     * @throws IOException ファイル入出力に失敗。
+     */
+    private void undo (final String name) throws JanException, IOException {
+        final int size = _historyList.size();
+        
+        if (size <= 1) {
+            IRCBOT.getInstance().println("--- No command ---");
+            return;
+        }
+        _historyList.pop();
+        
+        final CommandHistory history = _historyList.pop();
+        final JanInfo info = history.getJanInfo();
+        
+        _controller.setGameInfo(info);
+        
+        final HistoryType historyType = history.getHistoryType();
+        final String pai = history.getJanPai().replaceAll("[\\[\\]]", "");
+        
+        synchronized (_STATUS_LOCK) {
+            if (historyType == HistoryType.JPM || historyType == HistoryType.CHM || historyType == HistoryType.TWM) {
+                _status = GameStatus.IDLE;
+            }
+            else {
+                _status = GameStatus.PLAYING_SOLO;
+            }
+        }
+        
+        switch (historyType) {
+        case JPM:
+            onReplay(name);
+            break;
+        case CHM:
+            onReplayChm(name);
+            break;
+        case TWM:
+            onReplayTwm(name);
+            break;
+        case DISCARD_TSUMO:
+            onDiscard();
+            break;
+        case DISCARD:
+            onDiscard(pai);
+            break;
+        case CONTINUE:
+            onContinue();
+            break;
+        case RON:
+            onCompleteRon(name);
+            break;
+        case TSUMO:
+            onCompleteTsumo(name);
+            break;
+        case CHI:
+            onCallChi(name, pai);
+            break;
+        case PON:
+            onCallPon(name);
+            break;
+        case KAN_LIGHT:
+        case KAN_ADD:
+        case KAN_DARK:
+            onCallKan(name, pai);
+            break;
+        }
+    }
+    
     
     
     /**
@@ -1115,6 +1364,11 @@ public class GameMaster {
      * ゲーム実況者
      */
     private GameAnnouncer _announcer = new GameAnnouncer();
+    
+    /**
+     * コマンド履歴リスト
+     */
+    private LinkedList<CommandHistory> _historyList = new LinkedList<>();
     
 }
 

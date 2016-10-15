@@ -69,9 +69,6 @@ class TwmJanController implements JanController {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
         
         synchronized (_GAME_INFO_LOCK) {
             if (!_info.isValidPlayer(playerName)) {
@@ -130,9 +127,6 @@ class TwmJanController implements JanController {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
         
         synchronized (_GAME_INFO_LOCK) {
             if (!_info.isValidPlayer(playerName)) {
@@ -157,8 +151,6 @@ class TwmJanController implements JanController {
                     throw new BoneheadException("Furiten.");
                 }
                 _info.setCalledIndex(calledWind);
-                
-                _onGame = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
             }
             catch (final Throwable e) {
@@ -174,18 +166,12 @@ class TwmJanController implements JanController {
      * 和了 (ツモ)
      */
     public void completeTsumo() throws JanException {
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
-        
         synchronized (_GAME_INFO_LOCK) {
             final Map<JanPai, Integer> handWithTsumo = getHandMap(_info, _info.getActiveWind(), _info.getActiveTsumo());
             if (!HandCheckUtil.isComplete(handWithTsumo)) {
                 // チョンボ
                 throw new BoneheadException("Not completed.");
             }
-            
-            _onGame = false;
             _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_TSUMO);
         }
     }
@@ -194,10 +180,6 @@ class TwmJanController implements JanController {
      * 打牌 (ツモ切り)
      */
     public void discard() throws JanException {
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
-        
         _firstPhase = false;
         
         if (_afterCall) {
@@ -219,9 +201,6 @@ class TwmJanController implements JanController {
     public void discard(final JanPai target) throws JanException {
         if (target == null) {
             throw new NullPointerException("Discard target is null.");
-        }
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
         }
         
         synchronized (_GAME_INFO_LOCK) {
@@ -275,10 +254,6 @@ class TwmJanController implements JanController {
      * 次のプレイヤーの打牌へ
      */
     public void next() throws JanException {
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
-        
         _firstPhase = false;
         
         synchronized (_GAME_INFO_LOCK) {
@@ -291,10 +266,6 @@ class TwmJanController implements JanController {
      * リーチ
      */
     public void richi(final JanPai target) throws JanException {
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
-        
         // TODO リーチ対応
         // _onRichiフラグ見て何かしたい
         
@@ -302,6 +273,15 @@ class TwmJanController implements JanController {
         
         discard(target);
     }
+    
+    /**
+     * ゲーム情報を設定
+     * 
+     * @param ゲーム情報。
+     */
+    public void setGameInfo(final JanInfo info) {
+        _info.update(info);
+    };
     
     /**
      * 開始
@@ -319,12 +299,8 @@ class TwmJanController implements JanController {
         if (playerTable.size() != 4) {
             throw new IllegalArgumentException("Invalid player table size - " + playerTable.size());
         }
-        if (_onGame) {
-            throw new JanException("Game is already started.");
-        }
         
         synchronized (_GAME_INFO_LOCK) {
-            _onGame = true;
             _info.clear();
             
             // 席決めと山積み
@@ -812,7 +788,6 @@ class TwmJanController implements JanController {
      */
     private void onPhase() throws CallableException, GameSetException {
         if (_info.getRemainCount() == 0) {
-            _onGame = false;
             throw new GameSetException(GameSetStatus.GAME_OVER);
         }
         
@@ -910,11 +885,6 @@ class TwmJanController implements JanController {
      * 麻雀ゲーム情報
      */
     private JanInfo _info = new JanInfo();
-    
-    /**
-     * ゲーム中か
-     */
-    private volatile boolean _onGame = false;
     
     /**
      * 初巡フラグ

@@ -142,6 +142,15 @@ class VSJanController implements JanController {
     }
     
     /**
+     * ゲーム情報を設定
+     * 
+     * @param ゲーム情報。
+     */
+    public void setGameInfo(final JanInfo info) {
+        _info.update(info);
+    };
+    
+    /**
      * 開始
      */
     public void start(final List<JanPai> deck, final Map<Wind, Player> playerTable) throws JanException {

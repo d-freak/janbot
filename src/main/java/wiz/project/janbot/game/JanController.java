@@ -82,6 +82,13 @@ interface JanController {
     public void richi(final JanPai target) throws JanException;
     
     /**
+     * ゲーム情報を設定
+     * 
+     * @param ゲーム情報。
+     */
+    public void setGameInfo(final JanInfo info);
+    
+    /**
      * 開始
      * 
      * @param deck 牌山。

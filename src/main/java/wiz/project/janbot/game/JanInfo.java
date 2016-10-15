@@ -55,47 +55,7 @@ public final class JanInfo extends Observable implements Cloneable {
      * @param source 複製元。
      */
     public JanInfo(final JanInfo source) {
-        if (source != null) {
-            _playerTable = deepCopyMap(source._playerTable);
-            _deck = deepCopyList(source._deck);
-            _deckIndex = source._deckIndex;
-            _deckWallIndex = source._deckWallIndex;
-            _wanPai = source._wanPai.clone();
-            _fieldWind = source._fieldWind;
-            _activeWind = source._activeWind;
-            _remainCount = source._remainCount;
-            _activeTsumo = source._activeTsumo;
-            _activeDiscard = source._activeDiscard;
-            _watchingJanPaiList = deepCopyList(source._watchingJanPaiList);
-            _completeInfo = source._completeInfo;
-            _afterCall = source._afterCall;
-            _callKan = source._callKan;
-            
-            for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
-                _handTable.put(entry.getKey(), entry.getValue().clone());
-            }
-            for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
-                _riverTable.put(entry.getKey(), entry.getValue().clone());
-            }
-            for (final Entry<Wind, List<JanPai>> entry : source._completableJanPaiTable.entrySet()) {
-            	_completableJanPaiTable.put(entry.getKey(), entry.getValue());
-            }
-            for (final Entry<Wind, Integer> entry : source._completableTurnTable.entrySet()) {
-            	_completableTurnTable.put(entry.getKey(), entry.getValue());
-            }
-            for (final Entry<Wind, Integer> entry : source._turnTable.entrySet()) {
-                _turnTable.put(entry.getKey(), entry.getValue());
-            }
-            for (final Entry<Wind, List<JanPai>> entry : source._completeWait.entrySet()) {
-            	_completeWait.put(entry.getKey(), entry.getValue());
-            }
-            for (final Entry<Wind, List<JanPai>> entry : source._chiWait.entrySet()) {
-            	_chiWait.put(entry.getKey(), entry.getValue());
-            }
-            for (final Entry<Wind, List<JanPai>> entry : source._ponWait.entrySet()) {
-            	_ponWait.put(entry.getKey(), entry.getValue());
-            }
-        }
+        update(source);
     }
     
     
@@ -892,6 +852,55 @@ public final class JanInfo extends Observable implements Cloneable {
         }
         else {
         	_watchingJanPaiList.clear();
+        }
+    }
+    
+    /**
+     * 更新
+     * 
+     * @param source 更新元。
+     */
+    public void update(final JanInfo source) {
+        if (source != null) {
+            _playerTable = deepCopyMap(source._playerTable);
+            _deck = deepCopyList(source._deck);
+            _deckIndex = source._deckIndex;
+            _deckWallIndex = source._deckWallIndex;
+            _wanPai = source._wanPai.clone();
+            _fieldWind = source._fieldWind;
+            _activeWind = source._activeWind;
+            _remainCount = source._remainCount;
+            _activeTsumo = source._activeTsumo;
+            _activeDiscard = source._activeDiscard;
+            _watchingJanPaiList = deepCopyList(source._watchingJanPaiList);
+            _completeInfo = source._completeInfo;
+            _afterCall = source._afterCall;
+            _callKan = source._callKan;
+            
+            for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
+                _handTable.put(entry.getKey(), entry.getValue().clone());
+            }
+            for (final Entry<Wind, River> entry : source._riverTable.entrySet()) {
+                _riverTable.put(entry.getKey(), entry.getValue().clone());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._completableJanPaiTable.entrySet()) {
+            	_completableJanPaiTable.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, Integer> entry : source._completableTurnTable.entrySet()) {
+            	_completableTurnTable.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, Integer> entry : source._turnTable.entrySet()) {
+                _turnTable.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._completeWait.entrySet()) {
+            	_completeWait.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._chiWait.entrySet()) {
+            	_chiWait.put(entry.getKey(), entry.getValue());
+            }
+            for (final Entry<Wind, List<JanPai>> entry : source._ponWait.entrySet()) {
+            	_ponWait.put(entry.getKey(), entry.getValue());
+            }
         }
     }
     

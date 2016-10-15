@@ -7,6 +7,7 @@
 package wiz.project.janbot;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -86,6 +87,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
             else if (message.startsWith("jan d ")) {
                 GameMaster.getInstance().onDiscard(message.substring(6));
+            }
+            else if (message.equals("jan u")) {
+                GameMaster.getInstance().onUndo(playerName);
             }
             else if (message.equals("jan i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
@@ -187,6 +191,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "s：開始   s chm：中国麻雀を開始   s twm：台湾麻雀を開始   e：終了",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ   replay twm：台湾麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
+                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
@@ -289,7 +294,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
      * @param event イベント情報。
      * @throws JanException 例外イベント。
      */
-    private void onConfirmMessage(final MessageEvent<T> event) throws JanException {
+    private void onConfirmMessage(final MessageEvent<T> event) throws JanException, IOException {
         final String message = event.getMessage();
         final String playerName = event.getUser().getNick();
         try {
@@ -305,6 +310,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan d")) {
                 _confirmMode = false;
                 GameMaster.getInstance().onContinue();
+            }
+            else if (message.equals("jan u")) {
+                GameMaster.getInstance().onUndo(playerName);
             }
             else if (message.equals("jan i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
@@ -367,6 +375,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
                                   "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
                                   "※ ss, syはXにa llと指定すると全員分を表示、その場合範囲指定は無効",
+                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり",
                                   "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
                                   "ron, hu：ロン   ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
