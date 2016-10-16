@@ -95,13 +95,13 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _historyList.push(new CommandHistory(HistoryType.CHI, _controller.getGameInfo(), target));
+                _historyList.add(new CommandHistory(HistoryType.CHI, _controller.getGameInfo(), target));
                 
                 try {
                     _controller.call(playerName, CallType.CHI, convertStringToJanPai(target));
                 }
                 catch (final JanException e) {
-                    _historyList.pop();
+                    _historyList.pollLast();
                     throw e;
                 }
             }
@@ -139,38 +139,38 @@ public class GameMaster {
             final JanInfo info = _controller.getGameInfo();
             if (!info.isActivePlayer(playerName)) {
                 // 大明カン
-                _historyList.push(new CommandHistory(HistoryType.KAN_LIGHT, _controller.getGameInfo(), target));
+                _historyList.add(new CommandHistory(HistoryType.KAN_LIGHT, _controller.getGameInfo(), target));
                 
                 try {
                     _controller.call(playerName, CallType.KAN_LIGHT, targetPai);
                 }
                 catch (final JanException e) {
-                    _historyList.pop();
+                    _historyList.pollLast();
                     throw e;
                 }
             }
             else {
                 if (info.getActiveHand().getMenZenMap().get(targetPai) < 3) {
                     // 加カン
-                    _historyList.push(new CommandHistory(HistoryType.KAN_ADD, _controller.getGameInfo(), target));
+                    _historyList.add(new CommandHistory(HistoryType.KAN_ADD, _controller.getGameInfo(), target));
                     
                     try {
                         _controller.call(playerName, CallType.KAN_ADD, targetPai);
                     }
                     catch (final JanException e) {
-                        _historyList.pop();
+                        _historyList.pollLast();
                         throw e;
                     }
                 }
                 else {
                     // 暗カン
-                    _historyList.push(new CommandHistory(HistoryType.KAN_DARK, _controller.getGameInfo(), target));
+                    _historyList.add(new CommandHistory(HistoryType.KAN_DARK, _controller.getGameInfo(), target));
                     
                     try {
                         _controller.call(playerName, CallType.KAN_DARK, targetPai);
                     }
                     catch (final JanException e) {
-                        _historyList.pop();
+                        _historyList.pollLast();
                         throw e;
                     }
                 }
@@ -202,13 +202,13 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _historyList.push(new CommandHistory(HistoryType.PON, _controller.getGameInfo()));
+                _historyList.add(new CommandHistory(HistoryType.PON, _controller.getGameInfo()));
                 
                 try {
                     _controller.call(playerName, CallType.PON, null);
                 }
                 catch (final JanException e) {
-                    _historyList.pop();
+                    _historyList.pollLast();
                     throw e;
                 }
             }
@@ -239,13 +239,13 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
-                _historyList.push(new CommandHistory(HistoryType.RON, _controller.getGameInfo()));
+                _historyList.add(new CommandHistory(HistoryType.RON, _controller.getGameInfo()));
                 
                 try {
                     _controller.completeRon(playerName);
                 }
                 catch (final JanException e) {
-                    _historyList.pop();
+                    _historyList.pollLast();
                     throw e;
                 }
             }
@@ -276,13 +276,13 @@ public class GameMaster {
         
         synchronized (_CONTROLLER_LOCK) {
             if (_controller.getGameInfo().isActivePlayer(playerName)) {
-                _historyList.push(new CommandHistory(HistoryType.TSUMO, _controller.getGameInfo()));
+                _historyList.add(new CommandHistory(HistoryType.TSUMO, _controller.getGameInfo()));
                 
                 try {
                     _controller.completeTsumo();
                 }
                 catch (final JanException e) {
-                    _historyList.pop();
+                    _historyList.pollLast();
                     throw e;
                 }
             }
@@ -348,7 +348,7 @@ public class GameMaster {
         }
         
         synchronized (_CONTROLLER_LOCK) {
-            _historyList.push(new CommandHistory(HistoryType.CONTINUE, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.CONTINUE, _controller.getGameInfo()));
             
             try {
                 _controller.next();
@@ -357,7 +357,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -378,7 +378,7 @@ public class GameMaster {
         }
         
         synchronized (_CONTROLLER_LOCK) {
-            _historyList.push(new CommandHistory(HistoryType.DISCARD_TSUMO, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.DISCARD_TSUMO, _controller.getGameInfo()));
             
             try {
                 _controller.discard();
@@ -387,7 +387,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -417,7 +417,7 @@ public class GameMaster {
         }
         final JanPai targetPai = convertStringToJanPai(target);
         synchronized (_CONTROLLER_LOCK) {
-            _historyList.push(new CommandHistory(HistoryType.DISCARD, _controller.getGameInfo(), target));
+            _historyList.add(new CommandHistory(HistoryType.DISCARD, _controller.getGameInfo(), target));
             
             try {
                 _controller.discard(targetPai);
@@ -426,7 +426,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -447,6 +447,20 @@ public class GameMaster {
                 info.addObserver(_announcer);
                 info.notifyObservers(AnnounceFlag.GAME_END);
             }
+        }
+    }
+    
+    /**
+     * コマンド履歴表示
+     * 
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onHistory() throws JanException {
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            final HistoryParam param = new HistoryParam(_historyList);
+            info.addObserver(_announcer);
+            info.notifyObservers(param);
         }
     }
     
@@ -574,7 +588,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -583,7 +597,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -632,7 +646,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createChmJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -641,7 +655,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -690,7 +704,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createTwmJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -699,7 +713,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -789,7 +803,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -798,7 +812,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -840,7 +854,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createChmJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -849,7 +863,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -891,7 +905,7 @@ public class GameMaster {
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createTwmJanController(true);
-            _historyList.push(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
+            _historyList.add(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
             
             try {
                 _controller.start(deck, playerTable);
@@ -900,7 +914,7 @@ public class GameMaster {
                 throw e;
             }
             catch (final JanException e) {
-                _historyList.pop();
+                _historyList.pollLast();
                 throw e;
             }
         }
@@ -1253,9 +1267,9 @@ public class GameMaster {
             IRCBOT.getInstance().println("--- No command ---");
             return;
         }
-        _historyList.pop();
+        _historyList.pollLast();
         
-        final CommandHistory history = _historyList.pop();
+        final CommandHistory history = _historyList.pollLast();
         final JanInfo info = history.getJanInfo();
         
         _controller.setGameInfo(info);

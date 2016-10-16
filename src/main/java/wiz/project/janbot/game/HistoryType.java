@@ -16,67 +16,84 @@ public enum HistoryType {
     /**
      * 開始処理 (ソロ)
      */
-    JPM,
+    JPM("jan s"),
     
     /**
      * 開始処理 (中国麻雀・ソロ)
      */
-    CHM,
+    CHM("chm s"),
     
     /**
      * 開始処理 (台湾麻雀・ソロ)
      */
-    TWM,
+    TWM("twm s"),
     
     /**
      * 打牌処理 (ツモ切り)
      */
-    DISCARD_TSUMO,
+    DISCARD_TSUMO("jan d"),
     
     /**
      * 打牌処理 (手出し)
      */
-    DISCARD,
+    DISCARD("jan d "),
     
     /**
      * 副露せずに続行
      */
-    CONTINUE,
+    CONTINUE("jan d"),
     
     /**
      * ロン
      */
-    RON,
+    RON("jan ron"),
     
     /**
      * ツモ
      */
-    TSUMO,
+    TSUMO("jan tsumo"),
     
     /**
      * チー
      */
-    CHI,
+    CHI("jan chi "),
     
     /**
      * ポン
      */
-    PON,
+    PON("jan pon "),
     
     /**
      * 大明カン
      */
-    KAN_LIGHT,
+    KAN_LIGHT("jan kan "),
     
     /**
      * 加カン
      */
-    KAN_ADD,
+    KAN_ADD("jan kan "),
     
     /**
      * 暗カン
      */
-    KAN_DARK,
+    KAN_DARK("jan kan ");
+    
+    
+    
+    HistoryType(final String command) {
+        _command = command;
+    }
+    
+    
+    
+    @Override
+    public String toString() {
+        return _command;
+    }
+    
+    
+    
+    private String _command = "";
     
 }
 

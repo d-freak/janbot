@@ -75,11 +75,14 @@ public class GameAnnouncer implements Observer {
             else if (param instanceof AnnounceParam) {
                 updateOnSolo((JanInfo)target, (AnnounceParam) param);
             }
-            else if (param instanceof YakuParam) {
-                updateOnSolo((JanInfo)target, (YakuParam) param);
+            else if (param instanceof HistoryParam) {
+                updateOnSolo((JanInfo)target, (HistoryParam) param);
             }
             else if (param instanceof StatisticsParam) {
                 updateOnSolo((JanInfo)target, (StatisticsParam) param);
+            }
+            else if (param instanceof YakuParam) {
+                updateOnSolo((JanInfo)target, (YakuParam) param);
             }
         }
     }
@@ -293,6 +296,25 @@ public class GameAnnouncer implements Observer {
             
             printCompleteInfo(completeInfo);
         }
+    }
+
+    /**
+     * 状況更新時の処理
+     *
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
+     */
+    protected void updateOnSolo(final JanInfo info, final HistoryParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("History parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getHistoryString(param));
+
+        printMessage(messageList);
     }
 
     /**
@@ -684,6 +706,41 @@ public class GameAnnouncer implements Observer {
             buf.append("計：残り" + total + "枚");
             messageList.add(buf.toString());
         }
+        return messageList;
+    }
+
+    /**
+     * コマンド履歴の文字列を取得
+     *
+     * @param param 更新パラメータ。
+     * @return コマンド履歴の文字列。
+     */
+    private List<String> getHistoryString(final HistoryParam param) {
+        final List<String> messageList = new ArrayList<>();
+        final List<CommandHistory> historyList = param.getHistoryList();
+        final StringBuilder buf = new StringBuilder();
+        int count = 1;
+        
+        for (final CommandHistory history : historyList) {
+            final HistoryType historyType = history.getHistoryType();
+            
+            buf.append(historyType.toString());
+            
+            final String pai = history.getJanPai();
+            
+            if (!pai.equals("")) {
+                buf.append(pai);
+            }
+            buf.append(", ");
+            
+            if (count % 9 == 0) {
+                messageList.add(buf.toString());
+                buf.delete(0, buf.length());
+            }
+        }
+        messageList.add(buf.toString());
+        buf.delete(0, buf.length());
+        
         return messageList;
     }
 

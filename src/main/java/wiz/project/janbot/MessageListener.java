@@ -112,6 +112,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan 7th")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
             }
+            else if (message.equals("jan h")) {
+                GameMaster.getInstance().onHistory();
+            }
 //            else if (message.startsWith("jan ri- ")) {
 //                TODO リーチ対応
 //                GameMaster.getInstance().onRichi(message.substring(8));
@@ -191,7 +194,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "s：開始   s chm：中国麻雀を開始   s twm：台湾麻雀を開始   e：終了",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ   replay twm：台湾麻雀でリプレイ",
                                   "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
-                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり",
+                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり h：コマンド履歴表示",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
@@ -332,6 +335,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan 7th")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
             }
+            else if (message.equals("jan h")) {
+                GameMaster.getInstance().onHistory();
+            }
             else if (message.startsWith("jan chi ")) {
                 _confirmMode = false;
                 GameMaster.getInstance().onCallChi(playerName, message.substring(8));
@@ -375,7 +381,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
                                   "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
                                   "※ ss, syはXにa llと指定すると全員分を表示、その場合範囲指定は無効",
-                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり",
+                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり h：コマンド履歴表示",
                                   "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
                                   "ron, hu：ロン   ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
