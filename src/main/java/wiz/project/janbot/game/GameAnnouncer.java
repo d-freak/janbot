@@ -46,15 +46,15 @@ import wiz.project.janbot.statistics.YakuParam;
  * ゲーム実況者
  */
 public class GameAnnouncer implements Observer {
-
+    
     /**
      * コンストラクタ
      */
     public GameAnnouncer() {
     }
-
-
-
+    
+    
+    
     /**
      * 状況更新時の処理
      *
@@ -86,9 +86,9 @@ public class GameAnnouncer implements Observer {
             }
         }
     }
-
-
-
+    
+    
+    
     /**
      * 中国麻雀フラグを設定
      *
@@ -97,9 +97,9 @@ public class GameAnnouncer implements Observer {
     public void setIsChm(final boolean isChm) {
     	_isChm = isChm;
     }
-
-
-
+    
+    
+    
     /**
      * 副露された雀牌を文字列に変換
      *
@@ -113,7 +113,7 @@ public class GameAnnouncer implements Observer {
         buf.append(COLOR_FLAG);
         return buf.toString();
     }
-
+    
     /**
      * 雀牌を文字列に変換
      *
@@ -127,7 +127,7 @@ public class GameAnnouncer implements Observer {
         buf.append(COLOR_FLAG);
         return buf.toString();
     }
-
+    
     /**
      * 状況更新時の処理
      *
@@ -141,7 +141,7 @@ public class GameAnnouncer implements Observer {
         if (param == null) {
             throw new NullPointerException("Announce parameter is null.");
         }
-
+        
         final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
         final Wind playerWind = getPlayerWind(info);
         final List<String> messageList = new ArrayList<>();
@@ -173,13 +173,13 @@ public class GameAnnouncer implements Observer {
             messageList.clear();
         }
         final boolean isConfirm = flagSet.contains(AnnounceFlag.CONFIRM);
-
+        
         if (flagSet.contains(AnnounceFlag.HAND)) {
             messageList.add(convertHandToString(playerWind, info, flagSet));
-
+            
             if (isSelectingDiscard(flagSet)) {
                 List<JanPai> paiList = new ArrayList<>();
-
+                
                 switch (_announceMode) {
                 case WATCH:
                     paiList = info.getWatchingJanPaiList();
@@ -201,7 +201,7 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.WATCHING_START)) {
             _announceMode = AnnounceMode.WATCH;
             messageList.add("監視モードを有効にしました。");
-
+            
             final List<JanPai> paiList = info.getWatchingJanPaiList();
             messageList.addAll(getOutsString(info, isConfirm, paiList));
         }
@@ -213,7 +213,7 @@ public class GameAnnouncer implements Observer {
         }
         if (flagSet.contains(AnnounceFlag.OUTS)) {
             final List<JanPai> paiList = param.getPaiList();
-
+            
             messageList.addAll(getOutsString(info, isConfirm, paiList));
         }
         if (flagSet.contains(AnnounceFlag.SEVENTH)) {
@@ -224,9 +224,9 @@ public class GameAnnouncer implements Observer {
             else {
                 _announceMode = AnnounceMode.SEVENTH;
                 messageList.add("七対モードを有効にしました。");
-
+                
                 List<JanPai> paiList = new ArrayList<>();
-
+                
                 if (isConfirm) {
                     paiList = info.getOddJanPaiList(playerWind, false);
                 }
@@ -248,12 +248,12 @@ public class GameAnnouncer implements Observer {
             messageList.add("---- 流局 ----");
             recordResultXml(info);
         }
-
+        
         if (flagSet.contains(AnnounceFlag.GAME_END)) {
             messageList.add("--- 終了 ---");
             _announceMode = AnnounceMode.NORMAL;
         }
-
+        
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
             final int completableTurn = info.getCompletableTurnCount(playerWind);
             
@@ -263,41 +263,41 @@ public class GameAnnouncer implements Observer {
             
             messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
         }
-
+        
         if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT_AND_NO_OUTS)) {
             messageList.add("8点縛りを超えていますが、和了牌がありません。");
         }
-
+        
         if (flagSet.contains(AnnounceFlag.END_OVER_TIED_POINT)) {
             messageList.add("8点縛り超えが終了しました。");
         }
-
+        
         if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
             final int totalPoint = info.getCompleteInfo().getTotalPoint();
-
+            
             messageList.add((8 - totalPoint) + "点足りません");
         }
-
+        
         if (flagSet.contains(AnnounceFlag.CHANGE_WAIT)) {
             messageList.add("待ちが変わりました。");
-
+            
             final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
-
+            
             messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
         }
-
+        
         if (flagSet.contains(AnnounceFlag.RANKING)) {
             messageList.addAll(getRankingString());
         }
         printMessage(messageList);
-
+        
         if (flagSet.contains(AnnounceFlag.SCORE)) {
             final ChmCompleteInfo completeInfo = info.getCompleteInfo();
             
             printCompleteInfo(completeInfo);
         }
     }
-
+    
     /**
      * 状況更新時の処理
      *
@@ -313,10 +313,10 @@ public class GameAnnouncer implements Observer {
         }
         final List<String> messageList = new ArrayList<>();
         messageList.addAll(getHistoryString(param));
-
+        
         printMessage(messageList);
     }
-
+    
     /**
      * 状況更新時の処理
      *
@@ -332,10 +332,10 @@ public class GameAnnouncer implements Observer {
         }
         final List<String> messageList = new ArrayList<>();
         messageList.addAll(getStatisticsString(param));
-
+        
         printMessage(messageList);
     }
-
+    
     /**
      * 状況更新時の処理
      *
@@ -351,12 +351,12 @@ public class GameAnnouncer implements Observer {
         }
         final List<String> messageList = new ArrayList<>();
         messageList.addAll(getYakuStatisticsString(param));
-
+        
         printMessage(messageList);
     }
-
-
-
+    
+    
+    
     /**
      * 副露情報を文字列に変換
      *
@@ -387,7 +387,7 @@ public class GameAnnouncer implements Observer {
         }
         return buf.toString();
     }
-
+    
     /**
      * 場情報を文字列に変換
      *
@@ -400,7 +400,7 @@ public class GameAnnouncer implements Observer {
         final StringBuilder buf = new StringBuilder();
         buf.append("場風：").append(info.getFieldWind()).append("   ");
         buf.append("自風：").append(wind).append("   ");
-
+        
         if (!_isChm) {
             final WanPai wanPai = info.getWanPai();
             buf.append("ドラ：");
@@ -408,7 +408,7 @@ public class GameAnnouncer implements Observer {
                 buf.append(convertJanPaiToString(pai));
             }
             buf.append("   ");
-
+            
             if (includeUraDora) {
                 buf.append("裏ドラ：");
                 for (final JanPai pai : wanPai.getUraDoraList()) {
@@ -417,11 +417,11 @@ public class GameAnnouncer implements Observer {
                 buf.append("   ");
             }
         }
-
+        
         buf.append("残り枚数：").append(info.getRemainCount());
         return buf.toString();
     }
-
+    
     /**
      * 副露牌を文字列に変換
      *
@@ -433,7 +433,7 @@ public class GameAnnouncer implements Observer {
         if (hand.getFixedMenTsuCount() == 0) {
             return buf.toString();
         }
-
+        
         buf.append(" ");
         final List<MenTsu> fixedMenTsuList = hand.getFixedMenTsuList();
         Collections.reverse(fixedMenTsuList);
@@ -455,7 +455,7 @@ public class GameAnnouncer implements Observer {
         }
         return buf.toString();
     }
-
+    
     /**
      * 手牌を文字列に変換
      *
@@ -477,7 +477,7 @@ public class GameAnnouncer implements Observer {
         buf.append(convertFixedMenTsuToString(hand));
         return buf.toString();
     }
-
+    
     /**
      * 面前手牌を文字列に変換
      *
@@ -491,7 +491,7 @@ public class GameAnnouncer implements Observer {
         }
         return buf.toString();
     }
-
+    
     /**
      * 捨て牌リストを文字列に変換
      *
@@ -518,7 +518,7 @@ public class GameAnnouncer implements Observer {
         }
         return buf.toString();
     }
-
+    
     /**
      * 色コードを取得
      *
@@ -568,7 +568,7 @@ public class GameAnnouncer implements Observer {
             return "01";  // 黒
         }
     }
-
+    
     /**
      * 残り枚数テーブルの文字列を取得
      *
@@ -580,7 +580,7 @@ public class GameAnnouncer implements Observer {
     private List<String> getOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
         final Wind playerWind = getPlayerWind(info);
         Map<JanPai, Integer> outs = null;
-
+        
         if (isConfirm) {
             outs = info.getOutsOnConfirm(paiList, playerWind);
         }
@@ -592,7 +592,7 @@ public class GameAnnouncer implements Observer {
         int total = 0;
         int count = 1;
         boolean isEmptyBuf = true;
-
+        
         for (final JanPai pai : outs.keySet()) {
             final Integer outsCount = outs.get(pai);
             buf.append(convertJanPaiToString(pai));
@@ -602,7 +602,7 @@ public class GameAnnouncer implements Observer {
             if (isEmptyBuf) {
                 isEmptyBuf = false;
             }
-
+            
             if (count % 9 == 0) {
                 messageList.add(buf.toString());
                 buf.delete(0, buf.length());
@@ -616,7 +616,7 @@ public class GameAnnouncer implements Observer {
         }
         return messageList;
     }
-
+    
     /**
      * プレイヤーの風を取得
      *
@@ -631,7 +631,7 @@ public class GameAnnouncer implements Observer {
         }
         throw new InternalError();
     }
-
+    
     /**
      * ランキングの文字列を取得
      *
@@ -640,7 +640,7 @@ public class GameAnnouncer implements Observer {
     private List<String> getRankingString() {
         final List<String> messageList = new ArrayList<>();
         Statistics statistics = null;
-
+        
         try {
             statistics = new Statistics("all", 0, 0);
         }
@@ -655,7 +655,7 @@ public class GameAnnouncer implements Observer {
         messageList.addAll(statistics.getRanking());
         return messageList;
     }
-
+    
     /**
      * 七対モードの残り枚数テーブルの文字列を取得
      * ※ 残り枚数が3枚の場合は表示しない
@@ -668,7 +668,7 @@ public class GameAnnouncer implements Observer {
     private List<String> getSeventhOutsString(final JanInfo info, final boolean isConfirm, final List<JanPai> paiList) {
         final Wind playerWind = getPlayerWind(info);
         Map<JanPai, Integer> outs = null;
-
+        
         if (isConfirm) {
             outs = info.getOutsOnConfirm(paiList, playerWind);
         }
@@ -680,7 +680,7 @@ public class GameAnnouncer implements Observer {
         int total = 0;
         int count = 1;
         boolean isEmptyBuf = true;
-
+        
         for (final JanPai pai : outs.keySet()) {
             final Integer outsCount = outs.get(pai);
             
@@ -694,7 +694,7 @@ public class GameAnnouncer implements Observer {
             if (isEmptyBuf) {
                 isEmptyBuf = false;
             }
-
+            
             if (count % 9 == 0) {
                 messageList.add(buf.toString());
                 buf.delete(0, buf.length());
@@ -708,7 +708,7 @@ public class GameAnnouncer implements Observer {
         }
         return messageList;
     }
-
+    
     /**
      * コマンド履歴の文字列を取得
      *
@@ -743,7 +743,7 @@ public class GameAnnouncer implements Observer {
         
         return messageList;
     }
-
+    
     /**
      * 指定したプレイヤー名のゲーム統計の文字列を取得
      *
@@ -756,7 +756,7 @@ public class GameAnnouncer implements Observer {
         final int start = param.getStart();
         final int end = param.getEnd();
         Statistics statistics = null;
-
+        
         try {
             statistics = new Statistics(playerName, start, end);
         }
@@ -771,7 +771,7 @@ public class GameAnnouncer implements Observer {
         messageList.addAll(statistics.get());
         return messageList;
     }
-
+    
     /**
      * 待ち牌の残り枚数テーブルの文字列を取得
      *
@@ -783,14 +783,14 @@ public class GameAnnouncer implements Observer {
     private List<String> getWaitingOutsString(final JanInfo info, final EnumSet<AnnounceFlag> flagSet, final List<JanPai> paiList) {
         final LinkedList<String> messageList = new LinkedList<>();
         messageList.addAll(getOutsString(info, true, paiList));
-
+        
         String firstMessage = messageList.pollFirst();
         firstMessage = firstMessage.replaceFirst("^", "待ち牌：$0");
         messageList.addFirst(firstMessage);
-
+        
         return messageList;
     }
-
+    
     /**
      * 指定したプレイヤー名の役のゲーム統計の文字列を取得
      *
@@ -803,7 +803,7 @@ public class GameAnnouncer implements Observer {
         final int start = param.getStart();
         final int end = param.getEnd();
         Statistics statistics = null;
-
+        
         try {
             statistics = new Statistics(playerName, start, end);
         }
@@ -817,11 +817,11 @@ public class GameAnnouncer implements Observer {
         }
         final int maxCount = param.getMaxCount();
         final int minimumPoint = param.getMinimumPoint();
-
+        
         messageList.addAll(statistics.getYaku(maxCount, minimumPoint));
         return messageList;
     }
-
+    
     /**
      * 副露可能か
      *
@@ -836,7 +836,7 @@ public class GameAnnouncer implements Observer {
         }
         return false;
     }
-
+    
     /**
      * 捨て牌を選択中か
      *
@@ -847,17 +847,17 @@ public class GameAnnouncer implements Observer {
         if (flagSet.contains(AnnounceFlag.RIVER_SINGLE)) {
             return false;
         }
-
+        
         if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
             return true;
         }
-
+        
         if (flagSet.contains(AnnounceFlag.AFTER_CALL)) {
             return true;
         }
         return false;
     }
-
+    
     /**
      * 和了情報を出力
      *
@@ -872,7 +872,7 @@ public class GameAnnouncer implements Observer {
         }
         final boolean isRon = completeInfo.getCompleteType().isRon();
         final Integer total = completeInfo.getTotalPoint();
-
+        
         if (isRon) {
             IRCBOT.getInstance().println("合計" + total.toString() + "+8a点");
         }
@@ -880,7 +880,7 @@ public class GameAnnouncer implements Observer {
             IRCBOT.getInstance().println("合計(" + total.toString() + "+8)a点");
         }
     }
-
+    
     /**
      * メッセージを出力
      *
@@ -889,13 +889,13 @@ public class GameAnnouncer implements Observer {
     private void printMessage(final List<String> messageList) {
         final int maxLineCount = 6;
         int lineCount = 0;
-
+        
         for (; messageList.size() - lineCount > maxLineCount; lineCount += maxLineCount) {
             IRCBOT.getInstance().println(messageList.subList(lineCount, lineCount + maxLineCount));
         }
         IRCBOT.getInstance().println(messageList.subList(lineCount, messageList.size()));
     }
-
+    
     /**
      * ゲーム結果をxmlに保存
      *
@@ -944,7 +944,7 @@ public class GameAnnouncer implements Observer {
         }
         else {
             final boolean isRon = completeInfo.getCompleteType().isRon();
-
+            
             if (isRon) {
                 addCompleteType = "ron";
             }
@@ -956,7 +956,7 @@ public class GameAnnouncer implements Observer {
             addPoint = String.valueOf(completeInfo.getTotalPoint());
             addYaku = String.valueOf(completeInfo.getYakuList());
         }
-
+        
         final Document writeDocument = DocumentHelper.createDocument();
         final Element writeRoot = writeDocument.addElement("results");
         final String playerName = info.getPlayer(wind).getName();
@@ -968,11 +968,11 @@ public class GameAnnouncer implements Observer {
             for (final Object element : readRoot.elements()) {
                 final Element readResult = (Element) element;
                 final Element writeResult = writeRoot.addElement("result");
-
+                
                 for (final Object e : readResult.elements()) {
                     final Element data = (Element) e;
                     final String name = data.getName();
-
+                    
                     switch (name) {
                     case "calledMenTsuCount":
                         writeResult.addElement("calledMenTsuCount").setText(data.getStringValue());
@@ -1013,7 +1013,7 @@ public class GameAnnouncer implements Observer {
         result.addElement("waitCount").setText(addWaitCount);
         result.addElement("waitPaiCount").setText(addWaitPaiCount);
         result.addElement("yaku").setText(addYaku);
-
+        
         XMLWriter writer = null;
         try {
             final FileOutputStream outputStream = new FileOutputStream(path);
@@ -1030,25 +1030,25 @@ public class GameAnnouncer implements Observer {
             }
         }
     }
-
-
-
+    
+    
+    
     /**
      * 色付けフラグ
      */
     private static final char COLOR_FLAG = 3;
-
-
-
+    
+    
+    
     /**
      * 中国麻雀フラグ
      */
     private boolean _isChm = false;
-
+    
     /**
      * 実況モード
      */
     private AnnounceMode _announceMode = AnnounceMode.NORMAL;
-
+    
 }
 
