@@ -68,6 +68,11 @@ interface JanController {
     public JanInfo getGameInfo();
     
     /**
+     * ゲーム中かを取得
+     */
+    public boolean getOnGame();
+    
+    /**
      * 次のプレイヤーの打牌へ
      * 
      * @throws JanException 例外イベント。

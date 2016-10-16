@@ -983,7 +983,20 @@ public class GameMaster {
      * @throws IOException ファイル入出力に失敗。
      */
     public void onUndo(final String name) throws JanException, IOException {
+        // 開始判定
+        synchronized (_STATUS_LOCK) {
+            if (_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Not started ---");
+                return;
+            }
+        }
+        
         synchronized (_CONTROLLER_LOCK) {
+            final boolean onGame = _controller.getOnGame();
+            
+            if (!onGame) {
+                throw new JanException("Game is not started.");
+            }
             undo(name);
         }
     }

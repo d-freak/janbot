@@ -120,6 +120,13 @@ class VSJanController implements JanController {
     }
     
     /**
+     * ゲーム中かを取得
+     */
+    public boolean getOnGame() {
+        return _onGame;
+    }
+    
+    /**
      * 次のプレイヤーの打牌へ
      */
     public void next() throws JanException {
