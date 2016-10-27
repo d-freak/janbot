@@ -78,11 +78,11 @@ public class GameAnnouncer implements Observer {
             else if (param instanceof HistoryParam) {
                 updateOnSolo((JanInfo)target, (HistoryParam) param);
             }
-            else if (param instanceof StatisticsParam) {
-                updateOnSolo((JanInfo)target, (StatisticsParam) param);
-            }
             else if (param instanceof YakuParam) {
                 updateOnSolo((JanInfo)target, (YakuParam) param);
+            }
+            else if (param instanceof StatisticsParam) {
+                updateOnSolo((JanInfo)target, (StatisticsParam) param);
             }
         }
     }
