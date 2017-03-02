@@ -1,6 +1,6 @@
 /**
  * GameMaster.java
- * 
+ *
  * @author Yuki
  */
 
@@ -36,29 +36,29 @@ import wiz.project.janbot.statistics.YakuParam;
  * ゲーム管理
  */
 public class GameMaster {
-    
+
     /**
      * コンストラクタを自分自身に限定許可
      */
     protected GameMaster() {
     }
-    
-    
-    
+
+
+
     /**
      * インスタンスを取得
-     * 
+     *
      * @return インスタンス。
      */
     public static GameMaster getInstance() {
         return INSTANCE;
     }
-    
-    
-    
+
+
+
     /**
      * ゲームの状態を取得
-     * 
+     *
      * @return ゲームの状態。
      */
     public GameStatus getStatus() {
@@ -66,10 +66,10 @@ public class GameMaster {
             return _status;
         }
     }
-    
+
     /**
      * チー処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @param target 先頭牌。
      * @throws JanException ゲーム処理エラー。
@@ -84,7 +84,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new NullPointerException("Player name is empty.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -92,11 +92,11 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
                 _historyList.add(new CommandHistory(HistoryType.CHI, _controller.getGameInfo(), target));
-                
+
                 try {
                     _controller.call(playerName, CallType.CHI, convertStringToJanPai(target));
                 }
@@ -107,10 +107,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * カン処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @param target 対象牌。
      * @throws JanException ゲーム処理エラー。
@@ -125,7 +125,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new NullPointerException("Player name is empty.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -133,14 +133,14 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             final JanPai targetPai = convertStringToJanPai(target);
             final JanInfo info = _controller.getGameInfo();
             if (!info.isActivePlayer(playerName)) {
                 // 大明カン
                 _historyList.add(new CommandHistory(HistoryType.KAN_LIGHT, _controller.getGameInfo(), target));
-                
+
                 try {
                     _controller.call(playerName, CallType.KAN_LIGHT, targetPai);
                 }
@@ -153,7 +153,7 @@ public class GameMaster {
                 if (info.getActiveHand().getMenZenMap().get(targetPai) < 3) {
                     // 加カン
                     _historyList.add(new CommandHistory(HistoryType.KAN_ADD, _controller.getGameInfo(), target));
-                    
+
                     try {
                         _controller.call(playerName, CallType.KAN_ADD, targetPai);
                     }
@@ -165,7 +165,7 @@ public class GameMaster {
                 else {
                     // 暗カン
                     _historyList.add(new CommandHistory(HistoryType.KAN_DARK, _controller.getGameInfo(), target));
-                    
+
                     try {
                         _controller.call(playerName, CallType.KAN_DARK, targetPai);
                     }
@@ -177,10 +177,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * ポン処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      */
@@ -191,7 +191,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new NullPointerException("Player name is empty.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -199,11 +199,11 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
                 _historyList.add(new CommandHistory(HistoryType.PON, _controller.getGameInfo()));
-                
+
                 try {
                     _controller.call(playerName, CallType.PON, null);
                 }
@@ -214,10 +214,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * ロン和了処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      */
@@ -228,7 +228,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new NullPointerException("Player name is empty.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -236,11 +236,11 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             if (!_controller.getGameInfo().isActivePlayer(playerName)) {
                 _historyList.add(new CommandHistory(HistoryType.RON, _controller.getGameInfo()));
-                
+
                 try {
                     _controller.completeRon(playerName);
                 }
@@ -251,10 +251,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * ツモ和了処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      */
@@ -265,7 +265,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new NullPointerException("Player name is empty.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -273,11 +273,11 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             if (_controller.getGameInfo().isActivePlayer(playerName)) {
                 _historyList.add(new CommandHistory(HistoryType.TSUMO, _controller.getGameInfo()));
-                
+
                 try {
                     _controller.completeTsumo();
                 }
@@ -288,10 +288,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 指定牌の残り枚数表示(確認メッセージ用)
-     * 
+     *
      * @param target 指定牌。
      * @throws JanException ゲーム処理エラー。
      */
@@ -299,7 +299,7 @@ public class GameMaster {
         if (target == null) {
             throw new NullPointerException("Confirm outs target is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -307,7 +307,7 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         if (target.isEmpty()) {
             throw new InvalidInputException("Confirm outs target is empty.");
         }
@@ -320,7 +320,7 @@ public class GameMaster {
             	// 指定ミスに対しては何もせず継続
             }
         }
-        
+
         if (paiList.isEmpty()) {
             throw new InvalidInputException("Confirm outs target JanPai is empty.");
         }
@@ -332,10 +332,10 @@ public class GameMaster {
             info.notifyObservers(param);
         }
     }
-    
+
     /**
      * 副露せずに続行
-     * 
+     *
      * @throws JanException ゲーム処理エラー。
      */
     public void onContinue() throws JanException {
@@ -346,10 +346,10 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             _historyList.add(new CommandHistory(HistoryType.CONTINUE, _controller.getGameInfo()));
-            
+
             try {
                 _controller.next();
             }
@@ -362,10 +362,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 打牌処理 (ツモ切り)
-     * 
+     *
      * @throws JanException ゲーム処理エラー。
      */
     public void onDiscard() throws JanException {
@@ -376,10 +376,10 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             _historyList.add(new CommandHistory(HistoryType.DISCARD_TSUMO, _controller.getGameInfo()));
-            
+
             try {
                 _controller.discard();
             }
@@ -392,10 +392,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 打牌処理 (手出し)
-     * 
+     *
      * @param target 捨て牌。
      * @throws JanException ゲーム処理エラー。
      */
@@ -403,7 +403,7 @@ public class GameMaster {
         if (target == null) {
             throw new NullPointerException("Discard target is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -411,14 +411,14 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         if (target.isEmpty()) {
             throw new InvalidInputException("Discard target is empty.");
         }
         final JanPai targetPai = convertStringToJanPai(target);
         synchronized (_CONTROLLER_LOCK) {
             _historyList.add(new CommandHistory(HistoryType.DISCARD, _controller.getGameInfo(), target));
-            
+
             try {
                 _controller.discard(targetPai);
             }
@@ -431,7 +431,7 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 終了処理
      */
@@ -441,7 +441,7 @@ public class GameMaster {
                 return;
             }
             _status = GameStatus.IDLE;
-            
+
             synchronized (_CONTROLLER_LOCK) {
                 final JanInfo info = _controller.getGameInfo();
                 info.addObserver(_announcer);
@@ -449,10 +449,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * コマンド履歴表示
-     * 
+     *
      * @throws JanException ゲーム処理エラー。
      */
     public void onHistory() throws JanException {
@@ -463,17 +463,17 @@ public class GameMaster {
             info.notifyObservers(param);
         }
     }
-    
+
     /**
      * 情報表示
-     * 
+     *
      * @param flagSet 情報表示フラグ。
      */
     public void onInfo(final EnumSet<AnnounceFlag> flagSet) {
         if (flagSet == null) {
             throw new NullPointerException("Announce flag is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -481,17 +481,17 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             info.addObserver(_announcer);
             info.notifyObservers(flagSet);
         }
     }
-    
+
     /**
      * 指定牌の残り枚数表示
-     * 
+     *
      * @param target 指定牌。
      * @throws JanException ゲーム処理エラー。
      */
@@ -499,7 +499,7 @@ public class GameMaster {
         if (target == null) {
             throw new NullPointerException("Outs target is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -507,7 +507,7 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         if (target.isEmpty()) {
             throw new InvalidInputException("Outs target is empty.");
         }
@@ -520,7 +520,7 @@ public class GameMaster {
                 // 指定ミスに対しては何もせず継続
             }
         }
-        
+
         if (paiList.isEmpty()) {
             throw new InvalidInputException("Outs target JanPai is empty.");
         }
@@ -531,10 +531,10 @@ public class GameMaster {
             info.notifyObservers(param);
         }
     }
-    
+
     /**
      * ランキングの表示
-     * 
+     *
      * @throws JanException ゲーム処理エラー。
      */
     public void onRanking() throws JanException {
@@ -544,10 +544,10 @@ public class GameMaster {
             info.notifyObservers(AnnounceFlag.RANKING);
         }
     }
-    
+
     /**
      * リプレイ処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -560,7 +560,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -569,27 +569,27 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
             IRCBOT.getInstance().println("--- Replay data is not found ---");
             return;
         }
-        
+
         // 牌山と席順をロード
         final List<JanPai> deck = (List<JanPai>)Serializer.read(DECK_SAVE_PATH);
         final Map<Wind, Player> playerTable = (Map<Wind, Player>)Serializer.read(PLAYER_TABLE_SAVE_PATH);
-        
+
         // プレイヤー名を差し替え
         final Wind playerWind = getPlayerWind(playerTable);
         playerTable.put(playerWind, new Player(playerName, PlayerType.HUMAN));
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createJanController(true);
             _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -602,10 +602,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * リプレイ処理 (中国麻雀)
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -618,7 +618,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -627,27 +627,27 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
             IRCBOT.getInstance().println("--- Replay data is not found ---");
             return;
         }
-        
+
         // 牌山と席順をロード
         final List<JanPai> deck = (List<JanPai>)Serializer.read(DECK_SAVE_PATH);
         final Map<Wind, Player> playerTable = (Map<Wind, Player>)Serializer.read(PLAYER_TABLE_SAVE_PATH);
-        
+
         // プレイヤー名を差し替え
         final Wind playerWind = getPlayerWind(playerTable);
         playerTable.put(playerWind, new Player(playerName, PlayerType.HUMAN));
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createChmJanController(true);
             _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -660,10 +660,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * リプレイ処理 (台湾麻雀)
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -676,7 +676,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -685,27 +685,27 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
             IRCBOT.getInstance().println("--- Replay data is not found ---");
             return;
         }
-        
+
         // 牌山と席順をロード
         final List<JanPai> deck = (List<JanPai>)Serializer.read(DECK_SAVE_PATH);
         final Map<Wind, Player> playerTable = (Map<Wind, Player>)Serializer.read(PLAYER_TABLE_SAVE_PATH);
-        
+
         // プレイヤー名を差し替え
         final Wind playerWind = getPlayerWind(playerTable);
         playerTable.put(playerWind, new Player(playerName, PlayerType.HUMAN));
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createTwmJanController(true);
             _historyList.add(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -718,10 +718,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * リーチ処理
-     * 
+     *
      * @param target 捨て牌。
      * @throws JanException ゲーム処理エラー。
      */
@@ -729,7 +729,7 @@ public class GameMaster {
         if (target == null) {
             throw new NullPointerException("Discard target is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -737,7 +737,7 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         if (target.isEmpty()) {
             throw new InvalidInputException("Discard target is empty.");
         }
@@ -746,10 +746,10 @@ public class GameMaster {
             _controller.richi(targetPai);
         }
     }
-    
+
     /**
      * リプレイ処理
-     * 
+     *
      * @param playerName プレイヤー名。
      * @param gameCode ゲームコード。
      * @throws JanException ゲーム処理エラー。
@@ -762,14 +762,14 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // TODO ゲーム指定リプレイ
         onReplay(playerName);
     }
-    
+
     /**
      * 開始処理 (ソロ)
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -781,7 +781,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -790,21 +790,21 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         // 牌山生成と席決め
         final List<JanPai> deck = createDeck();
         final Map<Wind, Player> playerTable = createPlayerTable(Arrays.asList(playerName));
-        
+
         // 保存 (リプレイ用)
         Serializer.writeOverwrite(deck, DECK_SAVE_PATH);
         Serializer.writeOverwrite(playerTable, PLAYER_TABLE_SAVE_PATH);
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createJanController(true);
             _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -817,10 +817,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 開始処理 (中国麻雀・ソロ)
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -832,7 +832,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -841,21 +841,21 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         // 牌山生成と席決め
         final List<JanPai> deck = createDeck();
         final Map<Wind, Player> playerTable = createPlayerTable(Arrays.asList(playerName));
-        
+
         // 保存 (リプレイ用)
         Serializer.writeOverwrite(deck, DECK_SAVE_PATH);
         Serializer.writeOverwrite(playerTable, PLAYER_TABLE_SAVE_PATH);
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createChmJanController(true);
             _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -868,10 +868,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 開始処理 (台湾麻雀・ソロ)
-     * 
+     *
      * @param playerName プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -883,7 +883,7 @@ public class GameMaster {
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -892,21 +892,21 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_SOLO;
         }
-        
+
         // 牌山生成と席決め
         final List<JanPai> deck = createDeck();
         final Map<Wind, Player> playerTable = createPlayerTable(Arrays.asList(playerName));
-        
+
         // 保存 (リプレイ用)
         Serializer.writeOverwrite(deck, DECK_SAVE_PATH);
         Serializer.writeOverwrite(playerTable, PLAYER_TABLE_SAVE_PATH);
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
             _controller = createTwmJanController(true);
             _historyList.add(new CommandHistory(HistoryType.TWM, _controller.getGameInfo()));
-            
+
             try {
                 _controller.start(deck, playerTable);
             }
@@ -919,10 +919,10 @@ public class GameMaster {
             }
         }
     }
-    
+
     /**
      * 開始処理 (対戦)
-     * 
+     *
      * @param playerNameList プレイヤー名のリスト。
      * @throws JanException ゲーム処理エラー。
      */
@@ -933,7 +933,7 @@ public class GameMaster {
         if (playerNameList.isEmpty()) {
             throw new IllegalArgumentException("Player name list is empty.");
         }
-        
+
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
@@ -942,11 +942,11 @@ public class GameMaster {
             }
             _status = GameStatus.PLAYING_VS;
         }
-        
+
         // 牌山生成と席決め
         final List<JanPai> deck = createDeck();
         final Map<Wind, Player> playerTable = createPlayerTable(playerNameList);
-        
+
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
@@ -954,10 +954,10 @@ public class GameMaster {
             _controller.start(deck, playerTable);
         }
     }
-    
+
     /**
      * ゲーム統計の表示
-     * 
+     *
      * @param name プレイヤー名。
      * @param option オプション。
      * @throws JanException ゲーム処理エラー。
@@ -966,7 +966,7 @@ public class GameMaster {
         if (option == null) {
             throw new NullPointerException("Statistics target is null.");
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final StatisticsParam param = new StatisticsParam(name, option);
@@ -974,10 +974,56 @@ public class GameMaster {
             info.notifyObservers(param);
         }
     }
-    
+
+    /**
+     * リプレイ処理 (中国麻雀)
+     *
+     * @param playerName プレイヤー名。
+     * @throws JanException ゲーム処理エラー。
+     * @throws IOException ファイル入出力に失敗。
+     */
+    @SuppressWarnings("unchecked")
+    public void onTestChm(final String playerName) throws JanException, IOException {
+        if (playerName == null) {
+            throw new NullPointerException("Player name is null.");
+        }
+        if (playerName.isEmpty()) {
+            throw new IllegalArgumentException("Player name is empty.");
+        }
+
+        // 開始済み判定
+        synchronized (_STATUS_LOCK) {
+            if (!_status.isIdle()) {
+                IRCBOT.getInstance().println("--- Already started ---");
+                return;
+            }
+            _status = GameStatus.PLAYING_SOLO;
+        }
+
+        if (!Files.exists(Paths.get(TEST_DECK_SAVE_PATH)) ||
+            !Files.exists(Paths.get(TEST_PLAYER_TABLE_SAVE_PATH))) {
+            IRCBOT.getInstance().println("--- Test data is not found ---");
+            return;
+        }
+
+        // 牌山と席順をロード
+        final List<JanPai> deck = (List<JanPai>)Serializer.read(TEST_DECK_SAVE_PATH);
+        final Map<Wind, Player> playerTable = (Map<Wind, Player>)Serializer.read(TEST_PLAYER_TABLE_SAVE_PATH);
+
+        // プレイヤー名を差し替え
+        final Wind playerWind = getPlayerWind(playerTable);
+        playerTable.put(playerWind, new Player(playerName, PlayerType.HUMAN));
+
+        // ゲーム開始
+        synchronized (_CONTROLLER_LOCK) {
+            _controller = createChmJanController(true);
+            _controller.start(deck, playerTable);
+        }
+    }
+
     /**
      * 取り消し
-     * 
+     *
      * @param name プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
@@ -990,20 +1036,20 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             final boolean onGame = _controller.getOnGame();
-            
+
             if (!onGame) {
                 throw new JanException("Game is not started.");
             }
             undo(name);
         }
     }
-    
+
     /**
      * 指定牌の残り枚数の自動表示
-     * 
+     *
      * @param target 指定牌。
      * @throws JanException ゲーム処理エラー。
      */
@@ -1011,7 +1057,7 @@ public class GameMaster {
         if (target == null) {
             throw new NullPointerException("Watch target is null.");
         }
-        
+
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
@@ -1019,7 +1065,7 @@ public class GameMaster {
                 return;
             }
         }
-        
+
         if (target.isEmpty()) {
             throw new InvalidInputException("Watch target is empty.");
         }
@@ -1032,7 +1078,7 @@ public class GameMaster {
                 // 指定ミスに対しては何もせず継続
             }
         }
-        
+
         if (paiList.isEmpty()) {
             throw new InvalidInputException("Watch target JanPai is empty.");
         }
@@ -1040,10 +1086,10 @@ public class GameMaster {
             _controller.watch(paiList);
         }
     }
-    
+
     /**
      * 役のゲーム統計を表示
-     * 
+     *
      * @param name プレイヤー名。
      * @param option オプション。
      * @throws JanException ゲーム処理エラー。
@@ -1052,7 +1098,7 @@ public class GameMaster {
         if (option == null) {
             throw new NullPointerException("Statistics target is null.");
         }
-        
+
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final YakuParam param = new YakuParam(name, option);
@@ -1060,18 +1106,18 @@ public class GameMaster {
             info.notifyObservers(param);
         }
     }
-    
-    
-    
+
+
+
     /**
      * 中国麻雀コントローラを生成
-     * 
+     *
      * @param solo ソロプレイか。
      * @return 中国麻雀コントローラ。
      */
     protected JanController createChmJanController(final boolean solo) {
         _announcer.setIsChm(true);
-        
+
         if (solo) {
             return new ChmJanController(_announcer);
         }
@@ -1079,16 +1125,16 @@ public class GameMaster {
             return new VSJanController();
         }
     }
-    
+
     /**
      * 台湾麻雀コントローラを生成
-     * 
+     *
      * @param solo ソロプレイか。
      * @return 台湾麻雀コントローラ。
      */
     protected JanController createTwmJanController(final boolean solo) {
         _announcer.setIsChm(false);
-        
+
         if (solo) {
             return new TwmJanController(_announcer);
         }
@@ -1096,10 +1142,10 @@ public class GameMaster {
             return new VSJanController();
         }
     }
-    
+
     /**
      * プレイヤーの風を取得
-     * 
+     *
      * @param playerTable プレイヤーテーブル。
      * @return プレイヤーの風。
      */
@@ -1111,12 +1157,12 @@ public class GameMaster {
         }
         throw new InternalError();
     }
-    
-    
-    
+
+
+
     /**
      * 文字列を牌に変換
-     * 
+     *
      * @param source 変換元。
      * @return 変換結果。
      * @throws InvalidInputException 不正な入力。
@@ -1212,10 +1258,10 @@ public class GameMaster {
             throw new InvalidInputException("Invalid jan pai - " + source);
         }
     }
-    
+
     /**
      * 牌山を生成
-     * 
+     *
      * @return 牌山。
      */
     private List<JanPai> createDeck() {
@@ -1223,16 +1269,16 @@ public class GameMaster {
         Collections.shuffle(deck, new SecureRandom());
         return deck;
     }
-    
+
     /**
      * 麻雀コントローラを生成
-     * 
+     *
      * @param solo ソロプレイか。
      * @return 麻雀コントローラ。
      */
     private JanController createJanController(final boolean solo) {
         _announcer.setIsChm(false);
-        
+
         if (solo) {
             return new SoloJanController(_announcer);
         }
@@ -1240,10 +1286,10 @@ public class GameMaster {
             return new VSJanController();
         }
     }
-    
+
     /**
      * プレイヤーテーブルを生成
-     * 
+     *
      * @param playerNameList 参加プレイヤー名のリスト。
      * @return プレイヤーテーブル。
      */
@@ -1251,13 +1297,13 @@ public class GameMaster {
         // 風をシャッフル
         final List<Wind> windList = new ArrayList<>(Arrays.asList(Wind.values()));
         Collections.shuffle(windList, new SecureRandom());
-        
+
         // プレイヤーを格納
         final Map<Wind, Player> playerTable = new TreeMap<>();
         for (final String playerName : playerNameList) {
             playerTable.put(windList.remove(0), new Player(playerName, PlayerType.HUMAN));
         }
-        
+
         // 4人になるまでNPCで埋める
         final int limitCOM = 4 - playerNameList.size();
         for (int i = 0; i < limitCOM; i++) {
@@ -1265,31 +1311,31 @@ public class GameMaster {
         }
         return playerTable;
     }
-    
+
     /**
      * 取り消し
-     * 
+     *
      * @param name プレイヤー名。
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
      */
     private void undo (final String name) throws JanException, IOException {
         final int size = _historyList.size();
-        
+
         if (size <= 1) {
             IRCBOT.getInstance().println("--- No command ---");
             return;
         }
         _historyList.pollLast();
-        
+
         final CommandHistory history = _historyList.pollLast();
         final JanInfo info = history.getJanInfo();
-        
+
         _controller.setGameInfo(info);
-        
+
         final HistoryType historyType = history.getHistoryType();
         final String pai = history.getJanPai().replaceAll("[\\[\\]]", "");
-        
+
         synchronized (_STATUS_LOCK) {
             if (historyType == HistoryType.JPM || historyType == HistoryType.CHM || historyType == HistoryType.TWM) {
                 _status = GameStatus.IDLE;
@@ -1298,7 +1344,7 @@ public class GameMaster {
                 _status = GameStatus.PLAYING_SOLO;
             }
         }
-        
+
         switch (historyType) {
         case JPM:
             onReplay(name);
@@ -1337,46 +1383,48 @@ public class GameMaster {
             break;
         }
     }
-    
-    
-    
+
+
+
     /**
      * 自分自身のインスタンス
      */
     protected static final GameMaster INSTANCE = new GameMaster();
-    
-    
-    
+
+
+
     /**
      * ロックオブジェクト (ゲームコントローラ)
      */
     protected final Object _CONTROLLER_LOCK = new Object();
-    
+
     /**
      * ロックオブジェクト (ゲームの状態)
      */
     protected final Object _STATUS_LOCK = new Object();
-    
-    
-    
+
+
+
     /**
      * ゲームコントローラ
      */
     protected JanController _controller = null;
-    
+
     /**
      * ゲームの状態
      */
     protected GameStatus _status = GameStatus.IDLE;
-    
-    
-    
+
+
+
     /**
      * 保存パス
      */
     private static final String DECK_SAVE_PATH         = "./deck.bin";
     private static final String PLAYER_TABLE_SAVE_PATH = "./player_table.bin";
-    
+    private static final String TEST_DECK_SAVE_PATH = "./test/deck.bin";
+    private static final String TEST_PLAYER_TABLE_SAVE_PATH = "./test/player_table.bin";
+
     /**
      * NPCリスト
      */
@@ -1384,18 +1432,18 @@ public class GameMaster {
         Collections.unmodifiableList(Arrays.asList(new Player("COM_01", PlayerType.COM),
                                                    new Player("COM_02", PlayerType.COM),
                                                    new Player("COM_03", PlayerType.COM)));
-    
-    
-    
+
+
+
     /**
      * ゲーム実況者
      */
     private GameAnnouncer _announcer = new GameAnnouncer();
-    
+
     /**
      * コマンド履歴リスト
      */
     private LinkedList<CommandHistory> _historyList = new LinkedList<>();
-    
+
 }
 

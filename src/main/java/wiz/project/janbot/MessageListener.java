@@ -1,6 +1,6 @@
 /**
  * MessageListener.java
- * 
+ *
  * @author Yuki
  */
 
@@ -32,22 +32,22 @@ import wiz.project.janbot.game.exception.JanException;
 
 /**
  * メッセージ受付
- * 
+ *
  * @param <T> PircBoxT、またはその継承クラス。
  */
 class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
-    
+
     /**
      * コンストラクタ
      */
     public MessageListener() {
     }
-    
-    
-    
+
+
+
     /**
      * メッセージ受信時の処理
-     * 
+     *
      * @param event イベント情報。
      * @throws InterruptedException 処理に失敗。
      */
@@ -56,14 +56,14 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         if (event == null) {
             throw new NullPointerException("Event information is null.");
         }
-        
+
         // メッセージ解析
         try {
             if (_confirmMode) {
                 onConfirmMessage(event);
                 return;
             }
-            
+
             final String message = event.getMessage();
             final String playerName = event.getUser().getNick();
             if (message.equals("jan ochiro")) {
@@ -171,7 +171,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                         }
                     }
                 }.start();
-                
+
                 new Thread() {
                     @Override
                     public void run() {
@@ -247,10 +247,10 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             throw e;
         }
     }
-    
+
     /**
      * トーク受信時の処理
-     * 
+     *
      * @param event イベント情報。
      * @throws Exception 処理に失敗。
      */
@@ -259,20 +259,20 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         if (event == null) {
             throw new NullPointerException("Event information is null.");
         }
-        
+
         // TODO ネトマ未対応
         super.onPrivateMessage(event);
     }
-    
-    
-    
+
+
+
     /**
      * 副露実況フラグに変換
-     * 
+     *
      * @param callTypeList 副露タイプリスト。
      * @return 副露実況フラグ。
      */
-    private EnumSet<AnnounceFlag> convertToCallAnnounceType(final List<CallType> callTypeList) {
+    protected EnumSet<AnnounceFlag> convertToCallAnnounceType(final List<CallType> callTypeList) {
         final EnumSet<AnnounceFlag> result = EnumSet.noneOf(AnnounceFlag.class);
         if (callTypeList.contains(CallType.RON)) {
             result.add(AnnounceFlag.CALLABLE_RON);
@@ -290,10 +290,27 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         result.add(AnnounceFlag.HAND);
         return result;
     }
-    
+
+    /**
+     * ゲーム終了時の処理
+     *
+     * @param status ゲーム終了状態。
+     */
+    protected void onGameSet(final GameSetStatus status) {
+        switch (status) {
+        case GAME_OVER:
+            GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_GAME_OVER);
+            break;
+        default:
+            throw new InternalError();
+        }
+    }
+
+
+
     /**
      * 確認メッセージの処理
-     * 
+     *
      * @param event イベント情報。
      * @throws JanException 例外イベント。
      */
@@ -397,24 +414,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             throw e;
         }
     }
-    
-    /**
-     * ゲーム終了時の処理
-     * 
-     * @param status ゲーム終了状態。
-     */
-    private void onGameSet(final GameSetStatus status) {
-        switch (status) {
-        case GAME_OVER:
-            GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_GAME_OVER);
-            break;
-        default:
-            throw new InternalError();
-        }
-    }
-    
-    
-    
+
+
+
     /**
      * 実況フラグ
      */
@@ -436,18 +438,18 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.SEVENTH);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_CONFIRM =
         EnumSet.of(AnnounceFlag.SEVENTH, AnnounceFlag.CONFIRM);
-    
+
     /**
      * 色付けフラグ
      */
     private static final char COLOR_FLAG = 3;
-    
-    
-    
+
+
+
     /**
      * 確認モード
      */
     private volatile boolean _confirmMode = false;
-    
+
 }
 
