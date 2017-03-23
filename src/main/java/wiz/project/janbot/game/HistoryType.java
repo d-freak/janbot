@@ -24,11 +24,6 @@ public enum HistoryType {
     CHM("chm s"),
     
     /**
-     * 開始処理 (台湾麻雀・ソロ)
-     */
-    TWM("twm s"),
-    
-    /**
      * 打牌処理 (ツモ切り)
      */
     DISCARD_TSUMO("jan d"),
