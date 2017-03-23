@@ -13,6 +13,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import wiz.project.janbot.MockBOT;
+import wiz.project.janbot.game.exception.CallableException;
 import wiz.project.janbot.game.exception.JanException;
 
 
@@ -45,7 +46,13 @@ public final class GameMasterTest {
             
             try {
                 GameMaster.getInstance().onStartSolo(TEST_PLAYER_NAME);
+            }
+            catch (CallableException e) {
+            }
+            try {
                 GameMaster.getInstance().onDiscard();
+            }
+            catch (CallableException e) {
             }
             finally {
                 GameMaster.getInstance().onEnd();
@@ -65,6 +72,8 @@ public final class GameMasterTest {
             
             try {
                 GameMaster.getInstance().onStartSolo(TEST_PLAYER_NAME);
+            }
+            catch (CallableException e) {
             }
             finally {
                 GameMaster.getInstance().onEnd();
@@ -86,9 +95,11 @@ public final class GameMasterTest {
             final String playerName = TEST_PLAYER_NAME;
             try {
                 GameMaster.getInstance().onStartSolo(playerName);
-                assertEquals(GameStatus.PLAYING_SOLO, GameMaster.getInstance().getStatus());
+            }
+            catch (CallableException e) {
             }
             finally {
+                assertEquals(GameStatus.PLAYING_SOLO, GameMaster.getInstance().getStatus());
                 GameMaster.getInstance().onEnd();
             }
         }
@@ -100,10 +111,16 @@ public final class GameMasterTest {
             final String playerName = TEST_PLAYER_NAME;
             try {
                 GameMaster.getInstance().onStartSolo(playerName);
+            }
+            catch (CallableException e) {
+            }
+            try {
                 GameMaster.getInstance().onStartSolo(playerName);
-                assertEquals(GameStatus.PLAYING_SOLO, GameMaster.getInstance().getStatus());
+            }
+            catch (CallableException e) {
             }
             finally {
+                assertEquals(GameStatus.PLAYING_SOLO, GameMaster.getInstance().getStatus());
                 GameMaster.getInstance().onEnd();
             }
         }
