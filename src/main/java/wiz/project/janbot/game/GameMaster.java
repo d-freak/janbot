@@ -589,7 +589,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
-            _controller = createJanController(true);
+            _controller = createJanController();
             _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
 
             try {
@@ -647,7 +647,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
-            _controller = createChmJanController(true);
+            _controller = createChmJanController();
             _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
 
             try {
@@ -746,7 +746,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
-            _controller = createJanController(true);
+            _controller = createJanController();
             _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
 
             try {
@@ -797,7 +797,7 @@ public class GameMaster {
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
             _historyList.clear();
-            _controller = createChmJanController(true);
+            _controller = createChmJanController();
             _historyList.add(new CommandHistory(HistoryType.CHM, _controller.getGameInfo()));
 
             try {
@@ -810,41 +810,6 @@ public class GameMaster {
                 _historyList.pollLast();
                 throw e;
             }
-        }
-    }
-
-    /**
-     * 開始処理 (対戦)
-     *
-     * @param playerNameList プレイヤー名のリスト。
-     * @throws JanException ゲーム処理エラー。
-     */
-    public void onStartVS(final List<String> playerNameList) throws JanException {
-        if (playerNameList == null) {
-            throw new NullPointerException("Player name list is null.");
-        }
-        if (playerNameList.isEmpty()) {
-            throw new IllegalArgumentException("Player name list is empty.");
-        }
-
-        // 開始済み判定
-        synchronized (_STATUS_LOCK) {
-            if (!_status.isIdle()) {
-                IRCBOT.getInstance().println("--- Already started ---");
-                return;
-            }
-            _status = GameStatus.PLAYING_VS;
-        }
-
-        // 牌山生成と席決め
-        final List<JanPai> deck = createDeck();
-        final Map<Wind, Player> playerTable = createPlayerTable(playerNameList);
-
-        // ゲーム開始
-        synchronized (_CONTROLLER_LOCK) {
-            _historyList.clear();
-            _controller = createJanController(false);
-            _controller.start(deck, playerTable);
         }
     }
 
@@ -909,7 +874,7 @@ public class GameMaster {
 
         // ゲーム開始
         synchronized (_CONTROLLER_LOCK) {
-            _controller = createChmJanController(true);
+            _controller = createChmJanController();
             _controller.start(deck, playerTable);
         }
     }
@@ -1005,18 +970,11 @@ public class GameMaster {
     /**
      * 中国麻雀コントローラを生成
      *
-     * @param solo ソロプレイか。
      * @return 中国麻雀コントローラ。
      */
-    protected JanController createChmJanController(final boolean solo) {
+    protected JanController createChmJanController() {
         _announcer.setIsChm(true);
-
-        if (solo) {
-            return new ChmJanController(_announcer);
-        }
-        else {
-            return new VSJanController();
-        }
+        return new ChmJanController(_announcer);
     }
 
     /**
@@ -1149,18 +1107,11 @@ public class GameMaster {
     /**
      * 麻雀コントローラを生成
      *
-     * @param solo ソロプレイか。
      * @return 麻雀コントローラ。
      */
-    private JanController createJanController(final boolean solo) {
+    private JanController createJanController() {
         _announcer.setIsChm(false);
-
-        if (solo) {
-            return new SoloJanController(_announcer);
-        }
-        else {
-            return new VSJanController();
-        }
+        return new SoloJanController(_announcer);
     }
 
     /**
