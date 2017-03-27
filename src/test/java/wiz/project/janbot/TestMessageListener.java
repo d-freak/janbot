@@ -49,7 +49,7 @@ public class TestMessageListener<T extends PircBotX> extends MessageListener<T> 
         try {
             final String message = event.getMessage();
             final String playerName = event.getUser().getNick();
-            if (message.startsWith("jan test")) {
+            if (message.startsWith("test")) {
                 GameMaster.getInstance().onTestChm(playerName);
             }
         }

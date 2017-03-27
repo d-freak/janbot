@@ -59,101 +59,101 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         try {
             final String message = event.getMessage();
             final String playerName = event.getUser().getNick();
-            if (message.equals("jan ochiro")) {
+            if (message.equals("ochiro")) {
                 IRCBOT.getInstance().println("(  ；∀；)");
                 IRCBOT.getInstance().disconnect();
             }
-            else if (message.equals("jan s") || message.equals("jan start")) {
+            else if (message.equals("s") || message.equals("start")) {
                 GameMaster.getInstance().onStartSolo(playerName);
             }
-            else if (message.equals("jan s chm") || message.equals("jan start chm") || message.equals("chm s") || message.equals("chm start")) {
+            else if (message.equals("s chm") || message.equals("start chm") || message.equals("chm s") || message.equals("chm start")) {
                 GameMaster.getInstance().onStartChmSolo(playerName);
             }
-            else if (message.equals("jan e") || message.equals("jan end")) {
+            else if (message.equals("e") || message.equals("end")) {
                 GameMaster.getInstance().onEnd();
             }
-            else if (message.equals("jan d")) {
+            else if (message.equals("d")) {
                 GameMaster.getInstance().onDiscardOrContinue();
             }
-            else if (message.startsWith("jan d ")) {
-                GameMaster.getInstance().onDiscard(message.substring(6));
+            else if (message.startsWith("d ")) {
+                GameMaster.getInstance().onDiscard(message.substring(2));
             }
-            else if (message.equals("jan u") || message.equals("jan undo")) {
+            else if (message.equals("u") || message.equals("undo")) {
                 GameMaster.getInstance().onUndo(playerName);
             }
-            else if (message.equals("jan i")) {
+            else if (message.equals("i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
             }
-            else if (message.equals("jan r")) {
+            else if (message.equals("r")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
             }
-            else if (message.equals("jan ra")) {
+            else if (message.equals("ra")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
             }
-            else if (message.equals("jan i r") || message.equals("jan r i")) {
+            else if (message.equals("i r") || message.equals("r i")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
             }
-            else if (message.equals("jan i ra")) {
+            else if (message.equals("i ra")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER_ALL);
             }
-            else if (message.equals("jan w")) {
+            else if (message.equals("w")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
             }
-            else if (message.equals("jan 7th")) {
+            else if (message.equals("7th")) {
                 GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH);
             }
-            else if (message.equals("jan h")) {
+            else if (message.equals("h")) {
                 GameMaster.getInstance().onHistory();
             }
-            else if (message.startsWith("jan chi ")) {
-                GameMaster.getInstance().onCallChi(playerName, message.substring(8));
+            else if (message.startsWith("chi ")) {
+                GameMaster.getInstance().onCallChi(playerName, message.substring(4));
             }
-            else if (message.equals("jan pon")) {
+            else if (message.equals("pon")) {
                 GameMaster.getInstance().onCallPon(playerName);
             }
-            else if (message.startsWith("jan kan ")) {
-                GameMaster.getInstance().onCallKan(playerName, message.substring(8));
+            else if (message.startsWith("kan ")) {
+                GameMaster.getInstance().onCallKan(playerName, message.substring(4));
             }
-            else if (message.equals("jan hu")) {
+            else if (message.equals("hu")) {
                 GameMaster.getInstance().onComplete(playerName);
             }
-            else if (message.equals("jan ron")) {
+            else if (message.equals("ron")) {
                 GameMaster.getInstance().onCompleteRon(playerName);
             }
-            else if (message.equals("jan tsumo")) {
+            else if (message.equals("tsumo")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
-            else if (message.equals("jan sr")) {
+            else if (message.equals("sr")) {
                 GameMaster.getInstance().onRanking();
             }
-            else if (message.equals("jan ss")) {
+            else if (message.equals("ss")) {
                 GameMaster.getInstance().onStatistics(playerName, "");
             }
-            else if (message.equals("jan sy")) {
+            else if (message.equals("sy")) {
                 GameMaster.getInstance().onYaku(playerName, "");
             }
-            else if (message.startsWith("jan ss ")) {
-                GameMaster.getInstance().onStatistics(playerName, message.substring(7));
+            else if (message.startsWith("ss ")) {
+                GameMaster.getInstance().onStatistics(playerName, message.substring(3));
             }
-            else if (message.startsWith("jan sy ")) {
-                GameMaster.getInstance().onYaku(playerName, message.substring(7));
+            else if (message.startsWith("sy ")) {
+                GameMaster.getInstance().onYaku(playerName, message.substring(3));
             }
-            else if (message.startsWith("jan o ")) {
-                GameMaster.getInstance().onOuts(message.substring(6));
+            else if (message.startsWith("o ")) {
+                GameMaster.getInstance().onOuts(message.substring(2));
             }
-            else if (message.startsWith("jan w ")) {
-                GameMaster.getInstance().onWatch(message.substring(6));
+            else if (message.startsWith("w ")) {
+                GameMaster.getInstance().onWatch(message.substring(2));
             }
-            else if (message.equals("jan replay")) {
+            else if (message.equals("replay")) {
                 GameMaster.getInstance().onReplay(playerName);
             }
-            else if (message.equals("jan replay chm") || message.equals("chm replay")) {
+            else if (message.equals("replay chm") || message.equals("chm replay")) {
                 GameMaster.getInstance().onReplayChm(playerName);
             }
-            else if (message.startsWith("jan replay ")) {
-                GameMaster.getInstance().onReplay(playerName, message.substring(11));
+            else if (message.startsWith("replay ")) {
+                GameMaster.getInstance().onReplay(playerName, message.substring(7));
             }
-            else if (message.equals("jan download")) {
+            else if (message.equals("download")) {
                 new Thread() {
                     @Override
                     public void run() {
@@ -180,7 +180,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                     }
                 }.start();
             }
-            else if (message.equals("jan help")) {
+            else if (message.equals("help")) {
                 final List<String> messageList =
                     Arrays.asList("ss [X] [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
                                   "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",

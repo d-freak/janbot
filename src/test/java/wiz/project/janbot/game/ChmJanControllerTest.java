@@ -869,30 +869,30 @@ public final class ChmJanControllerTest {
     /**
      * テスト用メッセージ
      */
-    private static final String MESSAGE_CHI_1S       = "jan chi 1s";
-    private static final String MESSAGE_CHI_5S       = "jan chi 5s";
-    private static final String MESSAGE_DISCARD      = "jan d";
-    private static final String MESSAGE_DISCARD_CHUN = "jan d ch";
-    private static final String MESSAGE_DISCARD_TON  = "jan d ton";
-    private static final String MESSAGE_DISCARD_7M   = "jan d 7m";
-    private static final String MESSAGE_DISCARD_9M   = "jan d 9m";
-    private static final String MESSAGE_DISCARD_4P   = "jan d 4p";
-    private static final String MESSAGE_DISCARD_5P   = "jan d 5p";
-    private static final String MESSAGE_DISCARD_7P   = "jan d 7p";
-    private static final String MESSAGE_DISCARD_2S   = "jan d 2s";
-    private static final String MESSAGE_DISCARD_3S   = "jan d 3s";
-    private static final String MESSAGE_DISCARD_4S   = "jan d 4s";
-    private static final String MESSAGE_DISCARD_5S   = "jan d 5s";
-    private static final String MESSAGE_DISCARD_6S   = "jan d 6s";
-    private static final String MESSAGE_DISCARD_9S   = "jan d 9s";
-    private static final String MESSAGE_END          = "jan e";
-    private static final String MESSAGE_KAN_3S       = "jan kan 3s";
-    private static final String MESSAGE_KAN_9S       = "jan kan 9s";
-    private static final String MESSAGE_OUTS_3S      = "jan o 3s";
-    private static final String MESSAGE_OUTS_7P      = "jan o 7p";
-    private static final String MESSAGE_HU           = "jan hu";
-    private static final String MESSAGE_PON          = "jan pon";
-    private static final String MESSAGE_TEST         = "jan test";
+    private static final String MESSAGE_CHI_1S       = "chi 1s";
+    private static final String MESSAGE_CHI_5S       = "chi 5s";
+    private static final String MESSAGE_DISCARD      = "d";
+    private static final String MESSAGE_DISCARD_CHUN = "d ch";
+    private static final String MESSAGE_DISCARD_TON  = "d ton";
+    private static final String MESSAGE_DISCARD_7M   = "d 7m";
+    private static final String MESSAGE_DISCARD_9M   = "d 9m";
+    private static final String MESSAGE_DISCARD_4P   = "d 4p";
+    private static final String MESSAGE_DISCARD_5P   = "d 5p";
+    private static final String MESSAGE_DISCARD_7P   = "d 7p";
+    private static final String MESSAGE_DISCARD_2S   = "d 2s";
+    private static final String MESSAGE_DISCARD_3S   = "d 3s";
+    private static final String MESSAGE_DISCARD_4S   = "d 4s";
+    private static final String MESSAGE_DISCARD_5S   = "d 5s";
+    private static final String MESSAGE_DISCARD_6S   = "d 6s";
+    private static final String MESSAGE_DISCARD_9S   = "d 9s";
+    private static final String MESSAGE_END          = "e";
+    private static final String MESSAGE_KAN_3S       = "kan 3s";
+    private static final String MESSAGE_KAN_9S       = "kan 9s";
+    private static final String MESSAGE_OUTS_3S      = "o 3s";
+    private static final String MESSAGE_OUTS_7P      = "o 7p";
+    private static final String MESSAGE_HU           = "hu";
+    private static final String MESSAGE_PON          = "pon";
+    private static final String MESSAGE_TEST         = "test";
     
     
     
