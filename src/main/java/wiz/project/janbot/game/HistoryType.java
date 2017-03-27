@@ -29,6 +29,11 @@ public enum HistoryType {
     DISCARD_TSUMO("jan d"),
     
     /**
+     * 打牌処理 (ツモ切り)か副露せずに続行
+     */
+    DISCARD_TSUMO_OR_CONTINUE("jan d"),
+    
+    /**
      * 打牌処理 (手出し)
      */
     DISCARD("jan d "),
@@ -37,6 +42,11 @@ public enum HistoryType {
      * 副露せずに続行
      */
     CONTINUE("jan d"),
+    
+    /**
+     * 和了
+     */
+    COMPLETE("jan hu"),
     
     /**
      * ロン

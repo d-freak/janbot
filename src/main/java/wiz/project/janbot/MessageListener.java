@@ -7,7 +7,6 @@
 package wiz.project.janbot;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -59,11 +58,6 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 
         // メッセージ解析
         try {
-            if (_confirmMode) {
-                onConfirmMessage(event);
-                return;
-            }
-
             final String message = event.getMessage();
             final String playerName = event.getUser().getNick();
             if (message.equals("jan ochiro")) {
@@ -80,7 +74,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                 GameMaster.getInstance().onEnd();
             }
             else if (message.equals("jan d")) {
-                GameMaster.getInstance().onDiscard();
+                GameMaster.getInstance().onDiscardOrContinue();
             }
             else if (message.startsWith("jan d ")) {
                 GameMaster.getInstance().onDiscard(message.substring(6));
@@ -116,10 +110,22 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 //                TODO リーチ対応
 //                GameMaster.getInstance().onRichi(message.substring(8));
 //            }
+            else if (message.startsWith("jan chi ")) {
+                GameMaster.getInstance().onCallChi(playerName, message.substring(8));
+            }
+            else if (message.equals("jan pon")) {
+                GameMaster.getInstance().onCallPon(playerName);
+            }
             else if (message.startsWith("jan kan ")) {
                 GameMaster.getInstance().onCallKan(playerName, message.substring(8));
             }
-            else if (message.equals("jan tsumo") || message.equals("jan hu")) {
+            else if (message.equals("jan hu")) {
+                GameMaster.getInstance().onComplete(playerName);
+            }
+            else if (message.equals("jan ron")) {
+                GameMaster.getInstance().onCompleteRon(playerName);
+            }
+            else if (message.equals("jan tsumo")) {
                 GameMaster.getInstance().onCompleteTsumo(playerName);
             }
             else if (message.equals("jan sr")) {
@@ -215,11 +221,9 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             }
         }
         catch (final CallableException e) {
-            _confirmMode = true;
             GameMaster.getInstance().onInfo(convertToCallAnnounceType(e.getTypeList()));
         }
         catch (final GameSetException e) {
-            _confirmMode = false;
             onGameSet(e.getStatus());
         }
         catch (final BoneheadException e) {
@@ -298,115 +302,6 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
 
 
     /**
-     * 確認メッセージの処理
-     *
-     * @param event イベント情報。
-     * @throws JanException 例外イベント。
-     */
-    private void onConfirmMessage(final MessageEvent<T> event) throws JanException, IOException {
-        final String message = event.getMessage();
-        final String playerName = event.getUser().getNick();
-        try {
-            if (message.equals("jan ochiro")) {
-                _confirmMode = false;
-                IRCBOT.getInstance().println("(  ；∀；)");
-                IRCBOT.getInstance().disconnect();
-            }
-            else if (message.equals("jan e") || message.equals("jan end")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onEnd();
-            }
-            else if (message.equals("jan d")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onContinue();
-            }
-            else if (message.equals("jan u")) {
-                GameMaster.getInstance().onUndo(playerName);
-            }
-            else if (message.equals("jan i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD);
-            }
-            else if (message.equals("jan r")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER);
-            }
-            else if (message.equals("jan ra")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_RIVER_ALL);
-            }
-            else if (message.equals("jan i r") || message.equals("jan r i")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_FIELD_AND_RIVER);
-            }
-            else if (message.equals("jan w")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_WATCHING_END);
-            }
-            else if (message.equals("jan 7th")) {
-                GameMaster.getInstance().onInfo(ANNOUNCE_FLAG_SEVENTH_CONFIRM);
-            }
-            else if (message.equals("jan h")) {
-                GameMaster.getInstance().onHistory();
-            }
-            else if (message.startsWith("jan chi ")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onCallChi(playerName, message.substring(8));
-            }
-            else if (message.equals("jan pon")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onCallPon(playerName);
-            }
-            else if (message.startsWith("jan kan ")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onCallKan(playerName, message.substring(8));
-            }
-            else if (message.equals("jan ron") || message.equals("jan hu")) {
-                _confirmMode = false;
-                GameMaster.getInstance().onCompleteRon(playerName);
-            }
-            else if (message.equals("jan sr")) {
-                GameMaster.getInstance().onRanking();
-            }
-            else if (message.equals("jan ss")) {
-                GameMaster.getInstance().onStatistics(playerName, "");
-            }
-            else if (message.equals("jan sy")) {
-                GameMaster.getInstance().onYaku(playerName, "");
-            }
-            else if (message.startsWith("jan ss ")) {
-                GameMaster.getInstance().onStatistics(playerName, message.substring(7));
-            }
-            else if (message.startsWith("jan sy ")) {
-                GameMaster.getInstance().onYaku(playerName, message.substring(7));
-            }
-            else if (message.startsWith("jan w ")) {
-                GameMaster.getInstance().onWatch(message.substring(6));
-            }
-            else if (message.startsWith("jan o ")) {
-                GameMaster.getInstance().onConfirmOuts(message.substring(6));
-            }
-            else if (message.equals("jan help")) {
-                final List<String> messageList =
-                    Arrays.asList("ss [X] [開始値-終了値]：指定したプレイヤーのゲーム統計を表示",
-                                  "sy [X] [開始値-終了値] [-c表示する役の最大数] [-p表示する役の最小点]：",
-                                  "指定したプレイヤーの役のゲーム統計を表示   sr：ランキングを表示",
-                                  "※ ss, syはXにa llと指定すると全員分を表示、その場合範囲指定は無効",
-                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり h：コマンド履歴表示",
-                                  "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
-                                  "ron, hu：ロン   ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
-                                  "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
-                                  "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
-                                  "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)",
-                                  "d：キャンセル");
-                IRCBOT.getInstance().println(messageList);
-            }
-        }
-        catch (final Throwable e) {
-            // 確認モード継続
-            _confirmMode = true;
-            throw e;
-        }
-    }
-
-
-
-    /**
      * 実況フラグ
      */
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_GAME_OVER =
@@ -425,20 +320,11 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
         EnumSet.of(AnnounceFlag.WATCHING_END);
     private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH =
         EnumSet.of(AnnounceFlag.SEVENTH);
-    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_SEVENTH_CONFIRM =
-        EnumSet.of(AnnounceFlag.SEVENTH, AnnounceFlag.CONFIRM);
 
     /**
      * 色付けフラグ
      */
     private static final char COLOR_FLAG = 3;
-
-
-
-    /**
-     * 確認モード
-     */
-    private volatile boolean _confirmMode = false;
 
 }
 

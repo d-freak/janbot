@@ -85,18 +85,22 @@ class ChmJanController implements JanController {
             _info.setActivePlayer(playerName);
             final Wind activeWind = _info.getActiveWind();
             _info.increaseTurnCount(activeWind);
+            final boolean confirmMode = _info.getConfirmMode();
             try {
                 switch (type) {
                 case CHI:
+                    _info.setConfirmMode(false);
                     if (calledWind.getNext() != activeWind) {
                         throw new InvalidInputException("Can't chi.");
                     }
                     callChi(target, calledWind);
                     break;
                 case PON:
+                    _info.setConfirmMode(false);
                     callPon(calledWind);
                     break;
                 case KAN_LIGHT:
+                    _info.setConfirmMode(false);
                     callKanLight(target, calledWind);
                     break;
                 case KAN_ADD:
@@ -110,9 +114,10 @@ class ChmJanController implements JanController {
                 }
             }
             catch (final Throwable e) {
-                // 副露しない場合、巡目とアクティブプレイヤーを元に戻す
+                // 副露しない場合、巡目とアクティブプレイヤー、確認モードを元に戻す
                 _info.decreaseTurnCount(activeWind);
                 _info.setActiveWind(calledWind);
+                _info.setConfirmMode(confirmMode);
                 throw e;
             }
         }
@@ -125,11 +130,17 @@ class ChmJanController implements JanController {
         if (playerName == null) {
             throw new NullPointerException("Player name is null.");
         }
+        
         if (playerName.isEmpty()) {
             throw new IllegalArgumentException("Player name is empty.");
         }
+        
         if (!_onGame) {
             throw new JanException("Game is not started.");
+        }
+        
+        if (!_info.getConfirmMode()) {
+            throw new InvalidInputException("Can't ron, because confirmMode is false.");
         }
         
         synchronized (_GAME_INFO_LOCK) {
@@ -143,6 +154,7 @@ class ChmJanController implements JanController {
             _info.setActivePlayer(playerName);
             final Wind activeWind = _info.getActiveWind();
             _info.increaseTurnCount(activeWind);
+            _info.setConfirmMode(false);
             try {
                 // ロン対象牌を取得
                 final JanPai discard = _info.getActiveDiscard();
@@ -166,10 +178,11 @@ class ChmJanController implements JanController {
                 _info.notifyObservers(ANNOUNCE_FLAG_COMPLETE_RON);
             }
             catch (final Throwable e) {
-                // 和了しない場合、巡目とアクティブプレイヤー、被副露牌インデックスを元に戻す
+                // 和了しない場合、巡目とアクティブプレイヤー、被副露牌インデックス、確認モードを元に戻す
                 _info.decreaseTurnCount(activeWind);
                 _info.setActiveWind(calledWind);
                 _info.removeCalledIndex(calledWind);
+                _info.setConfirmMode(true);
                 throw e;
             }
         }
@@ -181,6 +194,10 @@ class ChmJanController implements JanController {
     public void completeTsumo() throws JanException {
         if (!_onGame) {
             throw new JanException("Game is not started.");
+        }
+        
+        if (_info.getConfirmMode()) {
+            throw new InvalidInputException("Can't tsumo, because confirmMode is true.");
         }
         
         synchronized (_GAME_INFO_LOCK) {
@@ -221,6 +238,10 @@ class ChmJanController implements JanController {
             throw new InvalidInputException("Tsumo pai is not exist.");
         }
         
+        if (_info.getConfirmMode()) {
+            throw new InvalidInputException("Can't discard, because confirmMode is true.");
+        }
+        
         synchronized (_GAME_INFO_LOCK) {
             discardCore(_info.getActiveTsumo());
             
@@ -238,8 +259,13 @@ class ChmJanController implements JanController {
         if (target == null) {
             throw new NullPointerException("Discard target is null.");
         }
+        
         if (!_onGame) {
             throw new JanException("Game is not started.");
+        }
+        
+        if (_info.getConfirmMode()) {
+            throw new InvalidInputException("Can't discard, because confirmMode is true.");
         }
         
         synchronized (_GAME_INFO_LOCK) {
@@ -307,6 +333,7 @@ class ChmJanController implements JanController {
         synchronized (_GAME_INFO_LOCK) {
             _info.updateCompletableInfo();
             _info.setActiveWindToNext();
+            _info.setConfirmMode(false);
             onPhase();
         }
     }
@@ -659,6 +686,7 @@ class ChmJanController implements JanController {
             final List<CallType> callableList = _info.getCallableList(activeWind, humanWind, target);
             
             if (!callableList.isEmpty()) {
+                _info.setConfirmMode(true);
                 throw new CallableException(callableList);
             }
         }
@@ -728,6 +756,7 @@ class ChmJanController implements JanController {
     private void onPhase() throws CallableException, GameSetException {
         if (_info.getRemainCount() == 0) {
             _onGame = false;
+            _info.setConfirmMode(false);
             throw new GameSetException(GameSetStatus.GAME_OVER);
         }
         

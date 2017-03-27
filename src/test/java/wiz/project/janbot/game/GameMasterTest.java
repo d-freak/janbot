@@ -288,6 +288,32 @@ public final class GameMasterTest {
     }
     
     /**
+     * onDiscardOrContinue() のテスト
+     */
+    @Test
+    public void testOnDiscardOrContinue() throws JanException, IOException {
+        {
+            // 正常
+            MockBOT.initialize();
+            MockBOT.connect();
+            
+            GameMaster.getInstance().onTestChm(TEST_PLAYER_NAME);
+            // 手牌：[4p][5p][7p][2s][3s][3s][4s][5s][9s][東][發][發][中] [7p]
+            callOnDiscardOrContinue();
+            callOnDiscardOrContinue();
+            final PrintStream printStream = System.out;
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(out));
+            GameMaster.getInstance().onDiscardOrContinue();
+            
+            System.setOut(printStream);
+            GameMaster.getInstance().onEnd();
+            
+            assertTrue(out.toString().contains("PRIVMSG #test-channel :12[4p]12[5p]12[7p]03[2s]03[3s]03[3s]03[4s]03[5s]03[9s]06[東]03[發]03[發]04[中] 04[7m]"));
+        }
+    }
+    
+    /**
      * onDiscard(String) のテスト
      */
     @Test
@@ -762,6 +788,16 @@ public final class GameMasterTest {
     private void callOnDiscard(final String janPai) throws JanException {
         try {
             GameMaster.getInstance().onDiscard(janPai);
+        }
+        catch (CallableException e) {
+        }
+    }
+    /**
+     * onDiscard()を呼び出す
+     */
+    private void callOnDiscardOrContinue() throws JanException {
+        try {
+            GameMaster.getInstance().onDiscardOrContinue();
         }
         catch (CallableException e) {
         }

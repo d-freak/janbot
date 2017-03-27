@@ -91,6 +91,7 @@ public final class JanInfo extends Observable implements Cloneable {
         _completeInfo = null;
         _afterCall = false;
         _callKan = false;
+        _confirmMode = false;
         
         for (final Wind wind : Wind.values()) {
             _playerTable.put(wind, new Player());
@@ -264,6 +265,15 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public ChmCompleteInfo getCompleteInfo() {
         return _completeInfo;
+    }
+    
+    /**
+     * 確認モードを取得
+     * 
+     * @return 確認モード。
+     */
+    public boolean getConfirmMode() {
+        return _confirmMode;
     }
     
     /**
@@ -704,6 +714,15 @@ public final class JanInfo extends Observable implements Cloneable {
     }
     
     /**
+     * 確認モードを設定
+     * 
+     * @param confirmMode 確認モード。
+     */
+    public void setConfirmMode(final boolean confirmMode) {
+        _confirmMode = confirmMode;
+    }
+    
+    /**
      * 牌山を設定
      * 
      * @param deck 牌山。
@@ -876,6 +895,7 @@ public final class JanInfo extends Observable implements Cloneable {
             _completeInfo = source._completeInfo;
             _afterCall = source._afterCall;
             _callKan = source._callKan;
+            _confirmMode = source._confirmMode;
             
             for (final Map.Entry<Wind, Hand> entry : source._handTable.entrySet()) {
                 _handTable.put(entry.getKey(), entry.getValue().clone());
@@ -1459,6 +1479,11 @@ public final class JanInfo extends Observable implements Cloneable {
      * カンフラグ
      */
     private volatile boolean _callKan = false;
+    
+    /**
+     * 確認モード
+     */
+    private volatile boolean _confirmMode = false;
     
 }
 

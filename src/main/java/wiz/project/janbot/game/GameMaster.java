@@ -216,6 +216,25 @@ public class GameMaster {
     }
 
     /**
+     * 和了処理
+     *
+     * @param playerName プレイヤー名。
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onComplete(final String playerName) throws JanException {
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            
+            if (info.getConfirmMode()) {
+                onCompleteRon(playerName);
+            }
+            else {
+                onCompleteTsumo(playerName);
+            }
+        }
+    }
+
+    /**
      * ロン和了処理
      *
      * @param playerName プレイヤー名。
@@ -286,50 +305,6 @@ public class GameMaster {
                     throw e;
                 }
             }
-        }
-    }
-
-    /**
-     * 指定牌の残り枚数表示(確認メッセージ用)
-     *
-     * @param target 指定牌。
-     * @throws JanException ゲーム処理エラー。
-     */
-    public void onConfirmOuts(final String target) throws JanException {
-        if (target == null) {
-            throw new NullPointerException("Confirm outs target is null.");
-        }
-
-        // 開始判定
-        synchronized (_STATUS_LOCK) {
-            if (_status.isIdle()) {
-                IRCBOT.getInstance().println("--- Not started ---");
-                return;
-            }
-        }
-
-        if (target.isEmpty()) {
-            throw new InvalidInputException("Confirm outs target is empty.");
-        }
-        final List<JanPai> paiList = new ArrayList<>();
-        for (final String string : target.split(" ")) {
-            try {
-                paiList.add(convertStringToJanPai(string));
-            }
-            catch (final InvalidInputException e) {
-            	// 指定ミスに対しては何もせず継続
-            }
-        }
-
-        if (paiList.isEmpty()) {
-            throw new InvalidInputException("Confirm outs target JanPai is empty.");
-        }
-        synchronized (_CONTROLLER_LOCK) {
-            final JanInfo info = _controller.getGameInfo();
-            final EnumSet<AnnounceFlag> flagSet = EnumSet.of(AnnounceFlag.OUTS, AnnounceFlag.CONFIRM);
-            final AnnounceParam param = new AnnounceParam(flagSet, paiList);
-            info.addObserver(_announcer);
-            info.notifyObservers(param);
         }
     }
 
@@ -433,6 +408,24 @@ public class GameMaster {
     }
 
     /**
+     * 打牌処理 (ツモ切り)か副露せずに続行
+     *
+     * @throws JanException ゲーム処理エラー。
+     */
+    public void onDiscardOrContinue() throws JanException {
+        synchronized (_CONTROLLER_LOCK) {
+            final JanInfo info = _controller.getGameInfo();
+            
+            if (info.getConfirmMode()) {
+                onContinue();
+            }
+            else {
+                onDiscard();
+            }
+        }
+    }
+
+    /**
      * 終了処理
      */
     public void onEnd() {
@@ -484,6 +477,10 @@ public class GameMaster {
 
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
+
+            if (info.getConfirmMode()) {
+                flagSet.add(AnnounceFlag.CONFIRM);
+            }
             info.addObserver(_announcer);
             info.notifyObservers(flagSet);
         }
@@ -526,7 +523,12 @@ public class GameMaster {
         }
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
-            final AnnounceParam param = new AnnounceParam(AnnounceFlag.OUTS, paiList);
+            final EnumSet<AnnounceFlag> flagSet = EnumSet.of(AnnounceFlag.OUTS);
+
+            if (info.getConfirmMode()) {
+                flagSet.add(AnnounceFlag.CONFIRM);
+            }
+            final AnnounceParam param = new AnnounceParam(flagSet, paiList);
             info.addObserver(_announcer);
             info.notifyObservers(param);
         }
@@ -1229,11 +1231,17 @@ public class GameMaster {
         case DISCARD_TSUMO:
             onDiscard();
             break;
+        case DISCARD_TSUMO_OR_CONTINUE:
+            onDiscardOrContinue();
+            break;
         case DISCARD:
             onDiscard(pai);
             break;
         case CONTINUE:
             onContinue();
+            break;
+        case COMPLETE:
+            onComplete(name);
             break;
         case RON:
             onCompleteRon(name);
