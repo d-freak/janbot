@@ -408,7 +408,13 @@ class ChmJanController implements JanController {
             throw new NullPointerException("WatchList is null.");
         }
         _info.setWatchingJanPaiList(watchList);
-        _info.notifyObservers(ANNOUNCE_FLAG_WATCHING_START);
+        
+        final EnumSet<AnnounceFlag> flagSet = ANNOUNCE_FLAG_WATCHING_START;
+        
+        if (_info.getConfirmMode()) {
+            flagSet.add(AnnounceFlag.CONFIRM);
+        }
+        _info.notifyObservers(flagSet);
     }
     
     
