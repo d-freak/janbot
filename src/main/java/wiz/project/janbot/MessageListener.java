@@ -14,7 +14,6 @@ import java.util.List;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
-import org.pircbotx.hooks.events.PrivateMessageEvent;
 
 import wiz.project.ircbot.IRCBOT;
 import wiz.project.janbot.game.AnnounceFlag;
@@ -106,10 +105,6 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.equals("jan h")) {
                 GameMaster.getInstance().onHistory();
             }
-//            else if (message.startsWith("jan ri- ")) {
-//                TODO リーチ対応
-//                GameMaster.getInstance().onRichi(message.substring(8));
-//            }
             else if (message.startsWith("jan chi ")) {
                 GameMaster.getInstance().onCallChi(playerName, message.substring(8));
             }
@@ -239,22 +234,6 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             IRCBOT.getInstance().println("(  ´∀｀) ＜ " + e.getMessage());
             throw e;
         }
-    }
-
-    /**
-     * トーク受信時の処理
-     *
-     * @param event イベント情報。
-     * @throws Exception 処理に失敗。
-     */
-    @Override
-    public void onPrivateMessage(final PrivateMessageEvent<T> event) throws Exception {
-        if (event == null) {
-            throw new NullPointerException("Event information is null.");
-        }
-
-        // TODO ネトマ未対応
-        super.onPrivateMessage(event);
     }
 
 

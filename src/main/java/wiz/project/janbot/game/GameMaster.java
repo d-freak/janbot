@@ -664,34 +664,6 @@ public class GameMaster {
     }
 
     /**
-     * リーチ処理
-     *
-     * @param target 捨て牌。
-     * @throws JanException ゲーム処理エラー。
-     */
-    public void onRichi(final String target) throws JanException {
-        if (target == null) {
-            throw new NullPointerException("Discard target is null.");
-        }
-
-        // 開始判定
-        synchronized (_STATUS_LOCK) {
-            if (_status.isIdle()) {
-                IRCBOT.getInstance().println("--- Not started ---");
-                return;
-            }
-        }
-
-        if (target.isEmpty()) {
-            throw new InvalidInputException("Discard target is empty.");
-        }
-        final JanPai targetPai = convertStringToJanPai(target);
-        synchronized (_CONTROLLER_LOCK) {
-            _controller.richi(targetPai);
-        }
-    }
-
-    /**
      * リプレイ処理
      *
      * @param playerName プレイヤー名。

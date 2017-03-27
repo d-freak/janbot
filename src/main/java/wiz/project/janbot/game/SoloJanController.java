@@ -322,22 +322,6 @@ class SoloJanController implements JanController {
     }
     
     /**
-     * リーチ
-     */
-    public void richi(final JanPai target) throws JanException {
-        if (!_onGame) {
-            throw new JanException("Game is not started.");
-        }
-        
-        // TODO リーチ対応
-        // _onRichiフラグ見て何かしたい
-        
-        _onRichi = true;
-        
-        discard(target);
-    }
-    
-    /**
      * ゲーム情報を設定
      * 
      * @param ゲーム情報。

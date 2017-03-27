@@ -339,13 +339,6 @@ class ChmJanController implements JanController {
     }
     
     /**
-     * リーチ
-     */
-    public void richi(final JanPai target) throws JanException {
-        // 上が未実装なのでここには来ない
-    }
-    
-    /**
      * ゲーム情報を設定
      * 
      * @param ゲーム情報。

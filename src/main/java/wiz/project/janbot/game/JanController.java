@@ -80,13 +80,6 @@ interface JanController {
     public void next() throws JanException;
     
     /**
-     * リーチ
-     * 
-     * @throws JanException 例外イベント。
-     */
-    public void richi(final JanPai target) throws JanException;
-    
-    /**
      * ゲーム情報を設定
      * 
      * @param ゲーム情報。
