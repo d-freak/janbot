@@ -78,7 +78,7 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
             else if (message.startsWith("jan d ")) {
                 GameMaster.getInstance().onDiscard(message.substring(6));
             }
-            else if (message.equals("jan u")) {
+            else if (message.equals("jan u") || message.equals("jan undo")) {
                 GameMaster.getInstance().onUndo(playerName);
             }
             else if (message.equals("jan i")) {
@@ -188,13 +188,13 @@ class MessageListener<T extends PircBotX> extends ListenerAdapter<T> {
                                   "※ ss, syはXにa llと指定すると全員分を表示、その場合範囲指定は無効",
                                   "s：開始   s chm：中国麻雀を開始   e：終了",
                                   "replay：リプレイ   replay chm：中国麻雀でリプレイ",
-                                  "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り)",
-                                  "u：undo ※ 鳴き待ち中にundo後、手出しできない障害あり h：コマンド履歴表示",
+                                  "i：状態   r：捨て牌   d X：指定牌(ex.9p)を切る (X指定無し：ツモ切り、鳴きキャンセル)",
+                                  "chi X：指定牌(ex.3p)を先頭牌としてチー   pon：ポン   kan X：指定牌でカン",
+                                  "ron, hu：ロン   tsumo, hu：ツモ和了   u, undo：取り消し   h：コマンド履歴表示",
                                   "ra：他家を含む全ての捨て牌   w：指定牌の残り枚数の自動表示終了",
                                   "w X：指定牌の残り枚数の自動表示(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
                                   "o X：指定牌の残り枚数(複数指定可) ※ ドラ表示牌はカウント対象外(未実装)",
-                                  "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)",
-                                  "tsumo, hu：ツモ和了   kan X：指定牌でカン");
+                                  "7th：七対モード(手牌に1枚のみの牌の残り枚数を自動表示)切り替え(デフォルトはOFF)");
                 IRCBOT.getInstance().println(messageList);
             }
             else if (message.equals("chm help")) {
