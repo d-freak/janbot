@@ -35,12 +35,12 @@ import wiz.project.janbot.statistics.YakuParam;
 /**
  * ゲーム管理
  */
-public class GameMaster {
+public final class GameMaster {
 
     /**
      * コンストラクタを自分自身に限定許可
      */
-    protected GameMaster() {
+    private GameMaster() {
     }
 
 
@@ -944,7 +944,7 @@ public class GameMaster {
      *
      * @return 中国麻雀コントローラ。
      */
-    protected JanController createChmJanController() {
+    private JanController createChmJanController() {
         _announcer.setIsChm(true);
         return new ChmJanController(_announcer);
     }
@@ -955,7 +955,7 @@ public class GameMaster {
      * @param playerTable プレイヤーテーブル。
      * @return プレイヤーの風。
      */
-    protected Wind getPlayerWind(final Map<Wind, Player> playerTable) {
+    private Wind getPlayerWind(final Map<Wind, Player> playerTable) {
         for (final Map.Entry<Wind, Player> entry : playerTable.entrySet()) {
             if (entry.getValue().getType() != PlayerType.COM) {
                 return entry.getKey();
@@ -1118,7 +1118,7 @@ public class GameMaster {
      * @throws JanException ゲーム処理エラー。
      * @throws IOException ファイル入出力に失敗。
      */
-    private void undo (final String name) throws JanException, IOException {
+    private void undo(final String name) throws JanException, IOException {
         final int size = _historyList.size();
 
         if (size <= 1) {
@@ -1191,33 +1191,7 @@ public class GameMaster {
     /**
      * 自分自身のインスタンス
      */
-    protected static final GameMaster INSTANCE = new GameMaster();
-
-
-
-    /**
-     * ロックオブジェクト (ゲームコントローラ)
-     */
-    protected final Object _CONTROLLER_LOCK = new Object();
-
-    /**
-     * ロックオブジェクト (ゲームの状態)
-     */
-    protected final Object _STATUS_LOCK = new Object();
-
-
-
-    /**
-     * ゲームコントローラ
-     */
-    protected JanController _controller = null;
-
-    /**
-     * ゲームの状態
-     */
-    protected GameStatus _status = GameStatus.IDLE;
-
-
+    private static final GameMaster INSTANCE = new GameMaster();
 
     /**
      * 保存パス
@@ -1238,14 +1212,36 @@ public class GameMaster {
 
 
     /**
+     * ロックオブジェクト (ゲームコントローラ)
+     */
+    private final Object _CONTROLLER_LOCK = new Object();
+
+    /**
+     * ロックオブジェクト (ゲームの状態)
+     */
+    private final Object _STATUS_LOCK = new Object();
+
+
+
+    /**
      * ゲーム実況者
      */
     private GameAnnouncer _announcer = new GameAnnouncer();
 
     /**
+     * ゲームコントローラ
+     */
+    private JanController _controller = null;
+
+    /**
      * コマンド履歴リスト
      */
     private LinkedList<CommandHistory> _historyList = new LinkedList<>();
+
+    /**
+     * ゲームの状態
+     */
+    private GameStatus _status = GameStatus.IDLE;
 
 }
 
