@@ -930,12 +930,6 @@ public final class JanInfo extends Observable implements Cloneable {
      */
     public void updateCompletableInfo() {
         final Wind humanWind = getHumanWind();
-        final JanPai activeTsumo = getActiveTsumo();
-        final boolean contains = _completeWait.get(humanWind).contains(activeTsumo);
-        
-        if (!contains) {
-            return;
-        }
         updateCompletableInfo(humanWind);
     }
     
