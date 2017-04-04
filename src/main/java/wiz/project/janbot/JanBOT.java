@@ -6,6 +6,7 @@
 
 package wiz.project.janbot;
 
+import dFreak.project.janbotlib.JanBotLib;
 import wiz.project.ircbot.IRCBOT;
 
 
@@ -43,6 +44,8 @@ public final class JanBOT {
             final int serverPort = Integer.parseInt(paramList[PARAM_INDEX_SERVER_PORT]);
             final String channel = paramList[PARAM_INDEX_CHANNEL_NAME];
             IRCBOT.getInstance().initialize(BOT_NAME, serverHost, serverPort, channel, new MessageListener<>());
+            
+            JanBotLib.initialize(new GameAnnouncer());
         }
         catch (final Throwable e) {
             e.printStackTrace();

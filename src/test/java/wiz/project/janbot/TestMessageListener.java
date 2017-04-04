@@ -10,13 +10,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 
-import wiz.project.ircbot.IRCBOT;
-import wiz.project.janbot.game.GameMaster;
-import wiz.project.janbot.game.exception.BoneheadException;
-import wiz.project.janbot.game.exception.CallableException;
-import wiz.project.janbot.game.exception.GameSetException;
-import wiz.project.janbot.game.exception.InvalidInputException;
-import wiz.project.janbot.game.exception.JanException;
+import dFreak.project.janbotlib.JanBotLib;
 
 
 
@@ -46,31 +40,10 @@ public class TestMessageListener<T extends PircBotX> extends MessageListener<T> 
     	super.onMessage(event);
 
         // メッセージ解析
-        try {
-            final String message = event.getMessage();
-            final String playerName = event.getUser().getNick();
-            if (message.startsWith("test")) {
-                GameMaster.getInstance().onTestChm(playerName);
-            }
-        }
-        catch (final CallableException e) {
-            GameMaster.getInstance().onInfo(convertToCallAnnounceType(e.getTypeList()));
-        }
-        catch (final GameSetException e) {
-            onGameSet(e.getStatus());
-        }
-        catch (final BoneheadException e) {
-            IRCBOT.getInstance().println("(  ´∀｀) ＜ チョンボ");
-        }
-        catch (final InvalidInputException e) {
-            // 指定ミスに対しては何もしない
-        }
-        catch (final JanException e) {
-            IRCBOT.getInstance().println("(  ´∀｀) ＜ " + e.getMessage());
-        }
-        catch (final Throwable e) {
-            IRCBOT.getInstance().println("(  ´∀｀) ＜ " + e.getMessage());
-            throw e;
+        final String message = event.getMessage();
+        final String playerName = event.getUser().getNick();
+        if (message.startsWith("test")) {
+            JanBotLib.testChm(playerName);
         }
     }
 

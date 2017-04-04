@@ -4,7 +4,7 @@
  * @author Yuki
  */
 
-package wiz.project.janbot.game;
+package wiz.project.janbot;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,6 +27,21 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+import dFreak.project.janbotlib.AnnounceFlag;
+import dFreak.project.janbotlib.AnnounceMode;
+import dFreak.project.janbotlib.AnnounceParam;
+import dFreak.project.janbotlib.CommandHistory;
+import dFreak.project.janbotlib.HistoryParam;
+import dFreak.project.janbotlib.HistoryType;
+import dFreak.project.janbotlib.JanInfo;
+import dFreak.project.janbotlib.Player;
+import dFreak.project.janbotlib.PlayerType;
+import dFreak.project.janbotlib.River;
+import dFreak.project.janbotlib.WanPai;
+import dFreak.project.janbotlib.exception.InvalidInputException;
+import dFreak.project.janbotlib.statistics.Statistics;
+import dFreak.project.janbotlib.statistics.StatisticsParam;
+import dFreak.project.janbotlib.statistics.YakuParam;
 import wiz.project.ircbot.IRCBOT;
 import wiz.project.jan.ChmCompleteInfo;
 import wiz.project.jan.Hand;
@@ -35,10 +50,6 @@ import wiz.project.jan.MenTsu;
 import wiz.project.jan.MenTsuType;
 import wiz.project.jan.Wind;
 import wiz.project.jan.yaku.ChmYaku;
-import wiz.project.janbot.game.exception.InvalidInputException;
-import wiz.project.janbot.statistics.Statistics;
-import wiz.project.janbot.statistics.StatisticsParam;
-import wiz.project.janbot.statistics.YakuParam;
 
 
 
@@ -90,17 +101,6 @@ public class GameAnnouncer implements Observer {
     
     
     /**
-     * 中国麻雀フラグを設定
-     *
-     * @param isChm
-     */
-    public void setIsChm(final boolean isChm) {
-    	_isChm = isChm;
-    }
-    
-    
-    
-    /**
      * 副露された雀牌を文字列に変換
      *
      * @param pai 副露された雀牌。
@@ -143,6 +143,15 @@ public class GameAnnouncer implements Observer {
         }
         
         final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
+        
+        if (flagSet.contains(AnnounceFlag.JPM)) {
+            _isChm = false;
+            return;
+        }
+        if (flagSet.contains(AnnounceFlag.CHM)) {
+            _isChm = true;
+            return;
+        }
         final Wind playerWind = getPlayerWind(info);
         final List<String> messageList = new ArrayList<>();
         final int turnCount = info.getTurnCount(playerWind);
@@ -288,6 +297,12 @@ public class GameAnnouncer implements Observer {
         
         if (flagSet.contains(AnnounceFlag.RANKING)) {
             messageList.addAll(getRankingString());
+        }
+        
+        if (flagSet.contains(AnnounceFlag.ERROR)) {
+            final String message = param.getMessage();
+            
+            messageList.add(message);
         }
         printMessage(messageList);
         
